@@ -1,53 +1,114 @@
+use std::fmt;
 use std::io::{Read, Write};
 
 pub struct DfClient {
     stream: std::net::TcpStream,
 }
 
+#[derive(Copy, Clone)]
+enum DFHackReplyCode {
+    RpcReplyResult = -1,
+    RpcReplyFail = -2,
+    RpcReplyText = -3,
+    RpcRequestQuit = -4,
+}
+
+const MAGIC_QUERY: &str = "DfHack?\n";
+const MAGIC_REPLY: &str = "DfHack!\n";
+const VERSION: i32 = 1;
+
 impl DfClient {
-    pub fn connect() -> std::io::Result<DfClient> {
+    pub fn connect() -> Result<DfClient> {
         let mut client = DfClient {
             stream: std::net::TcpStream::connect("127.0.0.1:5000")?,
         };
-        let magic_request = "DFHack?\n";
-        let version: i32 = 1;
 
-        let mut handshake_request = magic_request.as_bytes().to_owned();
-        handshake_request.append(&mut version.to_le_bytes().to_vec());
-
-        client.stream.write(&handshake_request)?;
-        //client.stream.flush()?;
+        client.stream.write(&DfClient::handshake_request())?;
 
         let mut handshake_reply = [0_u8; 12];
         client.stream.read_exact(&mut handshake_reply)?;
+        DfClient::check_handshake_reply(&handshake_reply.to_vec())?;
 
-        let magic_reply = String::from_utf8(handshake_reply[0..8].to_vec()).unwrap();
-        assert!(magic_reply == "DFHack!\n");
-        let version_reply = i32::from_le_bytes(handshake_reply[8..12].try_into().unwrap());
-        assert!(version_reply == 1);
-
-        client.stream.flush()?;
         Ok(client)
     }
-}
 
-const RPC_REPLY_RESULT: i16 = -1;
-const RPC_REPLY_FAIL: i16 = -2;
-const RPC_REPLY_TEXT: i16 = -3;
-const RPC_REQUEST_QUIT: i16 = -4;
+    fn handshake_request() -> Vec<u8> {
+        let mut handshake_request = MAGIC_QUERY.as_bytes().to_owned();
+        handshake_request.append(&mut VERSION.to_le_bytes().to_vec());
+        handshake_request
+    }
 
-impl Drop for DfClient {
-    fn drop(&mut self) {
+    fn check_handshake_reply(reply: &Vec<u8>) -> Result<()> {
+        let magic = String::from_utf8(reply[0..8].to_vec()).unwrap();
+        if magic != MAGIC_REPLY {
+            return Err(DfRemoteError::BadMagicFailure(magic));
+        }
+        let version = i32::from_le_bytes(reply[8..12].try_into().unwrap());
+        if version != 1 {
+            return Err(DfRemoteError::BadVersionFailure(version));
+        }
+        Ok(())
+    }
+
+    fn send(&mut self, code: DFHackReplyCode, data: &Vec<u8>) -> Result<()> {
+        let header = DfClient::header(code, data.len() as i32);
+        self.stream.write(&header)?;
+        self.stream.write(data)?;
+        Ok(())
+    }
+
+    fn header(code: DFHackReplyCode, size: i32) -> Vec<u8> {
         let mut payload = Vec::new();
-        let id = RPC_REQUEST_QUIT;
+        let id = code as i16;
         let padding: i16 = 0;
-        let size: i32 = 0;
 
         payload.append(&mut id.to_le_bytes().to_vec());
         payload.append(&mut padding.to_le_bytes().to_vec());
         payload.append(&mut size.to_le_bytes().to_vec());
-        self.stream.write(&payload);
-        self.stream.flush();
+        payload
+    }
+}
+
+impl Drop for DfClient {
+    fn drop(&mut self) {
+        let res = self.send(DFHackReplyCode::RpcRequestQuit, &vec![]);
+        if let Err(failure) = res {
+            println!(
+                "Warning: failed to close the connection to dfhack-remote: {}",
+                failure
+            );
+        }
+    }
+}
+
+pub type Result<T> = std::result::Result<T, DfRemoteError>;
+
+#[derive(Debug)]
+pub enum DfRemoteError {
+    CommunicationFailure(std::io::Error),
+    BadMagicFailure(String),
+    BadVersionFailure(i32),
+}
+
+impl fmt::Display for DfRemoteError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+        match self {
+            DfRemoteError::BadMagicFailure(magic) => {
+                write!(f, "Handshake failed: bad magic {magic}.")
+            }
+            DfRemoteError::BadVersionFailure(version) => {
+                write!(f, "Handshake failed: unsupported version {version}.")
+            }
+            DfRemoteError::CommunicationFailure(error) => {
+                write!(f, "Communication failure: {error}")
+            }
+        }
+    }
+}
+
+impl From<std::io::Error> for DfRemoteError {
+    fn from(err: std::io::Error) -> Self {
+        Self::CommunicationFailure(err)
     }
 }
 
