@@ -1,6 +1,8 @@
 use std::fmt;
 use std::io::{Read, Write};
 
+pub mod protos;
+
 pub struct DfClient {
     stream: std::net::TcpStream,
 }
