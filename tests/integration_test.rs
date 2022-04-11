@@ -16,9 +16,7 @@ fn connect() {
     ));
 
     let request = protos::CoreProtocol::EmptyMessage::new();
-    let world_info: protos::BasicApi::GetWorldInfoOut = client
-        .request("".to_string(), "GetWorldInfo".to_string(), request)
-        .unwrap();
+    let world_info: protos::BasicApi::GetWorldInfoOut = client.get_world_info(request).unwrap();
 
     println!(
         "Welcome to {}",

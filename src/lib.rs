@@ -61,6 +61,13 @@ impl DfClient {
         Ok(client)
     }
 
+    pub fn get_world_info(
+        &mut self,
+        request: protos::CoreProtocol::EmptyMessage,
+    ) -> Result<protos::BasicApi::GetWorldInfoOut> {
+        self.request("".to_string(), "GetWorldInfo".to_string(), request)
+    }
+
     pub fn request<TRequest: protobuf::Message, TReply: protobuf::Message>(
         &mut self,
         plugin: String,
