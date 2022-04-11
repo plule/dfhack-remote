@@ -80,7 +80,7 @@ impl Handshake {
 impl Send for Handshake {
     fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
         stream.write(self.magic.as_bytes())?;
-        stream.write_i32::<LittleEndian>(self.version)?;
+        self.version.send(stream)?;
         Ok(())
     }
 }
@@ -93,7 +93,7 @@ impl Receive for Handshake {
         let mut magic = [0_u8; 8];
         stream.read_exact(&mut magic)?;
 
-        let version = stream.read_i32::<LittleEndian>()?;
+        let version = i32::receive(stream)?;
 
         Ok(Self::new(
             String::from_utf8(magic.to_vec()).unwrap(),
@@ -114,9 +114,9 @@ impl Header {
 
 impl Send for Header {
     fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
-        stream.write_i16::<LittleEndian>(self.id)?;
-        stream.write_i16::<LittleEndian>(self.padding)?;
-        stream.write_i32::<LittleEndian>(self.size)?;
+        self.id.send(stream)?;
+        self.padding.send(stream)?;
+        self.size.send(stream)?;
         Ok(())
     }
 }
@@ -127,9 +127,9 @@ impl Receive for Header {
         Self: Sized,
     {
         Ok(Header {
-            id: stream.read_i16::<LittleEndian>()?,
-            padding: stream.read_i16::<LittleEndian>()?,
-            size: stream.read_i32::<LittleEndian>()?,
+            id: i16::receive(stream)?,
+            padding: i16::receive(stream)?,
+            size: i32::receive(stream)?,
         })
     }
 }
@@ -204,5 +204,37 @@ impl Send for Quit {
         let header = Header::new(RpcReplyCode::Quit as i16, 0);
         header.send(stream)?;
         Ok(())
+    }
+}
+
+impl Send for i16 {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+        stream.write_i16::<LittleEndian>(*self)?;
+        Ok(())
+    }
+}
+
+impl Send for i32 {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+        stream.write_i32::<LittleEndian>(*self)?;
+        Ok(())
+    }
+}
+
+impl Receive for i16 {
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    where
+        Self: Sized,
+    {
+        Ok(stream.read_i16::<LittleEndian>()?)
+    }
+}
+
+impl Receive for i32 {
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    where
+        Self: Sized,
+    {
+        Ok(stream.read_i32::<LittleEndian>()?)
     }
 }
