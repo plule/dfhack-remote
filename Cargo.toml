@@ -1,5 +1,6 @@
 [workspace]
 
 members = [
+    "dfhack-proto",
     "dfhack-remote",
 ]

@@ -4,7 +4,6 @@ use message::{Receive, Send};
 use num_enum::TryFromPrimitiveError;
 
 pub mod message;
-pub mod protos;
 
 #[derive(PartialEq, Eq, Hash)]
 pub struct Method {
@@ -63,8 +62,8 @@ impl DfClient {
 
     pub fn get_world_info(
         &mut self,
-        request: protos::CoreProtocol::EmptyMessage,
-    ) -> Result<protos::BasicApi::GetWorldInfoOut> {
+        request: dfhack_proto::CoreProtocol::EmptyMessage,
+    ) -> Result<dfhack_proto::BasicApi::GetWorldInfoOut> {
         self.request("".to_string(), "GetWorldInfo".to_string(), request)
     }
 
@@ -115,14 +114,14 @@ impl DfClient {
         &mut self,
         method: &Method,
     ) -> Result<i16> {
-        let mut request = protos::CoreProtocol::CoreBindRequest::new();
+        let mut request = dfhack_proto::CoreProtocol::CoreBindRequest::new();
         let input_msg = TIN::descriptor_static().full_name();
         let output_msg = TOUT::descriptor_static().full_name();
         request.set_method(method.name.to_owned());
         request.set_input_msg(input_msg.to_string());
         request.set_output_msg(output_msg.to_string());
         request.set_plugin(method.plugin.to_owned());
-        let reply: protos::CoreProtocol::CoreBindReply =
+        let reply: dfhack_proto::CoreProtocol::CoreBindReply =
             self.request_raw(BIND_METHOD_ID, request)?;
         Ok(reply.get_assigned_id() as i16)
     }

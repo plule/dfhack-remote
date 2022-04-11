@@ -1,5 +1,6 @@
-use crate::{protos, DfRemoteError};
+use crate::DfRemoteError;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use dfhack_proto;
 use num_enum::TryFromPrimitive;
 use protobuf::Message;
 use std::convert::TryFrom;
@@ -59,7 +60,7 @@ pub struct Request<TMessage: protobuf::Message> {
 
 pub enum Reply<TMessage: protobuf::Message> {
     // https://docs.dfhack.org/en/stable/docs/Remote.html#text
-    Text(protos::CoreProtocol::CoreTextNotification),
+    Text(dfhack_proto::CoreProtocol::CoreTextNotification),
 
     // https://docs.dfhack.org/en/stable/docs/Remote.html#result
     Result(TMessage),
@@ -185,7 +186,8 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
                 Ok(Reply::Failure(res))
             }
             RpcReplyCode::Text => {
-                let reply = protos::CoreProtocol::CoreTextNotification::parse_from_bytes(&buf)?;
+                let reply =
+                    dfhack_proto::CoreProtocol::CoreTextNotification::parse_from_bytes(&buf)?;
                 Ok(Reply::Text(reply))
             }
             RpcReplyCode::Quit => Err(DfRemoteError::RpcError()),
