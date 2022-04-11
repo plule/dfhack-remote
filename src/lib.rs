@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 use message::{Receive, Send};
 use num_enum::TryFromPrimitiveError;
@@ -6,8 +6,21 @@ use num_enum::TryFromPrimitiveError;
 pub mod message;
 pub mod protos;
 
+#[derive(PartialEq, Eq, Hash)]
+pub struct Method {
+    pub plugin: String,
+    pub name: String,
+}
+
+impl Method {
+    fn new(plugin: String, name: String) -> Self {
+        Method { plugin, name }
+    }
+}
+
 pub struct DfClient {
     stream: std::net::TcpStream,
+    bindings: HashMap<Method, i16>,
 }
 
 const MAGIC_QUERY: &str = "DFHack?\n";
@@ -15,13 +28,23 @@ const MAGIC_REPLY: &str = "DFHack!\n";
 const VERSION: i32 = 1;
 
 const BIND_METHOD_ID: i16 = 0;
-//const RUN_COMMAND_ID: i16 = 1;
+const RUN_COMMAND_ID: i16 = 1;
 
 impl DfClient {
     pub fn connect() -> Result<DfClient> {
         let mut client = DfClient {
             stream: std::net::TcpStream::connect("127.0.0.1:5000")?,
+            bindings: HashMap::new(),
         };
+
+        client.bindings.insert(
+            Method::new("".to_string(), "BindMethod".to_string()),
+            BIND_METHOD_ID,
+        );
+        client.bindings.insert(
+            Method::new("".to_string(), "RunCommand".to_string()),
+            RUN_COMMAND_ID,
+        );
 
         let handshake_request = message::Handshake::new(MAGIC_QUERY.to_string(), VERSION);
         handshake_request.send(&mut client.stream)?;
@@ -38,7 +61,28 @@ impl DfClient {
         Ok(client)
     }
 
-    pub fn request<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    pub fn request<TRequest: protobuf::Message, TReply: protobuf::Message>(
+        &mut self,
+        plugin: String,
+        name: String,
+        request: TRequest,
+    ) -> Result<TReply> {
+        let method = Method::new(plugin, name);
+
+        // did not manage to use the entry api due to borrow checker
+        let maybe_id = self.bindings.get(&method);
+        let id: i16;
+
+        if maybe_id.is_none() {
+            id = self.bind_method::<TRequest, TReply>(&method)?;
+            self.bindings.insert(method, id);
+        } else {
+            id = *maybe_id.unwrap();
+        }
+        self.request_raw(id, request)
+    }
+
+    pub fn request_raw<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
         id: i16,
         message: TIN,
@@ -62,17 +106,17 @@ impl DfClient {
 
     pub fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
-        method: String,
-        plugin: String,
+        method: &Method,
     ) -> Result<i16> {
         let mut request = protos::CoreProtocol::CoreBindRequest::new();
         let input_msg = TIN::descriptor_static().full_name();
         let output_msg = TOUT::descriptor_static().full_name();
-        request.set_method(method);
+        request.set_method(method.name.to_owned());
         request.set_input_msg(input_msg.to_string());
         request.set_output_msg(output_msg.to_string());
-        request.set_plugin(plugin);
-        let reply: protos::CoreProtocol::CoreBindReply = self.request(BIND_METHOD_ID, request)?;
+        request.set_plugin(method.plugin.to_owned());
+        let reply: protos::CoreProtocol::CoreBindReply =
+            self.request_raw(BIND_METHOD_ID, request)?;
         Ok(reply.get_assigned_id() as i16)
     }
 }
