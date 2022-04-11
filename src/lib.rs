@@ -1,29 +1,21 @@
 use std::fmt;
-use std::io::{Read, Write};
 
-use protobuf::Message;
+use message::{Receive, Send};
+use num_enum::TryFromPrimitiveError;
 
+pub mod message;
 pub mod protos;
 
 pub struct DfClient {
     stream: std::net::TcpStream,
 }
 
-#[derive(Copy, Clone, PartialEq)]
-enum DFHackReplyCode {
-    RpcReplyResult = -1,
-    RpcReplyFail = -2,
-    RpcReplyText = -3,
-}
-
-const RPC_REQUEST_QUIT: i16 = -4;
-
 const MAGIC_QUERY: &str = "DFHack?\n";
 const MAGIC_REPLY: &str = "DFHack!\n";
 const VERSION: i32 = 1;
 
 const BIND_METHOD_ID: i16 = 0;
-const RUN_COMMAND_ID: i16 = 1;
+//const RUN_COMMAND_ID: i16 = 1;
 
 impl DfClient {
     pub fn connect() -> Result<DfClient> {
@@ -31,105 +23,44 @@ impl DfClient {
             stream: std::net::TcpStream::connect("127.0.0.1:5000")?,
         };
 
-        client.stream.write(&DfClient::handshake_request())?;
+        let handshake_request = message::Handshake::new(MAGIC_QUERY.to_string(), VERSION);
+        handshake_request.send(&mut client.stream)?;
+        let handshake_reply = message::Handshake::receive(&mut client.stream)?;
 
-        let mut handshake_reply = [0_u8; 12];
-        client.stream.read_exact(&mut handshake_reply)?;
-        DfClient::check_handshake_reply(&handshake_reply.to_vec())?;
+        if handshake_reply.magic != MAGIC_REPLY {
+            return Err(DfRemoteError::BadMagicFailure(handshake_reply.magic));
+        }
+
+        if handshake_reply.version != VERSION {
+            return Err(DfRemoteError::BadVersionFailure(handshake_reply.version));
+        }
 
         Ok(client)
     }
 
-    fn handshake_request() -> Vec<u8> {
-        let mut handshake_request = MAGIC_QUERY.as_bytes().to_owned();
-        handshake_request.append(&mut VERSION.to_le_bytes().to_vec());
-        handshake_request
-    }
-
-    fn check_handshake_reply(reply: &Vec<u8>) -> Result<()> {
-        let magic = String::from_utf8(reply[0..8].to_vec()).unwrap();
-        if magic != MAGIC_REPLY {
-            return Err(DfRemoteError::BadMagicFailure(magic));
-        }
-        let version = i32::from_le_bytes(reply[8..12].try_into().unwrap());
-        if version != 1 {
-            return Err(DfRemoteError::BadVersionFailure(version));
-        }
-        Ok(())
-    }
-
-    fn request<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    pub fn request<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
         id: i16,
         message: TIN,
     ) -> Result<TOUT> {
-        let mut payload: Vec<u8> = Vec::new();
-        message.write_to_vec(&mut payload)?;
-        self.send(id, &payload)?;
+        let request = message::Request::new(id, message);
+        request.send(&mut self.stream)?;
 
         loop {
-            let (reply_code, size) = self.read_header()?;
-
-            match reply_code {
-                DFHackReplyCode::RpcReplyResult => {
-                    let mut buf = vec![0u8; size as usize];
-                    self.stream.read_exact(&mut buf)?;
-                    let reply = TOUT::parse_from_bytes(&buf)?;
-                    return Ok(reply);
-                }
-                DFHackReplyCode::RpcReplyFail => return Err(DfRemoteError::RpcError()),
-                DFHackReplyCode::RpcReplyText => {
-                    let mut buf = vec![0u8; size as usize];
-                    self.stream.read_exact(&mut buf)?;
-                    let reply = protos::CoreProtocol::CoreTextNotification::parse_from_bytes(&buf)?;
-                    for fragment in reply.get_fragments() {
+            let reply: message::Reply<TOUT> = message::Reply::receive(&mut self.stream)?;
+            match reply {
+                message::Reply::Text(text) => {
+                    for fragment in text.get_fragments() {
                         println!("{}", fragment.get_text());
                     }
                 }
+                message::Reply::Result(result) => return Ok(result),
+                message::Reply::Failure(_) => return Err(DfRemoteError::RpcError()),
             }
         }
     }
 
-    fn send(&mut self, id: i16, data: &Vec<u8>) -> Result<()> {
-        let header = DfClient::header(id, data.len() as i32);
-        self.stream.write(&header)?;
-        self.stream.write(data)?;
-        Ok(())
-    }
-
-    fn header(id: i16, size: i32) -> Vec<u8> {
-        let mut payload = Vec::new();
-        let padding: i16 = 0;
-
-        payload.append(&mut id.to_le_bytes().to_vec());
-        payload.append(&mut padding.to_le_bytes().to_vec());
-        payload.append(&mut size.to_le_bytes().to_vec());
-        payload
-    }
-
-    fn read_header(&mut self) -> Result<(DFHackReplyCode, i32)> {
-        let mut id_bytes = [0_u8; 2];
-        self.stream.read_exact(&mut id_bytes)?;
-        let id = i16::from_le_bytes(id_bytes);
-
-        let mut padding_bytes = [0_u8; 2];
-        self.stream.read_exact(&mut padding_bytes)?;
-
-        let mut size_bytes = [0_u8; 4];
-        self.stream.read_exact(&mut size_bytes)?;
-        let size = i32::from_le_bytes(size_bytes);
-
-        let reply = match id {
-            -1 => DFHackReplyCode::RpcReplyResult,
-            -2 => DFHackReplyCode::RpcReplyFail,
-            -3 => DFHackReplyCode::RpcReplyText,
-            _ => return Err(DfRemoteError::UnknownReplyCode(id)),
-        };
-
-        Ok((reply, size))
-    }
-
-    fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    pub fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
         method: String,
         plugin: String,
@@ -141,15 +72,15 @@ impl DfClient {
         request.set_input_msg(input_msg.to_string());
         request.set_output_msg(output_msg.to_string());
         request.set_plugin(plugin);
-        let reply: protos::CoreProtocol::CoreBindReply =
-            self.request(BIND_METHOD_ID, request).unwrap();
+        let reply: protos::CoreProtocol::CoreBindReply = self.request(BIND_METHOD_ID, request)?;
         Ok(reply.get_assigned_id() as i16)
     }
 }
 
 impl Drop for DfClient {
     fn drop(&mut self) {
-        let res = self.send(RPC_REQUEST_QUIT, &vec![]);
+        let quit = message::Quit::new();
+        let res = quit.send(&mut self.stream);
         if let Err(failure) = res {
             println!(
                 "Warning: failed to close the connection to dfhack-remote: {}",
@@ -208,33 +139,18 @@ impl From<protobuf::ProtobufError> for DfRemoteError {
     }
 }
 
+impl From<TryFromPrimitiveError<message::RpcReplyCode>> for DfRemoteError {
+    fn from(err: TryFromPrimitiveError<message::RpcReplyCode>) -> Self {
+        Self::UnknownReplyCode(err.number)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::DfClient;
 
     #[test]
     fn it_works() {
         let result = 2 + 2;
         assert_eq!(result, 4);
-    }
-
-    #[test]
-    fn connect() {
-        let mut client = DfClient::connect().unwrap();
-        let id = client
-            .bind_method::<crate::protos::CoreProtocol::EmptyMessage, crate::protos::BasicApi::GetWorldInfoOut>(
-                "GetWorldInfo".to_string(),
-                "".to_string(),
-            )
-            .unwrap();
-        let request = crate::protos::CoreProtocol::EmptyMessage::new();
-        let world_info: crate::protos::BasicApi::GetWorldInfoOut =
-            client.request(id, request).unwrap();
-
-        println!(
-            "Welcome to {}",
-            world_info.get_world_name().get_english_name()
-        );
-        assert!(id > 0);
     }
 }
