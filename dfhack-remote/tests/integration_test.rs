@@ -17,12 +17,13 @@ fn connect() {
         Err(dfhack_remote::DfRemoteError::RpcError())
     ));
 
-    let request = dfhack_proto::CoreProtocol::EmptyMessage::new();
-    let world_info: dfhack_proto::BasicApi::GetWorldInfoOut =
-        client.get_world_info(request).unwrap();
+    let world_info: dfhack_proto::BasicApi::GetWorldInfoOut = client.get_world_info().unwrap();
+    let df_version = client.get_df_version().unwrap();
 
     println!(
         "Welcome to {}",
         world_info.get_world_name().get_english_name()
     );
+
+    println!("DwarfFortress {}", df_version.get_value());
 }

@@ -1,5 +1,7 @@
 use std::{collections::HashMap, fmt};
 
+use dfhack_proto::CoreProtocol::*;
+use dfhack_proto::*;
 use message::{Receive, Send};
 use num_enum::TryFromPrimitiveError;
 
@@ -28,6 +30,34 @@ const VERSION: i32 = 1;
 
 const BIND_METHOD_ID: i16 = 0;
 const RUN_COMMAND_ID: i16 = 1;
+
+macro_rules! make_request {
+    ($func_name:ident, $plugin_name:literal, $method_name:literal, $request_type:path, $response_type:path) => {
+        pub fn $func_name(&mut self, request: $request_type) -> Result<$response_type> {
+            self.request($plugin_name.to_string(), $method_name.to_string(), request)
+        }
+    };
+    ($func_name:ident, $method_name:literal, $request_type:path, $response_type:path) => {
+        pub fn $func_name(&mut self, request: $request_type) -> Result<$response_type> {
+            self.request("".to_string(), $method_name.to_string(), request)
+        }
+    };
+}
+
+macro_rules! make_getter_request {
+    ($func_name:ident, $plugin_name:literal, $method_name:literal, $response_type:path) => {
+        pub fn $func_name(&mut self) -> Result<$response_type> {
+            let request = dfhack_proto::CoreProtocol::EmptyMessage::new();
+            self.request($plugin_name.to_string(), $method_name.to_string(), request)
+        }
+    };
+    ($func_name:ident, $method_name:literal, $response_type:path) => {
+        pub fn $func_name(&mut self) -> Result<$response_type> {
+            let request = dfhack_proto::CoreProtocol::EmptyMessage::new();
+            self.request("".to_string(), $method_name.to_string(), request)
+        }
+    };
+}
 
 impl DfClient {
     pub fn connect() -> Result<DfClient> {
@@ -60,12 +90,9 @@ impl DfClient {
         Ok(client)
     }
 
-    pub fn get_world_info(
-        &mut self,
-        request: dfhack_proto::CoreProtocol::EmptyMessage,
-    ) -> Result<dfhack_proto::BasicApi::GetWorldInfoOut> {
-        self.request("".to_string(), "GetWorldInfo".to_string(), request)
-    }
+    make_getter_request!(get_world_info, "GetWorldInfo", BasicApi::GetWorldInfoOut);
+    make_getter_request!(get_version, "GetVersion", StringMessage);
+    make_getter_request!(get_df_version, "GetDFVersion", StringMessage);
 
     pub fn request<TRequest: protobuf::Message, TReply: protobuf::Message>(
         &mut self,
