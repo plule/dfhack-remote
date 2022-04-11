@@ -7,6 +7,8 @@ fn main() {
             "protos/Basic.proto",
             "protos/BasicApi.proto",
             "protos/CoreProtocol.proto",
+            "protos/RemoteFortressReader.proto",
+            "protos/ItemdefInstrument.proto",
         ])
         .include("protos")
         .run()
