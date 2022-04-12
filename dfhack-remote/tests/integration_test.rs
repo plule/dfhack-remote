@@ -1,28 +1,19 @@
 use dfhack_proto;
-use dfhack_remote::DfClient;
+use dfhack_remote::DFHack;
 
 #[test]
 fn connect() {
-    let mut client = DfClient::connect().unwrap();
+    let mut client = DFHack::connect().unwrap();
 
-    let request = dfhack_proto::CoreProtocol::EmptyMessage::new();
-    let world_info: dfhack_remote::Result<dfhack_proto::BasicApi::GetWorldInfoOut> = client
-        .request(
-            "wrongplugin".to_string(),
-            "GetWorldInfo".to_string(),
-            request,
-        );
-    assert!(matches!(
-        world_info,
-        Err(dfhack_remote::DfRemoteError::RpcError())
-    ));
+    let world_info: dfhack_proto::BasicApi::GetWorldInfoOut = client.core.get_world_info().unwrap();
+    let df_version = client.core.get_df_version().unwrap();
 
-    let world_info: dfhack_proto::BasicApi::GetWorldInfoOut = client.get_world_info().unwrap();
-    let df_version = client.get_df_version().unwrap();
+    let world_map = client.remote_fortress_reader.get_world_map().unwrap();
 
     println!(
-        "Welcome to {}",
-        world_info.get_world_name().get_english_name()
+        "Welcome to {}, in the year {}.",
+        world_info.get_world_name().get_english_name(),
+        world_map.get_cur_year(),
     );
 
     println!("DwarfFortress {}", df_version.get_value());

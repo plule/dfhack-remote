@@ -1,4 +1,4 @@
-use crate::DfRemoteError;
+use crate::DFHackError;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use dfhack_proto;
 use num_enum::TryFromPrimitive;
@@ -6,11 +6,11 @@ use protobuf::Message;
 use std::convert::TryFrom;
 
 pub trait Send {
-    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()>;
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()>;
 }
 
 pub trait Receive {
-    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::DFHackResult<Self>
     where
         Self: Sized;
 }
@@ -79,7 +79,7 @@ impl Handshake {
 }
 
 impl Send for Handshake {
-    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
         stream.write(self.magic.as_bytes())?;
         self.version.send(stream)?;
         Ok(())
@@ -87,7 +87,7 @@ impl Send for Handshake {
 }
 
 impl Receive for Handshake {
-    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::DFHackResult<Self>
     where
         Self: Sized,
     {
@@ -114,7 +114,7 @@ impl Header {
 }
 
 impl Send for Header {
-    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
         self.id.send(stream)?;
         self.padding.send(stream)?;
         self.size.send(stream)?;
@@ -123,7 +123,7 @@ impl Send for Header {
 }
 
 impl Receive for Header {
-    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::DFHackResult<Self>
     where
         Self: Sized,
     {
@@ -142,7 +142,7 @@ impl<TMessage: protobuf::Message> Request<TMessage> {
 }
 
 impl<TMessage: protobuf::Message> Send for Request<TMessage> {
-    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
         let mut payload: Vec<u8> = Vec::new();
         self.message.write_to_vec(&mut payload)?;
         let header = Header::new(self.id, payload.len() as i32);
@@ -154,7 +154,7 @@ impl<TMessage: protobuf::Message> Send for Request<TMessage> {
 }
 
 impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
-    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::DFHackResult<Self>
     where
         Self: Sized,
     {
@@ -190,7 +190,7 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
                     dfhack_proto::CoreProtocol::CoreTextNotification::parse_from_bytes(&buf)?;
                 Ok(Reply::Text(reply))
             }
-            RpcReplyCode::Quit => Err(DfRemoteError::RpcError()),
+            RpcReplyCode::Quit => Err(DFHackError::RpcError()),
         }
     }
 }
@@ -202,7 +202,7 @@ impl Quit {
 }
 
 impl Send for Quit {
-    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
         let header = Header::new(RpcReplyCode::Quit as i16, 0);
         header.send(stream)?;
         Ok(())
@@ -210,21 +210,21 @@ impl Send for Quit {
 }
 
 impl Send for i16 {
-    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
         stream.write_i16::<LittleEndian>(*self)?;
         Ok(())
     }
 }
 
 impl Send for i32 {
-    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
+    fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
         stream.write_i32::<LittleEndian>(*self)?;
         Ok(())
     }
 }
 
 impl Receive for i16 {
-    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::DFHackResult<Self>
     where
         Self: Sized,
     {
@@ -233,7 +233,7 @@ impl Receive for i16 {
 }
 
 impl Receive for i32 {
-    fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
+    fn receive<T: std::io::Read>(stream: &mut T) -> crate::DFHackResult<Self>
     where
         Self: Sized,
     {
