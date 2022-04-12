@@ -16,13 +16,23 @@ impl Core {
             name: "".to_string(),
         }
     }
-    super::make_plugin_getter_request!(get_version, "GetVersion", StringMessage);
-    super::make_plugin_getter_request!(get_df_version, "GetDFVersion", StringMessage);
-    super::make_plugin_getter_request!(get_world_info, "GetWorldInfo", GetWorldInfoOut);
-    super::make_plugin_getter_request!(list_enums, "ListEnums", ListEnumsOut);
-    super::make_plugin_getter_request!(list_job_skills, "ListJobSkills", ListJobSkillsOut);
-    super::make_plugin_getter_request!(core_suspends, "CoreSuspend", IntMessage);
-    super::make_plugin_getter_request!(core_resume, "CoreResume", IntMessage);
+    super::make_plugin_request!(get_version, "GetVersion", EmptyMessage, StringMessage);
+    super::make_plugin_request!(get_df_version, "GetDFVersion", EmptyMessage, StringMessage);
+    super::make_plugin_request!(
+        get_world_info,
+        "GetWorldInfo",
+        EmptyMessage,
+        GetWorldInfoOut
+    );
+    super::make_plugin_request!(list_enums, "ListEnums", EmptyMessage, ListEnumsOut);
+    super::make_plugin_request!(
+        list_job_skills,
+        "ListJobSkills",
+        EmptyMessage,
+        ListJobSkillsOut
+    );
+    super::make_plugin_request!(core_suspends, "CoreSuspend", EmptyMessage, IntMessage);
+    super::make_plugin_request!(core_resume, "CoreResume", EmptyMessage, IntMessage);
     super::make_plugin_request!(
         list_materials,
         "ListMaterials",

@@ -62,29 +62,74 @@ impl RemoteFortressReader {
         MiscMoveParams,
         EmptyMessage
     );
-    super::make_plugin_getter_request!(get_side_menu, "GetSideMenu", SidebarState);
-    super::make_plugin_getter_request!(get_material_list, "GetMaterialList", MaterialList);
-    super::make_plugin_getter_request!(get_growth_list, "GetGrowthList", MaterialList);
-    super::make_plugin_getter_request!(check_hashes, "CheckHashes", EmptyMessage);
-    super::make_plugin_getter_request!(get_tiletype_list, "GetTiletypeList", TiletypeList);
-    super::make_plugin_getter_request!(get_unit_list, "GetUnitList", UnitList);
-    super::make_plugin_getter_request!(get_view_info, "GetViewInfo", ViewInfo);
-    super::make_plugin_getter_request!(get_map_info, "GetMapInfo", MapInfo);
-    super::make_plugin_getter_request!(reset_map_hashes, "ResetMapHashes", EmptyMessage);
-    super::make_plugin_getter_request!(get_item_list, "GetItemList", MaterialList);
-    super::make_plugin_getter_request!(get_building_def_list, "GetBuildingDefList", BuildingList);
-    super::make_plugin_getter_request!(get_world_map, "GetWorldMap", WorldMap);
-    super::make_plugin_getter_request!(get_world_map_new, "GetWorldMapNew", WorldMap);
-    super::make_plugin_getter_request!(get_region_maps, "GetRegionMaps", RegionMaps);
-    super::make_plugin_getter_request!(get_region_maps_new, "GetRegionMapsNew", RegionMaps);
-    super::make_plugin_getter_request!(get_creature_raws, "GetCreatureRaws", CreatureRawList);
-    super::make_plugin_getter_request!(get_world_map_center, "GetWorldMapCenter", WorldMap);
-    super::make_plugin_getter_request!(get_plant_raws, "GetPlantRaws", PlantRawList);
-    super::make_plugin_getter_request!(copy_screen, "CopyScreen", ScreenCapture);
-    super::make_plugin_getter_request!(get_pause_state, "GetPauseState", SingleBool);
-    super::make_plugin_getter_request!(get_version_info, "GetVersionInfo", VersionInfo);
-    super::make_plugin_getter_request!(get_reports, "GetReports", Status);
-    super::make_plugin_getter_request!(menu_query, "MenuQuery", MenuContents);
-    super::make_plugin_getter_request!(get_language, "GetLanguage", Language);
-    super::make_plugin_getter_request!(get_game_validity, "GetGameValidity", SingleBool);
+    super::make_plugin_request!(get_side_menu, "GetSideMenu", EmptyMessage, SidebarState);
+    super::make_plugin_request!(
+        get_material_list,
+        "GetMaterialList",
+        EmptyMessage,
+        MaterialList
+    );
+    super::make_plugin_request!(get_growth_list, "GetGrowthList", EmptyMessage, MaterialList);
+    super::make_plugin_request!(check_hashes, "CheckHashes", EmptyMessage, EmptyMessage);
+    super::make_plugin_request!(
+        get_tiletype_list,
+        "GetTiletypeList",
+        EmptyMessage,
+        TiletypeList
+    );
+    super::make_plugin_request!(get_unit_list, "GetUnitList", EmptyMessage, UnitList);
+    super::make_plugin_request!(get_view_info, "GetViewInfo", EmptyMessage, ViewInfo);
+    super::make_plugin_request!(get_map_info, "GetMapInfo", EmptyMessage, MapInfo);
+    super::make_plugin_request!(
+        reset_map_hashes,
+        "ResetMapHashes",
+        EmptyMessage,
+        EmptyMessage
+    );
+    super::make_plugin_request!(get_item_list, "GetItemList", EmptyMessage, MaterialList);
+    super::make_plugin_request!(
+        get_building_def_list,
+        "GetBuildingDefList",
+        EmptyMessage,
+        BuildingList
+    );
+    super::make_plugin_request!(get_world_map, "GetWorldMap", EmptyMessage, WorldMap);
+    super::make_plugin_request!(get_world_map_new, "GetWorldMapNew", EmptyMessage, WorldMap);
+    super::make_plugin_request!(get_region_maps, "GetRegionMaps", EmptyMessage, RegionMaps);
+    super::make_plugin_request!(
+        get_region_maps_new,
+        "GetRegionMapsNew",
+        EmptyMessage,
+        RegionMaps
+    );
+    super::make_plugin_request!(
+        get_creature_raws,
+        "GetCreatureRaws",
+        EmptyMessage,
+        CreatureRawList
+    );
+    super::make_plugin_request!(
+        get_world_map_center,
+        "GetWorldMapCenter",
+        EmptyMessage,
+        WorldMap
+    );
+    super::make_plugin_request!(get_plant_raws, "GetPlantRaws", EmptyMessage, PlantRawList);
+    super::make_plugin_request!(copy_screen, "CopyScreen", EmptyMessage, ScreenCapture);
+    super::make_plugin_request!(get_pause_state, "GetPauseState", EmptyMessage, SingleBool);
+    super::make_plugin_request!(
+        get_version_info,
+        "GetVersionInfo",
+        EmptyMessage,
+        VersionInfo
+    );
+    super::make_plugin_request!(get_reports, "GetReports", EmptyMessage, Status);
+    super::make_plugin_request!(menu_query, "MenuQuery", EmptyMessage, MenuContents);
+    super::make_plugin_request!(get_language, "GetLanguage", EmptyMessage, Language);
+    super::make_plugin_request!(
+        get_game_validity,
+        "GetGameValidity",
+        EmptyMessage,
+        SingleBool
+    );
 }
