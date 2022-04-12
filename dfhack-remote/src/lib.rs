@@ -117,7 +117,7 @@ impl DfClient {
         SetUnitLaborsIn,
         EmptyMessage
     );
-    //make_request!(bind_method, "BindMethod", CoreBindRequest, CoreBindReply);
+    make_request!(bind_method, "BindMethod", CoreBindRequest, CoreBindReply);
     make_request!(
         run_command,
         "RunCommand",
@@ -418,7 +418,7 @@ impl DfClient {
         let id: i16;
 
         if maybe_id.is_none() {
-            id = self.bind_method::<TRequest, TReply>(&method)?;
+            id = self.do_bind_method::<TRequest, TReply>(&method)?;
             self.bindings.insert(method, id);
         } else {
             id = *maybe_id.unwrap();
@@ -448,7 +448,7 @@ impl DfClient {
         }
     }
 
-    pub fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    pub fn do_bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
         method: &Method,
     ) -> Result<i16> {
