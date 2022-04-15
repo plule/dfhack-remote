@@ -8,3 +8,6 @@ protobuf = "2.27.1"
 byteorder = "1.4.3"
 num_enum = "0.5.7"
 dfhack-proto = { path = "../dfhack-proto" }
+
+[dev-dependencies]
+bmp = "0.5.0"
