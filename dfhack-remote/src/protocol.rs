@@ -1,3 +1,9 @@
+//! Internal module describing the exchange flow
+//!
+//! Implements the flow of sending and receiving messages.
+//! This includes the custom workflow of binding RPC methods
+//! before being able to use them.
+
 use std::{collections::HashMap, fmt};
 
 use crate::{
@@ -173,15 +179,5 @@ impl From<protobuf::ProtobufError> for DFHackError {
 impl From<TryFromPrimitiveError<message::RpcReplyCode>> for DFHackError {
     fn from(err: TryFromPrimitiveError<message::RpcReplyCode>) -> Self {
         Self::UnknownReplyCode(err.number)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
     }
 }

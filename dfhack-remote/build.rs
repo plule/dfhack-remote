@@ -66,12 +66,17 @@ fn generate_plugin_rs(
     lines.push(r"use crate::protocol::Protocol;".to_string());
     lines.push(r"use crate::generated::messages::*;".to_string());
 
+    lines.push(format!("/// {} plugin", plugin_name));
     lines.push(format!(r"pub struct {} {{", struct_name));
+    lines.push(r"    /// Reference to the client to exchange messages".to_string());
     lines.push(r"    pub client: Rc<RefCell<Protocol>>,".to_string());
+    lines.push(r"    /// Name of the plugin. All the RPC are attached to this name.".to_string());
     lines.push(r"    pub name: String,".to_string());
     lines.push(r"}".to_string());
 
     lines.push(format!("impl {} {{", struct_name));
+    lines.push(r"    /// Instanciate a new plugin instance.".to_string());
+    lines.push(r"    /// You should likely use [crate::DFHack] instead.".to_string());
     lines.push(r"    pub fn new(client: Rc<RefCell<Protocol>>) -> Self {".to_string());
     lines.push(r"        Self {".to_string());
     lines.push(r"            client,".to_string());
@@ -81,10 +86,16 @@ fn generate_plugin_rs(
 
     for rpc in &plugin.rpcs {
         let function_name = rpc.name.to_snake_case();
+        lines.push(r"    crate::plugins::make_plugin_request!(".to_string());
         lines.push(format!(
-            "    crate::plugins::make_plugin_request!({}, \"{}\", {}, {});",
+            "        /// Method `{}` from the plugin `{}`",
+            function_name, plugin_name
+        ));
+        lines.push(format!(
+            "        {}, \"{}\", {}, {}",
             function_name, rpc.name, rpc.input, rpc.output
         ));
+        lines.push(r"    );".to_string());
     }
 
     lines.push(r"}".to_string());

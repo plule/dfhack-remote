@@ -1,3 +1,8 @@
+//! Internal module describing the serialization/deserialization of messages
+//!
+//! The DFHack API includes a set of headers and error code wrapping the serialized
+//! protobuf messages. This module implements this logic.
+
 use crate::DFHackError;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use num_enum::TryFromPrimitive;
