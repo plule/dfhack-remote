@@ -1,8 +1,5 @@
 use bmp::{px, Image, Pixel};
-use dfhack_proto::RemoteFortressReader::WorldMap;
 use dfhack_remote::DFHack;
-
-fn save_world_map(world_map: &WorldMap, dst: String) {}
 
 fn main() {
     let mut client = DFHack::connect().unwrap();

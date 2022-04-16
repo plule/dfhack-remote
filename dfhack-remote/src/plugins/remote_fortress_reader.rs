@@ -1,8 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use dfhack_proto::{
-    AdventureControl::*, CoreProtocol::*, DwarfControl::*, RemoteFortressReader::*,
-};
+use crate::{AdventureControl::*, CoreProtocol::*, DwarfControl::*, RemoteFortressReader::*};
 
 use crate::protocol::Protocol;
 

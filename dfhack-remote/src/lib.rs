@@ -1,9 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
-use plugins::{
-    core::Core, isoworld::Isoworld, remote_fortress_reader::RemoteFortressReader, rename::Rename,
-};
 use protocol::Protocol;
+
+mod generated;
+
+pub use generated::*;
 
 mod message;
 pub mod plugins;
@@ -22,10 +23,10 @@ pub enum DFHackError {
 }
 
 pub struct DFHack {
-    pub core: Core,
-    pub isoworld: Isoworld,
-    pub rename: Rename,
-    pub remote_fortress_reader: RemoteFortressReader,
+    pub core: plugins::Core,
+    pub isoworld: plugins::Isoworld,
+    pub rename: plugins::Rename,
+    pub remote_fortress_reader: plugins::RemoteFortressReader,
 }
 
 impl DFHack {
@@ -33,10 +34,10 @@ impl DFHack {
         let client = Protocol::connect()?;
         let client = Rc::new(RefCell::new(client));
         Ok(Self {
-            core: Core::new(Rc::clone(&client)),
-            isoworld: Isoworld::new(Rc::clone(&client)),
-            rename: Rename::new(Rc::clone(&client)),
-            remote_fortress_reader: RemoteFortressReader::new(Rc::clone(&client)),
+            core: plugins::Core::new(Rc::clone(&client)),
+            isoworld: plugins::Isoworld::new(Rc::clone(&client)),
+            rename: plugins::Rename::new(Rc::clone(&client)),
+            remote_fortress_reader: plugins::RemoteFortressReader::new(Rc::clone(&client)),
         })
     }
 }

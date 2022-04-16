@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use dfhack_proto::{rename::*, CoreProtocol::*};
+use crate::{rename::*, CoreProtocol::*};
 
 use crate::protocol::Protocol;
 

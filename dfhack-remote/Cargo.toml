@@ -7,7 +7,10 @@ edition = "2021"
 protobuf = "2.27.1"
 byteorder = "1.4.3"
 num_enum = "0.5.7"
-dfhack-proto = { path = "../dfhack-proto" }
+
+[build-dependencies]
+protobuf-codegen-pure = "2.27.1"
+dfhack-proto-srcs = { path = "../dfhack-proto-srcs" }
 
 [dev-dependencies]
 bmp = "0.5.0"

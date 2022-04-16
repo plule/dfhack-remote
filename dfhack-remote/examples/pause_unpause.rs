@@ -1,5 +1,5 @@
-use dfhack_proto::RemoteFortressReader::SingleBool;
 use dfhack_remote::DFHack;
+use dfhack_remote::RemoteFortressReader::SingleBool;
 
 fn main() {
     let mut client = DFHack::connect().unwrap();
