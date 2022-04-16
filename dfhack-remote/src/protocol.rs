@@ -31,9 +31,9 @@ const BIND_METHOD_ID: i16 = 0;
 const RUN_COMMAND_ID: i16 = 1;
 
 impl Protocol {
-    pub fn connect() -> crate::DFHackResult<Protocol> {
+    pub fn connect(address: &str) -> crate::DFHackResult<Protocol> {
         let mut client = Protocol {
-            stream: std::net::TcpStream::connect("127.0.0.1:5000")?,
+            stream: std::net::TcpStream::connect(address)?,
             bindings: HashMap::new(),
         };
 
@@ -108,14 +108,14 @@ impl Protocol {
         &mut self,
         method: &Method,
     ) -> crate::DFHackResult<i16> {
-        let mut request = crate::CoreBindRequest::new();
+        let mut request = crate::messages::CoreBindRequest::new();
         let input_msg = TIN::descriptor_static().full_name();
         let output_msg = TOUT::descriptor_static().full_name();
         request.set_method(method.name.to_owned());
         request.set_input_msg(input_msg.to_string());
         request.set_output_msg(output_msg.to_string());
         request.set_plugin(method.plugin.to_owned());
-        let reply: crate::CoreBindReply = self.request_raw(BIND_METHOD_ID, request)?;
+        let reply: crate::messages::CoreBindReply = self.request_raw(BIND_METHOD_ID, request)?;
         Ok(reply.get_assigned_id() as i16)
     }
 }

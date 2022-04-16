@@ -1,8 +1,8 @@
+use dfhack_remote::messages::SingleBool;
 use dfhack_remote::DFHack;
-use dfhack_remote::SingleBool;
 
 fn main() {
-    let mut client = DFHack::connect().unwrap();
+    let mut client = DFHack::connect("127.0.0.0:5000").unwrap();
 
     let status = client
         .remote_fortress_reader

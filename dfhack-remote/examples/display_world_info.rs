@@ -1,7 +1,7 @@
 use dfhack_remote::DFHack;
 
 fn main() {
-    let mut client = DFHack::connect().unwrap();
+    let mut client = DFHack::connect("127.0.0.0:5000").unwrap();
 
     let df_version = client.core.get_df_version().unwrap();
     let dfhack_version = client.core.get_version().unwrap();
