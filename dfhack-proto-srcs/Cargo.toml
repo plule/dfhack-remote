@@ -1,13 +1,13 @@
 [package]
-name = "dfhack-proto"
+name = "dfhack-proto-srcs"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-protobuf = "2.27.1"
+glob = "0.3.0"
 
 [build-dependencies]
-protobuf-codegen-pure = "2.27.1"
-dfhack-proto-srcs = { path = "../dfhack-proto-srcs" }
+reqwest = {version="0.11.10",features=["blocking"]}
+zip = "0.6.2"
