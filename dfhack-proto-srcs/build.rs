@@ -5,15 +5,17 @@ use std::{
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-env-changed=DFHACK_ZIP_URL");
 
     let out_dir = std::env::var_os("OUT_DIR").unwrap();
     // Download the file
     let dfhack_archive_path = Path::new(&out_dir).join("dfhack.zip");
     let mut dfhack_archive = File::create(&dfhack_archive_path).unwrap();
-    let mut dfhack_download_request = reqwest::blocking::get(
-        "https://codeload.github.com/DFHack/dfhack/zip/refs/tags/0.47.05-r4",
-    )
-    .unwrap();
+    let dfhack_url = match std::env::var("DFHACK_ZIP_URL") {
+        Ok(val) => val,
+        Err(_) => "https://codeload.github.com/DFHack/dfhack/zip/refs/tags/0.47.05-r4".to_string(),
+    };
+    let mut dfhack_download_request = reqwest::blocking::get(dfhack_url).unwrap();
     std::io::copy(&mut dfhack_download_request, &mut dfhack_archive).unwrap();
 
     // Extract the protos
