@@ -11,6 +11,9 @@ mod withdf {
 
     #[ctor::ctor]
     fn init() {
+        let port = portpicker::pick_unused_port().unwrap().to_string();
+        std::env::set_var("DF_PORT", port);
+
         use std::{path::PathBuf, process::Command};
         let df_exe = PathBuf::from(std::env::var("DF_EXE").unwrap());
         let df_folder = df_exe.parent().unwrap();
@@ -35,7 +38,7 @@ mod withdf {
 
     #[test]
     fn get_version() {
-        let mut client = dfhack_remote::DFHack::connect("127.0.0.1:5000").unwrap();
+        let mut client = dfhack_remote::DFHack::connect().unwrap();
         let version = client.core.get_df_version().unwrap();
         assert!(version.get_value().len() > 0);
     }

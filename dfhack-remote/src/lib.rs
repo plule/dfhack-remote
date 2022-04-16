@@ -1,6 +1,18 @@
+//! # dfhack_remote
+//!
 //! dfhack_remote is a library allowing users to interact with Dwarf Fortress using a remote API.
 //!
-//! The remote API is exposed by DFHack.
+//! [Dwarf Fortress] is a video game by Bay 12 Games.
+//! [DFHack] is a fan made mod for Dwarf Fortress adding many
+//! features to the game.
+//! One of these feature is a [remote API] enabling
+//! the remote control of certain Dwarf Fortress features.
+//! This crates is a client for this remote API, enabling rust tool developers to
+//! interact with Dwarf Fortress.
+//!
+//! [Dwarf Fortress]: http://www.bay12games.com/dwarves/
+//! [DFHack]: https://docs.dfhack.org/en/stable/
+//! [remote API]: https://docs.dfhack.org/en/stable/docs/Remote.html
 use protocol::Protocol;
 use std::{cell::RefCell, rc::Rc};
 
@@ -79,18 +91,18 @@ impl DFHack {
     ///
     /// # Arguments
     ///
-    /// * `address` - Address of the DFHack server. By default, DFHack runs of 127.0.0.1:5000
+    /// * `address` - Address of the DFHack server. By default, DFHack runs of `127.0.0.1:5000`
     ///
     /// # Examples
     ///
     /// ```no_run
-    /// use dfhack_remote;
-    /// let mut dfhack = dfhack_remote::DFHack::connect("127.0.0.1:5000").unwrap();
+    /// use dfhack_remote::DFHack;
+    /// let mut dfhack = DFHack::connect_to("127.0.0.1:5000").unwrap();
     /// let df_version = dfhack.core.get_df_version().unwrap();
     /// println!("DwarfFortress {}",  df_version.get_value());
     /// ```
     ///
-    pub fn connect(address: &str) -> DFHackResult<Self> {
+    pub fn connect_to(address: &str) -> DFHackResult<Self> {
         let client = Protocol::connect(address)?;
         let client = Rc::new(RefCell::new(client));
         Ok(Self {
@@ -99,5 +111,29 @@ impl DFHack {
             rename: plugins::Rename::new(Rc::clone(&client)),
             remote_fortress_reader: plugins::RemoteFortressReader::new(Rc::clone(&client)),
         })
+    }
+
+    /// Connect to Dwarf Fortress through DFHack.
+    ///
+    /// By default it will try to connect to `127.0.0.1:5000`, DFHack default address.
+    /// The port can be overriden with DFHACK_PORT, which is also taken in account by DFHack.
+    ///
+    /// For remote connexion, see [DFHack::connect_to].
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use dfhack_remote::DFHack;
+    ///
+    /// let mut dfhack = ::DFHack::connect();
+    /// let df_version = dfhack.core.get_df_version().unwrap();
+    /// println!("DwarfFortress {}",  df_version.get_value());
+    /// ```
+    pub fn connect() -> DFHackResult<Self> {
+        let port = match std::env::var("DFHACK_PORT") {
+            Ok(p) => p,
+            Err(_) => "5000".to_string(),
+        };
+        Self::connect_to(&format!("127.0.0.1:{}", port))
     }
 }

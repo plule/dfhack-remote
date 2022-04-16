@@ -18,6 +18,7 @@ heck = "0.4"
 bmp = "0.5.0"
 ctor = "0.1.22"
 lazy_static = "1.4.0"
+portpicker = "0.1.1"
 
 [features]
 test-with-df = []
