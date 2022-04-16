@@ -38,6 +38,7 @@ const RUN_COMMAND_ID: i16 = 1;
 
 impl Protocol {
     pub fn connect(address: &str) -> crate::DFHackResult<Protocol> {
+        log::info!("Connecting to {}", address);
         let mut client = Protocol {
             stream: std::net::TcpStream::connect(address)?,
             bindings: HashMap::new(),
@@ -114,6 +115,7 @@ impl Protocol {
         &mut self,
         method: &Method,
     ) -> crate::DFHackResult<i16> {
+        log::debug!("Binding the method {}:{}", method.plugin, method.name);
         let mut request = crate::messages::CoreBindRequest::new();
         let input_msg = TIN::descriptor_static().full_name();
         let output_msg = TOUT::descriptor_static().full_name();

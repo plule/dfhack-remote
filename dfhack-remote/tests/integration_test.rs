@@ -1,9 +1,17 @@
 use dfhack_remote;
 
+#[ctor::ctor]
+fn init() {
+    env_logger::init();
+}
+
 #[cfg(feature = "test-with-df")]
 mod withdf {
     use std::process::Child;
     use std::sync::Mutex;
+
+    use dfhack_remote::messages::SingleBool;
+    use dfhack_remote::DFHack;
     #[cfg(test)]
     lazy_static::lazy_static! {
         static ref DF_PROCESS: Mutex<Option<Child>> = Mutex::new(Option::<Child>::None);
@@ -41,6 +49,32 @@ mod withdf {
         let mut client = dfhack_remote::DFHack::connect().unwrap();
         let version = client.core.get_df_version().unwrap();
         assert!(version.get_value().len() > 0);
+    }
+
+    #[test]
+    fn pause_unpause() {
+        let mut client = DFHack::connect().unwrap();
+
+        let initial_pause_status = client
+            .remote_fortress_reader
+            .get_pause_state()
+            .unwrap()
+            .get_Value();
+
+        let mut request = SingleBool::new();
+        request.set_Value(!initial_pause_status);
+        client
+            .remote_fortress_reader
+            .set_pause_state(request)
+            .unwrap();
+
+        let new_pause_status = client
+            .remote_fortress_reader
+            .get_pause_state()
+            .unwrap()
+            .get_Value();
+
+        assert!(initial_pause_status != new_pause_status);
     }
 }
 

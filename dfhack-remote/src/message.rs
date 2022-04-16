@@ -5,6 +5,7 @@
 
 use crate::DFHackError;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use derive_more::Display;
 use num_enum::TryFromPrimitive;
 use protobuf::Message;
 use std::convert::TryFrom;
@@ -50,6 +51,8 @@ pub struct Handshake {
 }
 
 // https://docs.dfhack.org/en/stable/docs/Remote.html#header
+#[derive(Display)]
+#[display(fmt = "id {}, size {}", id, size)]
 pub struct Header {
     pub id: i16,
     padding: i16,
@@ -84,6 +87,7 @@ impl Handshake {
 
 impl Send for Handshake {
     fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
+        log::debug!("Sending handshake");
         stream.write(self.magic.as_bytes())?;
         self.version.send(stream)?;
         Ok(())
@@ -95,6 +99,7 @@ impl Receive for Handshake {
     where
         Self: Sized,
     {
+        log::debug!("Receiving handshake");
         let mut magic = [0_u8; 8];
         stream.read_exact(&mut magic)?;
 
@@ -119,6 +124,7 @@ impl Header {
 
 impl Send for Header {
     fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
+        log::debug!("Sending header {}", self);
         self.id.send(stream)?;
         self.padding.send(stream)?;
         self.size.send(stream)?;
@@ -131,11 +137,14 @@ impl Receive for Header {
     where
         Self: Sized,
     {
-        Ok(Header {
+        log::debug!("Receiving header");
+        let header = Header {
             id: i16::receive(stream)?,
             padding: i16::receive(stream)?,
             size: i32::receive(stream)?,
-        })
+        };
+        log::debug!("Received header {}", header);
+        Ok(header)
     }
 }
 
@@ -151,6 +160,10 @@ impl<TMessage: protobuf::Message> Send for Request<TMessage> {
         self.message.write_to_vec(&mut payload)?;
         let header = Header::new(self.id, payload.len() as i32);
 
+        log::debug!(
+            "Sending protobuf message {}",
+            TMessage::descriptor_static().full_name()
+        );
         header.send(stream)?;
         stream.write(&payload)?;
         Ok(())
@@ -164,32 +177,35 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
     {
         let header = Header::receive(stream)?;
 
+        log::debug!(
+            "Waiting for protobuf message {}",
+            TMessage::descriptor_static().full_name()
+        );
+
         let mut buf = vec![0u8; header.size as usize];
 
-        if header.size > 1 {
-            // TODO for errors, dfhack would return
-            // size of 1 with no data but can't read it
-            stream.read_exact(&mut buf)?;
-        } else {
-            // assign it to CR_ERROR before understanding better
-            buf = 1i32.to_le_bytes().to_vec();
-        }
+        stream.read_exact(&mut buf)?;
 
         let reply_code = RpcReplyCode::try_from(header.id)?;
 
         match reply_code {
             RpcReplyCode::Result => {
+                log::debug!("Got result");
                 let reply = TMessage::parse_from_bytes(&buf)?;
                 Ok(Reply::Result(reply))
             }
             RpcReplyCode::Fail => {
+                log::debug!("Got failure");
                 // TODO remove these unwraps
                 let code_bytes: [u8; 4] = buf.try_into().unwrap();
                 let code: i32 = i32::from_le_bytes(code_bytes);
+
+                log::debug!("RPC error {}", code);
                 let res = CommandResult::try_from(code).unwrap();
                 Ok(Reply::Failure(res))
             }
             RpcReplyCode::Text => {
+                log::debug!("Got text");
                 let reply = crate::messages::CoreTextNotification::parse_from_bytes(&buf)?;
                 Ok(Reply::Text(reply))
             }
@@ -206,6 +222,7 @@ impl Quit {
 
 impl Send for Quit {
     fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::DFHackResult<()> {
+        log::debug!("Sending quit");
         let header = Header::new(RpcReplyCode::Quit as i16, 0);
         header.send(stream)?;
         Ok(())
