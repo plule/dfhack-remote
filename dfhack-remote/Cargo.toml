@@ -11,6 +11,8 @@ num_enum = "0.5.7"
 [build-dependencies]
 protobuf-codegen-pure = "2.27.1"
 dfhack-proto-srcs = { path = "../dfhack-proto-srcs" }
+regex = "1"
+heck = "0.4"
 
 [dev-dependencies]
 bmp = "0.5.0"
