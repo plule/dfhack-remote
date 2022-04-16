@@ -79,13 +79,13 @@ impl DFHack {
     ///
     /// # Arguments
     ///
-    /// * `address` - Address of the DFHack server. By default, DFHack runs of 127.0.0.0:5000
+    /// * `address` - Address of the DFHack server. By default, DFHack runs of 127.0.0.1:5000
     ///
     /// # Examples
     ///
     /// ```no_run
     /// use dfhack_remote;
-    /// let mut dfhack = dfhack_remote::DFHack::connect("127.0.0.0:5000").unwrap();
+    /// let mut dfhack = dfhack_remote::DFHack::connect("127.0.0.1:5000").unwrap();
     /// let df_version = dfhack.core.get_df_version().unwrap();
     /// println!("DwarfFortress {}",  df_version.get_value());
     /// ```
