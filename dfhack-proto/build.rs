@@ -3,6 +3,7 @@ use std::{collections::HashMap, io::BufRead, path::PathBuf};
 use heck::{ToPascalCase, ToSnakeCase};
 use prettyplease;
 use quote::__private::Ident;
+use quote::__private::TokenStream;
 use quote::format_ident;
 use quote::quote;
 use regex::Regex;
@@ -16,9 +17,7 @@ struct RPC {
 
 struct Plugin {
     pub plugin_name: String,
-    pub module_name: String,
 
-    pub module_ident: Ident,
     pub struct_ident: Ident,
     pub member_ident: Ident,
     pub rpcs: Vec<RPC>,
@@ -32,16 +31,13 @@ impl Plugin {
             base_name = "core".to_string();
         }
 
-        let module_name = base_name.to_snake_case();
         let struct_name = base_name.to_pascal_case();
         let member_name = base_name.to_snake_case();
 
         Self {
             member_ident: format_ident!("{}", &member_name),
             struct_ident: format_ident!("{}", &struct_name),
-            module_ident: format_ident!("{}", &module_name),
             plugin_name,
-            module_name,
             rpcs: Vec::new(),
         }
     }
@@ -120,35 +116,38 @@ fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     out_path.push("plugins");
     std::fs::create_dir_all(&out_path).unwrap();
 
+    let mut file = quote!();
+    generate_plugins_mod_rs(&plugins, &mut file);
+
     for (plugin_name, plugin) in &plugins {
-        generate_plugin_rs(&plugin_name, &plugin, &out_path);
+        generate_plugin_rs(&plugin_name, &plugin, &mut file);
     }
 
-    generate_plugins_mod_rs(&plugins, out_path);
+    let mut mod_rs_path = out_path.clone();
+    mod_rs_path.push("mod.rs");
+    let tree = syn::parse2(file).unwrap();
+    let formatted = prettyplease::unparse(&tree);
+
+    std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
-fn generate_plugins_mod_rs(plugins: &HashMap<String, Plugin>, out_path: PathBuf) {
-    let mut file = quote!();
-    for (_, plugin) in plugins {
-        let module_ident = plugin.module_ident.clone();
-
-        file.extend(quote! {
-            mod #module_ident;
-            pub use self::#module_ident::*;
-        });
-    }
-
+fn generate_plugins_mod_rs(plugins: &HashMap<String, Plugin>, file: &mut TokenStream) {
     let mut plugins_struct = quote!();
     let mut new_method = quote!();
 
+    file.extend(quote! {
+        use std::{cell::RefCell, rc::Rc};
+        use crate::messages::*;
+        use std::marker::PhantomData;
+    });
+
     for (_, plugin) in plugins {
         let doc = format!("RPCs of the {} plugin", plugin.plugin_name);
-        let module_ident = plugin.module_ident.clone();
         let struct_ident = plugin.struct_ident.clone();
         let member_ident = plugin.member_ident.clone();
         plugins_struct.extend(quote! {
             #[doc = #doc]
-            pub #module_ident: crate::plugins::#struct_ident<E, TProtocol>,
+            pub #member_ident: crate::plugins::#struct_ident<E, TProtocol>,
         });
 
         new_method.extend(quote! {
@@ -173,26 +172,13 @@ fn generate_plugins_mod_rs(plugins: &HashMap<String, Plugin>, out_path: PathBuf)
             }
         }
     });
-    let mut mod_rs_path = out_path.clone();
-    mod_rs_path.push("mod.rs");
-    let tree = syn::parse2(file).unwrap();
-    let formatted = prettyplease::unparse(&tree);
-
-    std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
-fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, out_path: &PathBuf) {
-    let mut out_path = out_path.clone();
-    out_path.push(format!("{}.rs", plugin.module_name));
-
+fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, file: &mut TokenStream) {
     let plugin_doc = format!("RPC for the \"{}\" plugin.", plugin_name);
     let struct_ident = plugin.struct_ident.clone();
 
-    let mut file = quote! {
-        use std::{cell::RefCell, rc::Rc};
-        use crate::messages::*;
-        use std::marker::PhantomData;
-
+    file.extend(quote! {
         #[doc = #plugin_doc]
         pub struct #struct_ident<E, TProtocol: crate::ProtocolTrait<E>> {
             #[doc = "Reference to the client to exchange messages."]
@@ -203,7 +189,7 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, out_path: &PathBuf)
 
             phantom: PhantomData<E>,
         }
-    };
+    });
 
     let mut plugin_impl = quote! {
         #[doc = "Instanciate a new plugin instance"]
@@ -238,11 +224,6 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, out_path: &PathBuf)
             #plugin_impl
         }
     });
-
-    let tree = syn::parse2(file).unwrap();
-    let formatted = prettyplease::unparse(&tree);
-
-    std::fs::write(out_path, formatted).unwrap();
 }
 
 fn read_protos_rpcs(protos: &Vec<PathBuf>) -> HashMap<String, Plugin> {
