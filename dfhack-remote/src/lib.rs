@@ -83,61 +83,12 @@ use std::{cell::RefCell, rc::Rc};
 
 mod message;
 mod protocol;
-mod generated {
-    pub mod plugins;
-}
 
 /// Protobuf messages exchange as input and output of all the DFHack remote API.
 ///
 /// This module is auto-generated from DFHack sources.
 pub mod messages {
     pub use dfhack_proto::messages::*;
-}
-
-/// Plugins exposing the feature of the DFHack remote API.
-///
-/// This module is auto-generated from DFHack sources.
-pub mod plugins {
-    pub use crate::generated::plugins::*;
-
-    /// Macro generating a request
-    ///
-    /// This macro assumes that it is invoked in the implementation of a plugin
-    /// containing a `name` attribute, and a `client` attribute.
-    macro_rules! make_plugin_request {
-        (
-            $(#[$meta:meta])*
-            $func_name:ident, $method_name:literal, EmptyMessage, $response_type:path
-        ) => {
-            $(#[$meta])*
-            pub fn $func_name(&mut self) -> crate::DFHackResult<$response_type> {
-                let request = crate::messages::EmptyMessage::new();
-                self.client.borrow_mut().request(
-                    self.name.to_string(),
-                    $method_name.to_string(),
-                    request,
-                )
-            }
-        };
-        (
-            $(#[$meta:meta])*
-            $func_name:ident, $method_name:literal, $request_type:path, $response_type:path
-        ) => {
-            $(#[$meta])*
-            pub fn $func_name(
-                &mut self,
-                request: $request_type,
-            ) -> crate::DFHackResult<$response_type> {
-                self.client.borrow_mut().request(
-                    self.name.to_string(),
-                    $method_name.to_string(),
-                    request,
-                )
-            }
-        };
-    }
-
-    pub(crate) use make_plugin_request;
 }
 
 /// Result type emitted by DFHack API calls
@@ -179,16 +130,17 @@ pub enum DFHackError {
 /// ready to communicate with Dwarf Fortress.
 pub struct DFHack {
     /// The core plugin exposes the base of the API
-    pub core: plugins::Core,
+    pub core: dfhack_proto::plugins::Core<DFHackError, protocol::Protocol>,
 
     /// Isoworld plugin
-    pub isoworld: plugins::Isoworldremote,
+    pub isoworld: dfhack_proto::plugins::Isoworldremote<DFHackError, protocol::Protocol>,
 
     /// Rename plugin
-    pub rename: plugins::Rename,
+    pub rename: dfhack_proto::plugins::Rename<DFHackError, protocol::Protocol>,
 
     /// RemoteFortressReader plugin
-    pub remote_fortress_reader: plugins::RemoteFortressReader,
+    pub remote_fortress_reader:
+        dfhack_proto::plugins::RemoteFortressReader<DFHackError, protocol::Protocol>,
 }
 
 impl DFHack {
@@ -211,10 +163,12 @@ impl DFHack {
         let client = Protocol::connect(address)?;
         let client = Rc::new(RefCell::new(client));
         Ok(Self {
-            core: plugins::Core::new(Rc::clone(&client)),
-            isoworld: plugins::Isoworldremote::new(Rc::clone(&client)),
-            rename: plugins::Rename::new(Rc::clone(&client)),
-            remote_fortress_reader: plugins::RemoteFortressReader::new(Rc::clone(&client)),
+            core: dfhack_proto::plugins::Core::new(Rc::clone(&client)),
+            isoworld: dfhack_proto::plugins::Isoworldremote::new(Rc::clone(&client)),
+            rename: dfhack_proto::plugins::Rename::new(Rc::clone(&client)),
+            remote_fortress_reader: dfhack_proto::plugins::RemoteFortressReader::new(Rc::clone(
+                &client,
+            )),
         })
     }
 
