@@ -98,12 +98,6 @@ pub mod plugins {
     pub use dfhack_proto::plugins::*;
 }
 
-/// Holder for all the initialized plugins
-pub type Plugins = plugins::Plugins<Protocol, DFHackError>;
-
-/// Backend managing the connexion to Dwarf Fortress
-pub type Protocol = protocol::Protocol;
-
 /// Connect to Dwarf Fortress using the default settings
 ///
 /// It will try to connect to `127.0.0.1:5000`, DFHack default address.
@@ -120,12 +114,12 @@ pub type Protocol = protocol::Protocol;
 /// let df_version = dfhack.core.get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version.get_value());
 /// ```
-pub fn connect() -> DFHackResult<Plugins> {
-    let connexion = Protocol::connect()?;
-    Ok(Plugins::from(connexion))
+pub fn connect() -> DFHackResult<plugins::Plugins<protocol::Protocol, DFHackError>> {
+    let connexion = protocol::Protocol::connect()?;
+    Ok(plugins::Plugins::from(connexion))
 }
 
-/// Connect to DFHack
+/// Connect to Dwarf Fortress with a given address
 ///
 /// # Arguments
 ///
@@ -140,9 +134,11 @@ pub fn connect() -> DFHackResult<Plugins> {
 /// println!("DwarfFortress {}",  df_version.get_value());
 /// ```
 ///
-pub fn connect_to(address: &str) -> DFHackResult<Plugins> {
-    let connexion = Protocol::connect_to(address)?;
-    Ok(Plugins::from(connexion))
+pub fn connect_to(
+    address: &str,
+) -> DFHackResult<plugins::Plugins<protocol::Protocol, DFHackError>> {
+    let connexion = protocol::Protocol::connect_to(address)?;
+    Ok(plugins::Plugins::from(connexion))
 }
 
 /// Result type emitted by DFHack API calls
