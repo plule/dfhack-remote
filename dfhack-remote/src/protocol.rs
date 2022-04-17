@@ -64,7 +64,15 @@ impl dfhack_proto::ProtocolTrait<crate::DFHackError> for Protocol {
 }
 
 impl Protocol {
-    pub fn connect(address: &str) -> crate::DFHackResult<Protocol> {
+    pub fn connect() -> crate::DFHackResult<Self> {
+        let port = match std::env::var("DFHACK_PORT") {
+            Ok(p) => p,
+            Err(_) => "5000".to_string(),
+        };
+        Self::connect_to(&format!("127.0.0.1:{}", port))
+    }
+
+    pub fn connect_to(address: &str) -> crate::DFHackResult<Protocol> {
         log::info!("Connecting to {}", address);
         let mut client = Protocol {
             stream: std::net::TcpStream::connect(address)?,

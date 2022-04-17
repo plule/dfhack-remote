@@ -124,10 +124,10 @@ fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
         generate_plugin_rs(&plugin_name, &plugin, &out_path);
     }
 
-    generate_plugin_mod_rs(&plugins, out_path);
+    generate_plugins_mod_rs(&plugins, out_path);
 }
 
-fn generate_plugin_mod_rs(plugins: &HashMap<String, Plugin>, out_path: PathBuf) {
+fn generate_plugins_mod_rs(plugins: &HashMap<String, Plugin>, out_path: PathBuf) {
     let mut file = quote!();
     for (_, plugin) in plugins {
         let module_ident = plugin.module_ident.clone();
@@ -163,9 +163,10 @@ fn generate_plugin_mod_rs(plugins: &HashMap<String, Plugin>, out_path: PathBuf) 
     });
 
     file.extend(quote! {
-        impl<TProtocol: crate::ProtocolTrait<E>, E> Plugins<TProtocol, E> {
+        impl<TProtocol: crate::ProtocolTrait<E>, E> From<TProtocol> for Plugins<TProtocol, E> {
             #[doc = "Initialize all the generated plugins"]
-            pub fn new(protocol: std::rc::Rc<std::cell::RefCell<TProtocol>>) -> Self {
+            fn from(protocol: TProtocol) -> Self {
+                let protocol = std::rc::Rc::new(std::cell::RefCell::new(protocol));
                 Self {
                     #new_method
                 }

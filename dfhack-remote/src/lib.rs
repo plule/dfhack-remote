@@ -1,4 +1,5 @@
 #![warn(missing_docs)]
+#![doc(test(no_crate_inject))]
 //! # dfhack_remote
 //!
 //! dfhack_remote is a library allowing users to interact with Dwarf Fortress using a remote API.
@@ -79,9 +80,6 @@
 //! [remote API]: https://docs.dfhack.org/en/stable/docs/Remote.html
 //! [protobuf]: https://crates.io/crates/protobuf
 //! [protobuf-codegen-pure]: https://crates.io/crates/protobuf-codegen-pure
-use protocol::Protocol;
-use std::{cell::RefCell, rc::Rc};
-
 mod message;
 mod protocol;
 
@@ -98,6 +96,53 @@ pub mod messages {
 /// `dfhack_proto`.
 pub mod plugins {
     pub use dfhack_proto::plugins::*;
+}
+
+/// Holder for all the initialized plugins
+pub type Plugins = plugins::Plugins<Protocol, DFHackError>;
+
+/// Backend managing the connexion to Dwarf Fortress
+pub type Protocol = protocol::Protocol;
+
+/// Connect to Dwarf Fortress using the default settings
+///
+/// It will try to connect to `127.0.0.1:5000`, DFHack default address.
+/// The port can be overriden with `DFHACK_PORT`, which is also taken in account by DFHack.
+///
+/// For remote connexion, see [connect_to].
+///
+/// # Examples
+///
+/// ```no_run
+/// use dfhack_remote;
+///
+/// let mut dfhack = dfhack_remote::connect().unwrap();
+/// let df_version = dfhack.core.get_df_version().unwrap();
+/// println!("DwarfFortress {}",  df_version.get_value());
+/// ```
+pub fn connect() -> DFHackResult<Plugins> {
+    let connexion = Protocol::connect()?;
+    Ok(Plugins::from(connexion))
+}
+
+/// Connect to DFHack
+///
+/// # Arguments
+///
+/// * `address` - Address of the DFHack server. By default, DFHack runs of `127.0.0.1:5000`
+///
+/// # Examples
+///
+/// ```no_run
+/// use dfhack_remote;
+/// let mut dfhack = dfhack_remote::connect_to("127.0.0.1:5000").unwrap();
+/// let df_version = dfhack.core.get_df_version().unwrap();
+/// println!("DwarfFortress {}",  df_version.get_value());
+/// ```
+///
+pub fn connect_to(address: &str) -> DFHackResult<Plugins> {
+    let connexion = Protocol::connect_to(address)?;
+    Ok(Plugins::from(connexion))
 }
 
 /// Result type emitted by DFHack API calls
@@ -131,63 +176,4 @@ pub enum DFHackError {
 
     /// DFHack RPC Error
     RpcError(),
-}
-
-/// Main entrypoint to the DFHack API
-///
-/// This structure holds an instance of each exposed plugin,
-/// ready to communicate with Dwarf Fortress.
-/// declare_plugins!
-pub struct DFHack {
-    /// Plugins containing the RPC
-    pub plugins: plugins::Plugins<Protocol, DFHackError>,
-}
-
-impl DFHack {
-    /// Connect to DFHack
-    ///
-    /// # Arguments
-    ///
-    /// * `address` - Address of the DFHack server. By default, DFHack runs of `127.0.0.1:5000`
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use dfhack_remote::DFHack;
-    /// let mut dfhack = DFHack::connect_to("127.0.0.1:5000").unwrap();
-    /// let df_version = dfhack.plugins.core.get_df_version().unwrap();
-    /// println!("DwarfFortress {}",  df_version.get_value());
-    /// ```
-    ///
-    pub fn connect_to(address: &str) -> DFHackResult<Self> {
-        let client = Protocol::connect(address)?;
-        let client = Rc::new(RefCell::new(client));
-        Ok(Self {
-            plugins: plugins::Plugins::new(Rc::clone(&client)),
-        })
-    }
-
-    /// Connect to Dwarf Fortress through DFHack.
-    ///
-    /// By default it will try to connect to `127.0.0.1:5000`, DFHack default address.
-    /// The port can be overriden with DFHACK_PORT, which is also taken in account by DFHack.
-    ///
-    /// For remote connexion, see [DFHack::connect_to].
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// use dfhack_remote::DFHack;
-    ///
-    /// let mut dfhack = DFHack::connect().unwrap();
-    /// let df_version = dfhack.plugins.core.get_df_version().unwrap();
-    /// println!("DwarfFortress {}",  df_version.get_value());
-    /// ```
-    pub fn connect() -> DFHackResult<Self> {
-        let port = match std::env::var("DFHACK_PORT") {
-            Ok(p) => p,
-            Err(_) => "5000".to_string(),
-        };
-        Self::connect_to(&format!("127.0.0.1:{}", port))
-    }
 }
