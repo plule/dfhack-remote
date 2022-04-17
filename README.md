@@ -1,5 +1,11 @@
 # dfhack_remote
 
+![Crates.io](https://img.shields.io/crates/v/dfhack-proto)
+![docs.rs](https://img.shields.io/docsrs/dfhack-proto)
+![Crates.io](https://img.shields.io/crates/l/dfhack-remote)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/plule/dfhack-remote/Rust)
+
+
 `dfhack_remote` is a library allowing users to interact with Dwarf Fortress using a remote API.
 
 [Dwarf Fortress] is a video game by Bay 12 Games.
