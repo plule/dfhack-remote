@@ -1,10 +1,12 @@
 use std::{collections::HashMap, io::BufRead, path::PathBuf};
 
 use heck::{ToPascalCase, ToSnakeCase};
+use prettyplease;
 use quote::__private::Ident;
 use quote::format_ident;
 use quote::quote;
 use regex::Regex;
+use syn;
 
 struct RPC {
     pub name: String,
@@ -106,7 +108,10 @@ fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     // Write mod.rs
     let mut mod_rs_path = out_path.clone();
     mod_rs_path.push("mod.rs");
-    std::fs::write(mod_rs_path, file.to_string()).unwrap();
+    let tree = syn::parse2(file).unwrap();
+    let formatted = prettyplease::unparse(&tree);
+
+    std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
 fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
@@ -169,7 +174,10 @@ fn generate_plugin_mod_rs(plugins: &HashMap<String, Plugin>, out_path: PathBuf) 
     });
     let mut mod_rs_path = out_path.clone();
     mod_rs_path.push("mod.rs");
-    std::fs::write(mod_rs_path, file.to_string()).unwrap();
+    let tree = syn::parse2(file).unwrap();
+    let formatted = prettyplease::unparse(&tree);
+
+    std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
 fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, out_path: &PathBuf) {
@@ -230,7 +238,10 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, out_path: &PathBuf)
         }
     });
 
-    std::fs::write(out_path, file.to_string()).unwrap();
+    let tree = syn::parse2(file).unwrap();
+    let formatted = prettyplease::unparse(&tree);
+
+    std::fs::write(out_path, formatted).unwrap();
 }
 
 fn read_protos_rpcs(protos: &Vec<PathBuf>) -> HashMap<String, Plugin> {

@@ -14,3 +14,5 @@ dfhack-proto-srcs = { path = "../dfhack-proto-srcs" }
 regex = "1"
 heck = "0.4"
 quote = "1.0.18"
+prettyplease = "0.1.9"
+syn = "1.0.91"
