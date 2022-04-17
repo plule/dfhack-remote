@@ -51,14 +51,15 @@
 //! ## Crate structure
 //!
 //! This crate main entrypoint is the [crate::DFHack] structure.
-//! The generated code is located in the [messages] module for the protobuf message that are exchanged,
-//! and in the [plugins] module for the methods that can be called.
 //!
-//! Internally, all the generated code is in the `generated` module. The `message` module handles the
-//! serialization/deserialization logic that sits on top of protobuf, and the `protocol` module handles
-//! the exchange flow.
+//! The code is split into three crates:
 //!
-//! Lastly, `dfhack_remote` is relying on `dfhack_proto_srcs` to download and extract the proto from the DFHack source code.
+//! - `dfhack_proto_srcs` downloads and extract the proto from the DFHack source code at build time.
+//! - `dfhack_proto` builds the protobuf messages and plugin structs containing the RPC
+//! - `dfhack_remote` is the main entrypoint. It implements the actual protocol and exposes the features.
+//!
+//! Internally, the `message` module handles the serialization/deserialization logic that sits on top of protobuf,
+//! and the `protocol` module handles the exchange flow.
 //!
 //! ## Testing
 //!
