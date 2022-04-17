@@ -13,3 +13,4 @@ protobuf-codegen-pure = "2.27.1"
 dfhack-proto-srcs = { path = "../dfhack-proto-srcs" }
 regex = "1"
 heck = "0.4"
+quote = "1.0.18"
