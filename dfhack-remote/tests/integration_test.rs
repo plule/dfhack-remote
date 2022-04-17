@@ -1,8 +1,9 @@
 use dfhack_remote;
+use simple_logger::SimpleLogger;
 
 #[ctor::ctor]
 fn init() {
-    env_logger::init();
+    SimpleLogger::new().init().unwrap();
 }
 
 #[cfg(feature = "test-with-df")]
@@ -12,6 +13,7 @@ mod withdf {
 
     use dfhack_remote::messages::SingleBool;
     use dfhack_remote::DFHack;
+    use rand::Rng;
     #[cfg(test)]
     lazy_static::lazy_static! {
         static ref DF_PROCESS: Mutex<Option<Child>> = Mutex::new(Option::<Child>::None);
@@ -19,7 +21,7 @@ mod withdf {
 
     #[ctor::ctor]
     fn init() {
-        let port = portpicker::pick_unused_port().unwrap().to_string();
+        let port = rand::thread_rng().gen_range(49152..65535).to_string();
         std::env::set_var("DF_PORT", port);
 
         use std::{path::PathBuf, process::Command};
