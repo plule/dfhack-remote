@@ -2,5 +2,6 @@
 
 members = [
     "dfhack-remote",
+    "dfhack-proto",
     "dfhack-proto-srcs",
 ]

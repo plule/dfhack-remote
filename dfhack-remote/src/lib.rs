@@ -84,7 +84,6 @@ use std::{cell::RefCell, rc::Rc};
 mod message;
 mod protocol;
 mod generated {
-    pub mod messages;
     pub mod plugins;
 }
 
@@ -92,7 +91,7 @@ mod generated {
 ///
 /// This module is auto-generated from DFHack sources.
 pub mod messages {
-    pub use crate::generated::messages::*;
+    pub use dfhack_proto::messages::*;
 }
 
 /// Plugins exposing the feature of the DFHack remote API.
@@ -112,7 +111,7 @@ pub mod plugins {
         ) => {
             $(#[$meta])*
             pub fn $func_name(&mut self) -> crate::DFHackResult<$response_type> {
-                let request = crate::generated::messages::EmptyMessage::new();
+                let request = crate::messages::EmptyMessage::new();
                 self.client.borrow_mut().request(
                     self.name.to_string(),
                     $method_name.to_string(),
