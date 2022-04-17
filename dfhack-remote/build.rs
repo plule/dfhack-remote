@@ -60,6 +60,7 @@ fn generate_plugin_rs(
     lines.push(r"use std::{cell::RefCell, rc::Rc};".to_string());
     lines.push(r"use crate::protocol::Protocol;".to_string());
     lines.push(r"use crate::messages::*;".to_string());
+    lines.push(r"use dfhack_proto::DFHackRequest;".to_string());
 
     lines.push(format!("/// {} plugin", plugin_name));
     lines.push(format!(r"pub struct {} {{", struct_name));

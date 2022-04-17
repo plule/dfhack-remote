@@ -1,7 +1,4 @@
-use std::{collections::HashMap, io::BufRead, path::PathBuf};
-
-use heck::{ToPascalCase, ToSnakeCase};
-use regex::Regex;
+use std::path::PathBuf;
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");

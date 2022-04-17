@@ -36,6 +36,33 @@ const VERSION: i32 = 1;
 const BIND_METHOD_ID: i16 = 0;
 const RUN_COMMAND_ID: i16 = 1;
 
+impl dfhack_proto::DFHackRequest<crate::DFHackError> for Protocol {
+    fn request<TRequest, TReply>(
+        &mut self,
+        plugin: std::string::String,
+        name: std::string::String,
+        request: TRequest,
+    ) -> crate::DFHackResult<TReply>
+    where
+        TRequest: protobuf::Message,
+        TReply: protobuf::Message,
+    {
+        let method = Method::new(plugin, name);
+
+        // did not manage to use the entry api due to borrow checker
+        let maybe_id = self.bindings.get(&method);
+        let id: i16;
+
+        if maybe_id.is_none() {
+            id = self.bind_method::<TRequest, TReply>(&method)?;
+            self.bindings.insert(method, id);
+        } else {
+            id = *maybe_id.unwrap();
+        }
+        self.request_raw(id, request)
+    }
+}
+
 impl Protocol {
     pub fn connect(address: &str) -> crate::DFHackResult<Protocol> {
         log::info!("Connecting to {}", address);
@@ -66,27 +93,6 @@ impl Protocol {
         }
 
         Ok(client)
-    }
-
-    pub fn request<TRequest: protobuf::Message, TReply: protobuf::Message>(
-        &mut self,
-        plugin: String,
-        name: String,
-        request: TRequest,
-    ) -> crate::DFHackResult<TReply> {
-        let method = Method::new(plugin, name);
-
-        // did not manage to use the entry api due to borrow checker
-        let maybe_id = self.bindings.get(&method);
-        let id: i16;
-
-        if maybe_id.is_none() {
-            id = self.bind_method::<TRequest, TReply>(&method)?;
-            self.bindings.insert(method, id);
-        } else {
-            id = *maybe_id.unwrap();
-        }
-        self.request_raw(id, request)
     }
 
     pub fn request_raw<TIN: protobuf::Message, TOUT: protobuf::Message>(
