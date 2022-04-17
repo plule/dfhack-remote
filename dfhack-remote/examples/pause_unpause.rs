@@ -1,5 +1,5 @@
 use dfhack_remote;
-use dfhack_remote::messages::SingleBool;
+use dfhack_remote::SingleBool;
 
 fn main() {
     let mut client = dfhack_remote::connect().unwrap();

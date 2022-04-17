@@ -11,7 +11,7 @@ mod withdf {
     use std::process::Child;
     use std::sync::Mutex;
 
-    use dfhack_remote::messages::SingleBool;
+    use dfhack_remote::SingleBool;
     use rand::Rng;
     #[cfg(test)]
     lazy_static::lazy_static! {
@@ -81,7 +81,7 @@ mod withdf {
 
 #[test]
 fn sanity_check() {
-    let mut message = dfhack_remote::messages::IntMessage::new();
+    let mut message = dfhack_remote::IntMessage::new();
     message.set_value(12);
     assert!(message.get_value() == 12);
 }

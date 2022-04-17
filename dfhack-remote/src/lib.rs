@@ -51,13 +51,15 @@
 //!
 //! ## Crate structure
 //!
-//! This crate main entrypoint is the [crate::DFHack] structure.
+//! This crate main entrypoint is the [connect] function.
 //!
 //! The code is split into three crates:
 //!
 //! - `dfhack_proto_srcs` downloads and extract the proto from the DFHack source code at build time.
 //! - `dfhack_proto` builds the protobuf messages and plugin structs containing the RPC
 //! - `dfhack_remote` is the main entrypoint. It implements the actual protocol and exposes the features.
+//!
+//! For ease of use, `dfhack_remote` reexports all the generated code from `dfhack_proto`.
 //!
 //! Internally, the `message` module handles the serialization/deserialization logic that sits on top of protobuf,
 //! and the `protocol` module handles the exchange flow.
@@ -83,20 +85,9 @@
 mod message;
 mod protocol;
 
-/// Protobuf messages exchange as input and output of all the DFHack remote API.
-///
-/// This module is auto-generated from DFHack sources. It is reexported from the
-/// `dfhack_proto`.
-pub mod messages {
-    pub use dfhack_proto::messages::*;
-}
-/// Plugins exposing the feature of the DFHack remote API.
-///
-/// This module is auto-generated from DFHack sources. It is reexported from the
-/// `dfhack_proto`.
-pub mod plugins {
-    pub use dfhack_proto::plugins::*;
-}
+#[doc(no_inline)]
+pub use dfhack_proto::messages::*;
+pub use dfhack_proto::plugins::*;
 
 /// Connect to Dwarf Fortress using the default settings
 ///
@@ -114,9 +105,9 @@ pub mod plugins {
 /// let df_version = dfhack.core.get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version.get_value());
 /// ```
-pub fn connect() -> DFHackResult<plugins::Plugins<protocol::Protocol, DFHackError>> {
+pub fn connect() -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {
     let connexion = protocol::Protocol::connect()?;
-    Ok(plugins::Plugins::from(connexion))
+    Ok(Plugins::from(connexion))
 }
 
 /// Connect to Dwarf Fortress with a given address
@@ -134,11 +125,9 @@ pub fn connect() -> DFHackResult<plugins::Plugins<protocol::Protocol, DFHackErro
 /// println!("DwarfFortress {}",  df_version.get_value());
 /// ```
 ///
-pub fn connect_to(
-    address: &str,
-) -> DFHackResult<plugins::Plugins<protocol::Protocol, DFHackError>> {
+pub fn connect_to(address: &str) -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {
     let connexion = protocol::Protocol::connect_to(address)?;
-    Ok(plugins::Plugins::from(connexion))
+    Ok(Plugins::from(connexion))
 }
 
 /// Result type emitted by DFHack API calls

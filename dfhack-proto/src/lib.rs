@@ -12,6 +12,10 @@
 //!
 //! All the plugins are built from a struct implementing [ProtocolTrait]. This trait
 //! should implement the actual data exchange.
+//!
+//! This crates generates all its code directly in a source subfolder. It would likely
+//! be cleaner to use the $OUT_DIR, or macro to do this job.
+//!
 
 /// Generated code from this crate
 mod generated {

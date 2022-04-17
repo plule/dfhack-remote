@@ -73,7 +73,7 @@ pub struct Request<TMessage: protobuf::Message> {
 
 pub enum Reply<TMessage: protobuf::Message> {
     // https://docs.dfhack.org/en/stable/docs/Remote.html#text
-    Text(crate::messages::CoreTextNotification),
+    Text(crate::CoreTextNotification),
 
     // https://docs.dfhack.org/en/stable/docs/Remote.html#result
     Result(TMessage),
@@ -215,7 +215,7 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
             }
             RpcReplyCode::Text => {
                 log::trace!("Received text");
-                let reply = crate::messages::CoreTextNotification::parse_from_bytes(&buf)?;
+                let reply = crate::CoreTextNotification::parse_from_bytes(&buf)?;
                 Ok(Reply::Text(reply))
             }
             RpcReplyCode::Quit => Err(DFHackError::RpcError()),
