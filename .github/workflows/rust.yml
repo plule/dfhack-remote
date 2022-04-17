@@ -92,8 +92,6 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-    steps:
     - uses: actions/checkout@v3
     - name: Publish dfhack-remote
       run: cargo publish -p dfhack-remote
