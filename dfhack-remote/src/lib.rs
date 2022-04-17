@@ -137,18 +137,10 @@ pub enum DFHackError {
 ///
 /// This structure holds an instance of each exposed plugin,
 /// ready to communicate with Dwarf Fortress.
+/// declare_plugins!
 pub struct DFHack {
-    /// The core plugin exposes the base of the API
-    pub core: plugins::Core<DFHackError, protocol::Protocol>,
-
-    /// Isoworld plugin
-    pub isoworld: plugins::Isoworldremote<DFHackError, protocol::Protocol>,
-
-    /// Rename plugin
-    pub rename: plugins::Rename<DFHackError, protocol::Protocol>,
-
-    /// RemoteFortressReader plugin
-    pub remote_fortress_reader: plugins::RemoteFortressReader<DFHackError, protocol::Protocol>,
+    /// Plugins containing the RPC
+    pub plugins: plugins::Plugins<Protocol, DFHackError>,
 }
 
 impl DFHack {
@@ -163,7 +155,7 @@ impl DFHack {
     /// ```no_run
     /// use dfhack_remote::DFHack;
     /// let mut dfhack = DFHack::connect_to("127.0.0.1:5000").unwrap();
-    /// let df_version = dfhack.core.get_df_version().unwrap();
+    /// let df_version = dfhack.plugins.core.get_df_version().unwrap();
     /// println!("DwarfFortress {}",  df_version.get_value());
     /// ```
     ///
@@ -171,10 +163,7 @@ impl DFHack {
         let client = Protocol::connect(address)?;
         let client = Rc::new(RefCell::new(client));
         Ok(Self {
-            core: plugins::Core::new(Rc::clone(&client)),
-            isoworld: plugins::Isoworldremote::new(Rc::clone(&client)),
-            rename: plugins::Rename::new(Rc::clone(&client)),
-            remote_fortress_reader: plugins::RemoteFortressReader::new(Rc::clone(&client)),
+            plugins: plugins::Plugins::new(Rc::clone(&client)),
         })
     }
 
@@ -191,7 +180,7 @@ impl DFHack {
     /// use dfhack_remote::DFHack;
     ///
     /// let mut dfhack = DFHack::connect().unwrap();
-    /// let df_version = dfhack.core.get_df_version().unwrap();
+    /// let df_version = dfhack.plugins.core.get_df_version().unwrap();
     /// println!("DwarfFortress {}",  df_version.get_value());
     /// ```
     pub fn connect() -> DFHackResult<Self> {

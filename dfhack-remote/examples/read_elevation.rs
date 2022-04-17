@@ -4,7 +4,11 @@ use dfhack_remote::DFHack;
 fn main() {
     let mut client = DFHack::connect().unwrap();
 
-    let world_map = client.remote_fortress_reader.get_world_map_new().unwrap();
+    let world_map = client
+        .plugins
+        .remote_fortress_reader
+        .get_world_map_new()
+        .unwrap();
     let width = world_map.get_world_width() as usize;
     let height = world_map.get_world_height() as usize;
 

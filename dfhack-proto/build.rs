@@ -9,9 +9,34 @@ struct RPC {
     pub output: String,
 }
 
-#[derive(Default)]
 struct Plugin {
+    pub plugin_name: String,
+    pub module_name: String,
+    pub struct_name: String,
+    pub member_name: String,
     pub rpcs: Vec<RPC>,
+}
+
+impl Plugin {
+    pub fn new(plugin_name: &String) -> Self {
+        let plugin_name = plugin_name.clone();
+        let mut base_name = plugin_name.clone();
+        if base_name.is_empty() {
+            base_name = "core".to_string();
+        }
+
+        let module_name = base_name.to_snake_case();
+        let struct_name = base_name.to_pascal_case();
+        let member_name = base_name.to_snake_case();
+
+        Self {
+            plugin_name,
+            module_name,
+            struct_name,
+            member_name,
+            rpcs: Vec::new(),
+        }
+    }
 }
 
 fn main() {
@@ -76,41 +101,65 @@ fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
 }
 
 fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
-    let rpcs = read_protos_rpcs(&protos);
+    let plugins = read_protos_rpcs(&protos);
     let mut out_path = out_path.clone();
     out_path.push("plugins");
     std::fs::create_dir_all(&out_path).unwrap();
-    let mut mod_rs_lines = Vec::new();
-    for (plugin_name, plugin) in rpcs {
-        let mut module_name = plugin_name.to_snake_case();
-        if module_name.is_empty() {
-            module_name = "core".to_string();
-        }
 
-        mod_rs_lines.push(format!("mod {};", module_name));
-        mod_rs_lines.push(format!("pub use self::{}::*;", module_name));
-
-        generate_plugin_rs(&module_name, &plugin_name, &plugin, &out_path);
+    for (plugin_name, plugin) in &plugins {
+        generate_plugin_rs(&plugin_name, &plugin, &out_path);
     }
+
+    generate_plugin_mod_rs(&plugins, out_path);
+}
+
+fn generate_plugin_mod_rs(plugins: &HashMap<String, Plugin>, out_path: PathBuf) {
+    let mut mod_rs_lines = Vec::new();
+    for (_, plugin) in plugins {
+        mod_rs_lines.push(format!("mod {};", &plugin.module_name));
+        mod_rs_lines.push(format!("pub use self::{}::*;", &plugin.module_name));
+    }
+
+    mod_rs_lines.push(r"/// Generated list of DFHack plugins".to_string());
+    mod_rs_lines.push(r"pub struct Plugins<TProtocol: crate::ProtocolTrait<E>, E> {".to_string());
+
+    for (_, plugin) in plugins {
+        mod_rs_lines.push(format!("    /// RPCs of the {} plugin", plugin.plugin_name));
+        mod_rs_lines.push(format!(
+            "    pub {}: crate::plugins::{}<E, TProtocol>,",
+            plugin.module_name, plugin.struct_name
+        ));
+    }
+    mod_rs_lines.push(r"}".to_string());
+    mod_rs_lines
+        .push(r"impl<TProtocol: crate::ProtocolTrait<E>, E> Plugins<TProtocol, E> {".to_string());
+
+    mod_rs_lines.push(r"    /// Initiate all the generated plugins".to_string());
+    mod_rs_lines.push(
+        r"    pub fn new(protocol: std::rc::Rc<std::cell::RefCell<TProtocol>>) -> Self {"
+            .to_string(),
+    );
+    mod_rs_lines.push(r"        Self {".to_string());
+
+    for (_, plugin) in plugins {
+        mod_rs_lines.push(format!(
+            "            {}: {}::new(std::rc::Rc::clone(&protocol)),",
+            plugin.member_name, plugin.struct_name
+        ));
+    }
+
+    mod_rs_lines.push(r"        }".to_string());
+    mod_rs_lines.push(r"    }".to_string());
+    mod_rs_lines.push(r"}".to_string());
 
     let mut mod_rs_path = out_path.clone();
     mod_rs_path.push("mod.rs");
     std::fs::write(mod_rs_path, mod_rs_lines.join("\n")).unwrap();
 }
 
-fn generate_plugin_rs(
-    module_name: &String,
-    plugin_name: &String,
-    plugin: &Plugin,
-    out_path: &PathBuf,
-) {
+fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, out_path: &PathBuf) {
     let mut out_path = out_path.clone();
-    out_path.push(format!("{}.rs", module_name));
-
-    let mut struct_name = plugin_name.to_pascal_case();
-    if struct_name.is_empty() {
-        struct_name = "Core".to_string();
-    }
+    out_path.push(format!("{}.rs", plugin.module_name));
 
     let mut lines = Vec::new();
     lines.push(r"use std::{cell::RefCell, rc::Rc};".to_string());
@@ -121,7 +170,7 @@ fn generate_plugin_rs(
     lines.push(format!("/// {} plugin", plugin_name));
     lines.push(format!(
         r"pub struct {}<E, TProtocol: crate::ProtocolTrait<E>> {{",
-        struct_name
+        plugin.struct_name
     ));
     lines.push(r"    /// Reference to the client to exchange messages".to_string());
     lines.push(r"    pub protocol: Rc<RefCell<TProtocol>>,".to_string());
@@ -132,7 +181,7 @@ fn generate_plugin_rs(
 
     lines.push(format!(
         "impl<E, TProtocol: crate::ProtocolTrait<E>> {}<E, TProtocol> {{",
-        struct_name
+        plugin.struct_name
     ));
     lines.push(r"    /// Instanciate a new plugin instance.".to_string());
     lines.push(r"    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {".to_string());
@@ -169,8 +218,11 @@ fn read_protos_rpcs(protos: &Vec<PathBuf>) -> HashMap<String, Plugin> {
     let mut rpcs = HashMap::<String, Plugin>::new();
 
     for proto in protos {
-        let (plugin, mut proto_rpcs) = read_proto_rpc(proto);
-        let plugin = rpcs.entry(plugin).or_default();
+        let (plugin_name, mut proto_rpcs) = read_proto_rpc(proto);
+
+        let plugin = rpcs
+            .entry(plugin_name.clone())
+            .or_insert(Plugin::new(&plugin_name));
         plugin.rpcs.append(&mut proto_rpcs);
     }
 

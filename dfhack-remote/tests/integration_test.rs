@@ -49,7 +49,7 @@ mod withdf {
     #[test]
     fn get_version() {
         let mut client = dfhack_remote::DFHack::connect().unwrap();
-        let version = client.core.get_df_version().unwrap();
+        let version = client.plugins.core.get_df_version().unwrap();
         assert!(version.get_value().len() > 0);
     }
 
@@ -58,6 +58,7 @@ mod withdf {
         let mut client = DFHack::connect().unwrap();
 
         let initial_pause_status = client
+            .plugins
             .remote_fortress_reader
             .get_pause_state()
             .unwrap()
@@ -66,11 +67,13 @@ mod withdf {
         let mut request = SingleBool::new();
         request.set_Value(!initial_pause_status);
         client
+            .plugins
             .remote_fortress_reader
             .set_pause_state(request)
             .unwrap();
 
         let new_pause_status = client
+            .plugins
             .remote_fortress_reader
             .get_pause_state()
             .unwrap()
