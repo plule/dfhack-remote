@@ -20,17 +20,17 @@ pub fn protos() -> Vec<PathBuf> {
 
 #[cfg(test)]
 mod tests {
-    use crate::protos;
+    //use crate::protos;
 
-    #[test]
-    fn has_protos() {
-        assert!(protos().len() > 0)
-    }
-
-    #[test]
-    fn protos_exist() {
-        for proto in protos() {
-            assert!(proto.exists());
-        }
-    }
+    //    #[test]
+    //    fn has_protos() {
+    //        assert!(protos().len() > 0)
+    //    }
+    //
+    //    #[test]
+    //    fn protos_exist() {
+    //        for proto in protos() {
+    //            assert!(proto.exists());
+    //        }
+    //    }
 }
