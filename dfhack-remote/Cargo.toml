@@ -9,7 +9,7 @@ byteorder = "1.4.3"
 num_enum = "0.5.7"
 log = "0.4.16"
 derive_more = "0.99.17"
-dfhack-proto = { path = "../dfhack-proto" }
+dfhack-proto = { version = "0.1.0", path = "../dfhack-proto" }
 
 [dev-dependencies]
 bmp = "0.5.0"
