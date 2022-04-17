@@ -211,11 +211,35 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, file: &mut TokenStr
         let function_ident = format_ident!("{}", rpc.name.to_snake_case());
         let input_ident = format_ident!("{}", rpc.input);
         let output_ident = format_ident!("{}", rpc.output);
+
+        let mut parameters = quote! {
+            &mut self,
+            request: #input_ident,
+        };
+
+        let mut prep = quote!();
+
+        if rpc.input == "EmptyMessage" {
+            parameters = quote! {
+                &mut self,
+            };
+            prep = quote! {
+                let request = EmptyMessage::new();
+            }
+        }
+
         plugin_impl.extend(quote! {
-            crate::plugins::make_plugin_request!(
-                #[doc = #doc]
-                #function_ident, #function_name, #input_ident, #output_ident
-            );
+            #[doc = #doc]
+            pub fn #function_ident(
+                #parameters
+            ) -> Result<#output_ident, E> {
+                #prep
+                self.protocol.borrow_mut().request(
+                    #plugin_name.to_string(),
+                    #function_name.to_string(),
+                    request,
+                )
+            }
         });
     }
 
