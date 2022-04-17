@@ -1,19 +1,12 @@
 use dfhack_remote;
-use dfhack_remote::SingleBool;
 
 fn main() {
     let mut client = dfhack_remote::connect().unwrap();
 
-    let status = client
-        .remote_fortress_reader
-        .get_pause_state()
-        .unwrap()
-        .get_Value();
+    let status = client.remote_fortress_reader.get_pause_state().unwrap();
 
-    let mut request = SingleBool::new();
-    request.set_Value(!status);
     client
         .remote_fortress_reader
-        .set_pause_state(request)
+        .set_pause_state(!status)
         .unwrap();
 }

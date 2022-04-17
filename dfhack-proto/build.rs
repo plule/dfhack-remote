@@ -2,6 +2,7 @@ use std::{collections::HashMap, io::BufRead, path::PathBuf};
 
 use heck::{ToPascalCase, ToSnakeCase};
 use prettyplease;
+use quote::ToTokens;
 use quote::__private::Ident;
 use quote::__private::TokenStream;
 use quote::format_ident;
@@ -211,6 +212,7 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, file: &mut TokenStr
         let function_ident = format_ident!("{}", rpc.name.to_snake_case());
         let input_ident = format_ident!("{}", rpc.input);
         let output_ident = format_ident!("{}", rpc.output);
+        let mut return_token = output_ident.to_token_stream();
 
         let mut parameters = quote! {
             &mut self,
@@ -218,7 +220,9 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, file: &mut TokenStr
         };
 
         let mut prep = quote!();
+        let mut post = quote!();
 
+        // Syntaxic sugars for simple messages (empty, single value)
         if rpc.input == "EmptyMessage" {
             parameters = quote! {
                 &mut self,
@@ -228,17 +232,77 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, file: &mut TokenStr
             }
         }
 
+        if rpc.output == "EmptyMessage" {
+            return_token = quote! {
+                ()
+            };
+            post = quote! {
+                let _response = ();
+            }
+        }
+
+        if rpc.input == "IntMessage" {
+            parameters = quote! {
+                &mut self,
+                value: i32,
+            };
+            prep = quote! {
+                let mut request = IntMessage::new();
+                request.set_value(value);
+            }
+        }
+
+        if rpc.output == "IntMessage" {
+            return_token = quote! {
+                i32
+            };
+            post = quote! {
+                let _response = _response.get_value();
+            }
+        }
+
+        if rpc.input == "SingleBool" {
+            parameters = quote! {
+                &mut self,
+                value: bool,
+            };
+            prep = quote! {
+                let mut request = SingleBool::new();
+                request.set_Value(value);
+            }
+        }
+
+        if rpc.output == "SingleBool" {
+            return_token = quote! {
+                bool
+            };
+            post = quote! {
+                let _response = _response.get_Value();
+            }
+        }
+
+        if rpc.output == "StringMessage" {
+            return_token = quote! {
+                String
+            };
+            post = quote! {
+                let _response = _response.get_value().to_string();
+            }
+        }
+
         plugin_impl.extend(quote! {
             #[doc = #doc]
             pub fn #function_ident(
                 #parameters
-            ) -> Result<#output_ident, E> {
+            ) -> Result<#return_token, E> {
                 #prep
-                self.protocol.borrow_mut().request(
+                let _response: #output_ident = self.protocol.borrow_mut().request(
                     #plugin_name.to_string(),
                     #function_name.to_string(),
                     request,
-                )
+                )?;
+                #post
+                Ok(_response)
             }
         });
     }

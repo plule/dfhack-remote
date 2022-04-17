@@ -103,7 +103,7 @@ pub use dfhack_proto::plugins::*;
 ///
 /// let mut dfhack = dfhack_remote::connect().unwrap();
 /// let df_version = dfhack.core.get_df_version().unwrap();
-/// println!("DwarfFortress {}",  df_version.get_value());
+/// println!("DwarfFortress {}",  df_version);
 /// ```
 pub fn connect() -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {
     let connexion = protocol::Protocol::connect()?;
@@ -122,7 +122,7 @@ pub fn connect() -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {
 /// use dfhack_remote;
 /// let mut dfhack = dfhack_remote::connect_to("127.0.0.1:5000").unwrap();
 /// let df_version = dfhack.core.get_df_version().unwrap();
-/// println!("DwarfFortress {}",  df_version.get_value());
+/// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
 pub fn connect_to(address: &str) -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {

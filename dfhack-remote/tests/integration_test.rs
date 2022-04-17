@@ -11,7 +11,6 @@ mod withdf {
     use std::process::Child;
     use std::sync::Mutex;
 
-    use dfhack_remote::SingleBool;
     use rand::Rng;
     #[cfg(test)]
     lazy_static::lazy_static! {
@@ -49,31 +48,21 @@ mod withdf {
     fn get_version() {
         let mut client = dfhack_remote::connect().unwrap();
         let version = client.core.get_df_version().unwrap();
-        assert!(version.get_value().len() > 0);
+        assert!(version.len() > 0);
     }
 
     #[test]
     fn pause_unpause() {
         let mut client = dfhack_remote::connect().unwrap();
 
-        let initial_pause_status = client
-            .remote_fortress_reader
-            .get_pause_state()
-            .unwrap()
-            .get_Value();
+        let initial_pause_status = client.remote_fortress_reader.get_pause_state().unwrap();
 
-        let mut request = SingleBool::new();
-        request.set_Value(!initial_pause_status);
         client
             .remote_fortress_reader
-            .set_pause_state(request)
+            .set_pause_state(!initial_pause_status)
             .unwrap();
 
-        let new_pause_status = client
-            .remote_fortress_reader
-            .get_pause_state()
-            .unwrap()
-            .get_Value();
+        let new_pause_status = client.remote_fortress_reader.get_pause_state().unwrap();
 
         assert!(initial_pause_status != new_pause_status);
     }
