@@ -36,7 +36,7 @@ const VERSION: i32 = 1;
 const BIND_METHOD_ID: i16 = 0;
 const RUN_COMMAND_ID: i16 = 1;
 
-impl dfhack_proto::DFHackRequest<crate::DFHackError> for Protocol {
+impl dfhack_proto::ProtocolTrait<crate::DFHackError> for Protocol {
     fn request<TRequest, TReply>(
         &mut self,
         plugin: std::string::String,

@@ -86,9 +86,17 @@ mod protocol;
 
 /// Protobuf messages exchange as input and output of all the DFHack remote API.
 ///
-/// This module is auto-generated from DFHack sources.
+/// This module is auto-generated from DFHack sources. It is reexported from the
+/// `dfhack_proto`.
 pub mod messages {
     pub use dfhack_proto::messages::*;
+}
+/// Plugins exposing the feature of the DFHack remote API.
+///
+/// This module is auto-generated from DFHack sources. It is reexported from the
+/// `dfhack_proto`.
+pub mod plugins {
+    pub use dfhack_proto::plugins::*;
 }
 
 /// Result type emitted by DFHack API calls
@@ -130,17 +138,16 @@ pub enum DFHackError {
 /// ready to communicate with Dwarf Fortress.
 pub struct DFHack {
     /// The core plugin exposes the base of the API
-    pub core: dfhack_proto::plugins::Core<DFHackError, protocol::Protocol>,
+    pub core: plugins::Core<DFHackError, protocol::Protocol>,
 
     /// Isoworld plugin
-    pub isoworld: dfhack_proto::plugins::Isoworldremote<DFHackError, protocol::Protocol>,
+    pub isoworld: plugins::Isoworldremote<DFHackError, protocol::Protocol>,
 
     /// Rename plugin
-    pub rename: dfhack_proto::plugins::Rename<DFHackError, protocol::Protocol>,
+    pub rename: plugins::Rename<DFHackError, protocol::Protocol>,
 
     /// RemoteFortressReader plugin
-    pub remote_fortress_reader:
-        dfhack_proto::plugins::RemoteFortressReader<DFHackError, protocol::Protocol>,
+    pub remote_fortress_reader: plugins::RemoteFortressReader<DFHackError, protocol::Protocol>,
 }
 
 impl DFHack {
@@ -163,12 +170,10 @@ impl DFHack {
         let client = Protocol::connect(address)?;
         let client = Rc::new(RefCell::new(client));
         Ok(Self {
-            core: dfhack_proto::plugins::Core::new(Rc::clone(&client)),
-            isoworld: dfhack_proto::plugins::Isoworldremote::new(Rc::clone(&client)),
-            rename: dfhack_proto::plugins::Rename::new(Rc::clone(&client)),
-            remote_fortress_reader: dfhack_proto::plugins::RemoteFortressReader::new(Rc::clone(
-                &client,
-            )),
+            core: plugins::Core::new(Rc::clone(&client)),
+            isoworld: plugins::Isoworldremote::new(Rc::clone(&client)),
+            rename: plugins::Rename::new(Rc::clone(&client)),
+            remote_fortress_reader: plugins::RemoteFortressReader::new(Rc::clone(&client)),
         })
     }
 

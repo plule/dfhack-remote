@@ -18,7 +18,7 @@ pub mod plugins {
     /// Macro generating a request
     ///
     /// This macro assumes that it is invoked in the implementation of a plugin
-    /// containing a `name` attribute, and a `client` attribute.
+    /// containing a `name` attribute, and a `protocol` attribute.
     macro_rules! make_plugin_request {
         (
             $(#[$meta:meta])*
@@ -27,7 +27,7 @@ pub mod plugins {
             $(#[$meta])*
             pub fn $func_name(&mut self) -> Result<$response_type, E> {
                 let request = crate::messages::EmptyMessage::new();
-                self.client.borrow_mut().request(
+                self.protocol.borrow_mut().request(
                     self.name.to_string(),
                     $method_name.to_string(),
                     request,
@@ -43,7 +43,7 @@ pub mod plugins {
                 &mut self,
                 request: $request_type,
             ) -> Result<$response_type, E> {
-                self.client.borrow_mut().request(
+                self.protocol.borrow_mut().request(
                     self.name.to_string(),
                     $method_name.to_string(),
                     request,
@@ -56,7 +56,7 @@ pub mod plugins {
 }
 
 /// Ability to exchange protobuf messages with DFHack
-pub trait DFHackRequest<TError> {
+pub trait ProtocolTrait<TError> {
     fn request<TRequest: protobuf::Message, TReply: protobuf::Message>(
         &mut self,
         plugin: String,

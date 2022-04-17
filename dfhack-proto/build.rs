@@ -31,6 +31,7 @@ fn main() {
     // Generate the protobuf message files
     generate_messages_rs(&protos, &proto_include_dir, &out_path);
 
+    // Generate the plugins
     generate_plugins_rs(&protos, &out_path)
 }
 
@@ -113,31 +114,30 @@ fn generate_plugin_rs(
 
     let mut lines = Vec::new();
     lines.push(r"use std::{cell::RefCell, rc::Rc};".to_string());
-    //lines.push(r"use crate::protocol::Protocol;".to_string());
+    //lines.push(r"use crate::ProtocolTrait::Protocol;".to_string());
     lines.push(r"use crate::messages::*;".to_string());
     lines.push(r"use std::marker::PhantomData;".to_string());
 
     lines.push(format!("/// {} plugin", plugin_name));
     lines.push(format!(
-        r"pub struct {}<E, TClient: crate::DFHackRequest<E>> {{",
+        r"pub struct {}<E, TProtocol: crate::ProtocolTrait<E>> {{",
         struct_name
     ));
     lines.push(r"    /// Reference to the client to exchange messages".to_string());
-    lines.push(r"    pub client: Rc<RefCell<TClient>>,".to_string());
+    lines.push(r"    pub protocol: Rc<RefCell<TProtocol>>,".to_string());
     lines.push(r"    /// Name of the plugin. All the RPC are attached to this name.".to_string());
     lines.push(r"    pub name: String,".to_string());
     lines.push(r"    phantom: PhantomData<E>,".to_string());
     lines.push(r"}".to_string());
 
     lines.push(format!(
-        "impl<E, TClient: crate::DFHackRequest<E>> {}<E, TClient> {{",
+        "impl<E, TProtocol: crate::ProtocolTrait<E>> {}<E, TProtocol> {{",
         struct_name
     ));
     lines.push(r"    /// Instanciate a new plugin instance.".to_string());
-    lines.push(r"    /// You should likely use [crate::DFHack] instead.".to_string());
-    lines.push(r"    pub fn new(client: Rc<RefCell<TClient>>) -> Self {".to_string());
+    lines.push(r"    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {".to_string());
     lines.push(r"        Self {".to_string());
-    lines.push(r"            client,".to_string());
+    lines.push(r"            protocol,".to_string());
     lines.push(format!(
         "            name: \"{}\".to_string(),",
         plugin_name
