@@ -47,6 +47,11 @@ impl Plugin {
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
+    match std::env::var("DFHACK_REGEN") {
+        Ok(_) => (),
+        Err(_) => return,
+    };
+
     let proto_include_dir = dfhack_proto_srcs::include_dir();
     let protos = dfhack_proto_srcs::protos();
 
