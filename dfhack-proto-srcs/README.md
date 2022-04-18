@@ -1,5 +1,9 @@
 # dfhack_proto_srcs
 
+[![Crates.io](https://img.shields.io/crates/v/dfhack-proto-srcs)](https://crates.io/crates/dfhack-proto-srcs)
+[![docs.rs](https://img.shields.io/docsrs/dfhack-proto-srcs)](https://docs.rs/dfhack-proto-srcs)
+![Crates.io](https://img.shields.io/crates/l/dfhack-proto-srcs)
+
 This subcomponent of [dfhack_remote](https://docs.rs/dfhack-remote/) contains the protobuf files
 extracted from [DFHack](https://github.com/DFHack/dfhack).
 
