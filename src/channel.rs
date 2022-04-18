@@ -24,7 +24,7 @@ impl Method {
     }
 }
 
-pub struct Protocol {
+pub struct DFHackChannel {
     stream: std::net::TcpStream,
     bindings: HashMap<Method, i16>,
 }
@@ -36,7 +36,7 @@ const VERSION: i32 = 1;
 const BIND_METHOD_ID: i16 = 0;
 const RUN_COMMAND_ID: i16 = 1;
 
-impl dfhack_proto::ProtocolTrait<crate::DFHackError> for Protocol {
+impl dfhack_proto::Channel<crate::DFHackError> for DFHackChannel {
     fn request<TRequest, TReply>(
         &mut self,
         plugin: std::string::String,
@@ -63,7 +63,7 @@ impl dfhack_proto::ProtocolTrait<crate::DFHackError> for Protocol {
     }
 }
 
-impl Protocol {
+impl DFHackChannel {
     pub fn connect() -> crate::DFHackResult<Self> {
         let port = match std::env::var("DFHACK_PORT") {
             Ok(p) => p,
@@ -72,9 +72,9 @@ impl Protocol {
         Self::connect_to(&format!("127.0.0.1:{}", port))
     }
 
-    pub fn connect_to(address: &str) -> crate::DFHackResult<Protocol> {
+    pub fn connect_to(address: &str) -> crate::DFHackResult<DFHackChannel> {
         log::info!("Connecting to {}", address);
-        let mut client = Protocol {
+        let mut client = DFHackChannel {
             stream: std::net::TcpStream::connect(address)?,
             bindings: HashMap::new(),
         };
@@ -142,7 +142,7 @@ impl Protocol {
     }
 }
 
-impl Drop for Protocol {
+impl Drop for DFHackChannel {
     fn drop(&mut self) {
         let quit = message::Quit::new();
         let res = quit.send(&mut self.stream);

@@ -13,13 +13,17 @@ pub mod plugins {
     pub use crate::generated::plugins::*;
 }
 
-/// Ability to exchange protobuf messages with DFHack
-pub trait ProtocolTrait<TError> {
-    /// Send a request to DFHack
+/// The `Channel` is the low-level exchange implementation.
+///
+/// It is in charge to serialize/deserialize messages, and exchange
+/// them with Dwarf Fortress. It is not meant to be used as is, but to be passed to
+/// It is analoguous to the gRPC channel.
+pub trait Channel<TError> {
+    /// Send a request to DFHack, and return its reply.
     ///
     /// # Errors
     ///
-    /// The error type is defined by the protocol implementation
+    /// The error type is defined by the channel implementation
     ///
     /// # Arguments
     ///

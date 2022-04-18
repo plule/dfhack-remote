@@ -14,7 +14,7 @@ It contains two main modules:
 
 Internally these two modules are created under the `generated` module.
 
-All the plugins are built from a struct implementing [ProtocolTrait]. This trait
+All the plugins are built from a struct implementing [Channel]. This trait
 should implement the actual data exchange.
 
 The code is regenerated under the condition that the environment variable `DFHACK_REGEN` is set.

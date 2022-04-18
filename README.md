@@ -77,7 +77,7 @@ The code is split into three crates:
 For ease of use, `dfhack_remote` reexports all the generated code from `dfhack_proto`.
 
 Internally, the `message` module handles the serialization/deserialization logic that sits on top of protobuf,
-and the `protocol` module handles the exchange flow.
+and the `channel` module handles the exchange flow.
 
 ## Testing
 

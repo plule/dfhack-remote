@@ -2,43 +2,43 @@ use std::{cell::RefCell, rc::Rc};
 use crate::messages::*;
 use std::marker::PhantomData;
 ///Generated list of DFHack plugins
-pub struct Plugins<TProtocol: crate::ProtocolTrait<E>, E> {
+pub struct Plugins<TChannel: crate::Channel<E>, E> {
     ///RPCs of the  plugin
-    pub core: crate::plugins::Core<E, TProtocol>,
+    pub core: crate::plugins::Core<E, TChannel>,
     ///RPCs of the RemoteFortressReader plugin
-    pub remote_fortress_reader: crate::plugins::RemoteFortressReader<E, TProtocol>,
+    pub remote_fortress_reader: crate::plugins::RemoteFortressReader<E, TChannel>,
     ///RPCs of the isoworldremote plugin
-    pub isoworldremote: crate::plugins::Isoworldremote<E, TProtocol>,
+    pub isoworldremote: crate::plugins::Isoworldremote<E, TChannel>,
     ///RPCs of the rename plugin
-    pub rename: crate::plugins::Rename<E, TProtocol>,
+    pub rename: crate::plugins::Rename<E, TChannel>,
 }
-impl<TProtocol: crate::ProtocolTrait<E>, E> From<TProtocol> for Plugins<TProtocol, E> {
+impl<TChannel: crate::Channel<E>, E> From<TChannel> for Plugins<TChannel, E> {
     ///Initialize all the generated plugins
-    fn from(protocol: TProtocol) -> Self {
-        let protocol = std::rc::Rc::new(std::cell::RefCell::new(protocol));
+    fn from(channel: TChannel) -> Self {
+        let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
         Self {
-            core: Core::new(std::rc::Rc::clone(&protocol)),
+            core: Core::new(std::rc::Rc::clone(&channel)),
             remote_fortress_reader: RemoteFortressReader::new(
-                std::rc::Rc::clone(&protocol),
+                std::rc::Rc::clone(&channel),
             ),
-            isoworldremote: Isoworldremote::new(std::rc::Rc::clone(&protocol)),
-            rename: Rename::new(std::rc::Rc::clone(&protocol)),
+            isoworldremote: Isoworldremote::new(std::rc::Rc::clone(&channel)),
+            rename: Rename::new(std::rc::Rc::clone(&channel)),
         }
     }
 }
 ///RPC for the "" plugin.
-pub struct Core<E, TProtocol: crate::ProtocolTrait<E>> {
+pub struct Core<E, TChannel: crate::Channel<E>> {
     ///Reference to the client to exchange messages.
-    pub protocol: Rc<RefCell<TProtocol>>,
+    pub channel: Rc<RefCell<TChannel>>,
     ///Name of the plugin. All the RPC are attached to this name.
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
+impl<E, TChannel: crate::Channel<E>> Core<E, TChannel> {
     ///Instanciate a new plugin instance
-    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
+    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
-            protocol,
+            channel,
             name: "".to_string(),
             phantom: PhantomData,
         }
@@ -46,7 +46,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     ///Method `BindMethod` from the plugin ``
     pub fn bind_method(&mut self, request: CoreBindRequest) -> Result<CoreBindReply, E> {
         let _response: CoreBindReply = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "BindMethod".to_string(), request)?;
         Ok(_response)
@@ -55,7 +55,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     pub fn core_resume(&mut self) -> Result<i32, E> {
         let request = EmptyMessage::new();
         let _response: IntMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "CoreResume".to_string(), request)?;
         let _response = _response.get_value();
@@ -65,7 +65,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     pub fn core_suspend(&mut self) -> Result<i32, E> {
         let request = EmptyMessage::new();
         let _response: IntMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "CoreSuspend".to_string(), request)?;
         let _response = _response.get_value();
@@ -75,7 +75,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     pub fn get_df_version(&mut self) -> Result<String, E> {
         let request = EmptyMessage::new();
         let _response: StringMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "GetDFVersion".to_string(), request)?;
         let _response = _response.get_value().to_string();
@@ -85,7 +85,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     pub fn get_version(&mut self) -> Result<String, E> {
         let request = EmptyMessage::new();
         let _response: StringMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "GetVersion".to_string(), request)?;
         let _response = _response.get_value().to_string();
@@ -95,7 +95,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     pub fn get_world_info(&mut self) -> Result<GetWorldInfoOut, E> {
         let request = EmptyMessage::new();
         let _response: GetWorldInfoOut = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "GetWorldInfo".to_string(), request)?;
         Ok(_response)
@@ -104,7 +104,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     pub fn list_enums(&mut self) -> Result<ListEnumsOut, E> {
         let request = EmptyMessage::new();
         let _response: ListEnumsOut = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "ListEnums".to_string(), request)?;
         Ok(_response)
@@ -113,7 +113,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     pub fn list_job_skills(&mut self) -> Result<ListJobSkillsOut, E> {
         let request = EmptyMessage::new();
         let _response: ListJobSkillsOut = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "ListJobSkills".to_string(), request)?;
         Ok(_response)
@@ -124,7 +124,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
         request: ListMaterialsIn,
     ) -> Result<ListMaterialsOut, E> {
         let _response: ListMaterialsOut = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "ListMaterials".to_string(), request)?;
         Ok(_response)
@@ -132,7 +132,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     ///Method `ListSquads` from the plugin ``
     pub fn list_squads(&mut self, request: ListSquadsIn) -> Result<ListSquadsOut, E> {
         let _response: ListSquadsOut = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "ListSquads".to_string(), request)?;
         Ok(_response)
@@ -140,7 +140,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     ///Method `ListUnits` from the plugin ``
     pub fn list_units(&mut self, request: ListUnitsIn) -> Result<ListUnitsOut, E> {
         let _response: ListUnitsOut = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "ListUnits".to_string(), request)?;
         Ok(_response)
@@ -148,7 +148,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     ///Method `RunCommand` from the plugin ``
     pub fn run_command(&mut self, request: CoreRunCommandRequest) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "RunCommand".to_string(), request)?;
         let _response = ();
@@ -160,7 +160,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
         request: CoreRunLuaRequest,
     ) -> Result<StringListMessage, E> {
         let _response: StringListMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "RunLua".to_string(), request)?;
         Ok(_response)
@@ -168,7 +168,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     ///Method `SetUnitLabors` from the plugin ``
     pub fn set_unit_labors(&mut self, request: SetUnitLaborsIn) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("".to_string(), "SetUnitLabors".to_string(), request)?;
         let _response = ();
@@ -176,18 +176,18 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
     }
 }
 ///RPC for the "RemoteFortressReader" plugin.
-pub struct RemoteFortressReader<E, TProtocol: crate::ProtocolTrait<E>> {
+pub struct RemoteFortressReader<E, TChannel: crate::Channel<E>> {
     ///Reference to the client to exchange messages.
-    pub protocol: Rc<RefCell<TProtocol>>,
+    pub channel: Rc<RefCell<TChannel>>,
     ///Name of the plugin. All the RPC are attached to this name.
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
+impl<E, TChannel: crate::Channel<E>> RemoteFortressReader<E, TChannel> {
     ///Instanciate a new plugin instance
-    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
+    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
-            protocol,
+            channel,
             name: "RemoteFortressReader".to_string(),
             phantom: PhantomData,
         }
@@ -196,7 +196,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn check_hashes(&mut self) -> Result<(), E> {
         let request = EmptyMessage::new();
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -210,7 +210,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn copy_screen(&mut self) -> Result<ScreenCapture, E> {
         let request = EmptyMessage::new();
         let _response: ScreenCapture = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -222,7 +222,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `GetBlockList` from the plugin `RemoteFortressReader`
     pub fn get_block_list(&mut self, request: BlockRequest) -> Result<BlockList, E> {
         let _response: BlockList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -235,7 +235,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_building_def_list(&mut self) -> Result<BuildingList, E> {
         let request = EmptyMessage::new();
         let _response: BuildingList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -248,7 +248,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_creature_raws(&mut self) -> Result<CreatureRawList, E> {
         let request = EmptyMessage::new();
         let _response: CreatureRawList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -261,7 +261,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_game_validity(&mut self) -> Result<bool, E> {
         let request = EmptyMessage::new();
         let _response: SingleBool = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -275,7 +275,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_growth_list(&mut self) -> Result<MaterialList, E> {
         let request = EmptyMessage::new();
         let _response: MaterialList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -288,7 +288,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_item_list(&mut self) -> Result<MaterialList, E> {
         let request = EmptyMessage::new();
         let _response: MaterialList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -301,7 +301,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_language(&mut self) -> Result<Language, E> {
         let request = EmptyMessage::new();
         let _response: Language = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -314,7 +314,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_map_info(&mut self) -> Result<MapInfo, E> {
         let request = EmptyMessage::new();
         let _response: MapInfo = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -327,7 +327,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_material_list(&mut self) -> Result<MaterialList, E> {
         let request = EmptyMessage::new();
         let _response: MaterialList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -342,7 +342,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
         request: ListRequest,
     ) -> Result<CreatureRawList, E> {
         let _response: CreatureRawList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -357,7 +357,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
         request: ListRequest,
     ) -> Result<PlantRawList, E> {
         let _response: PlantRawList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -370,7 +370,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_pause_state(&mut self) -> Result<bool, E> {
         let request = EmptyMessage::new();
         let _response: SingleBool = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -383,7 +383,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `GetPlantList` from the plugin `RemoteFortressReader`
     pub fn get_plant_list(&mut self, request: BlockRequest) -> Result<PlantList, E> {
         let _response: PlantList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -396,7 +396,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_plant_raws(&mut self) -> Result<PlantRawList, E> {
         let request = EmptyMessage::new();
         let _response: PlantRawList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -409,7 +409,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_region_maps(&mut self) -> Result<RegionMaps, E> {
         let request = EmptyMessage::new();
         let _response: RegionMaps = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -422,7 +422,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_region_maps_new(&mut self) -> Result<RegionMaps, E> {
         let request = EmptyMessage::new();
         let _response: RegionMaps = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -435,7 +435,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_reports(&mut self) -> Result<Status, E> {
         let request = EmptyMessage::new();
         let _response: Status = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -448,7 +448,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_side_menu(&mut self) -> Result<SidebarState, E> {
         let request = EmptyMessage::new();
         let _response: SidebarState = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -461,7 +461,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_tiletype_list(&mut self) -> Result<TiletypeList, E> {
         let request = EmptyMessage::new();
         let _response: TiletypeList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -474,7 +474,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_unit_list(&mut self) -> Result<UnitList, E> {
         let request = EmptyMessage::new();
         let _response: UnitList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -489,7 +489,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
         request: BlockRequest,
     ) -> Result<UnitList, E> {
         let _response: UnitList = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -502,7 +502,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_version_info(&mut self) -> Result<VersionInfo, E> {
         let request = EmptyMessage::new();
         let _response: VersionInfo = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -515,7 +515,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_view_info(&mut self) -> Result<ViewInfo, E> {
         let request = EmptyMessage::new();
         let _response: ViewInfo = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -528,7 +528,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_world_map(&mut self) -> Result<WorldMap, E> {
         let request = EmptyMessage::new();
         let _response: WorldMap = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -541,7 +541,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_world_map_center(&mut self) -> Result<WorldMap, E> {
         let request = EmptyMessage::new();
         let _response: WorldMap = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -554,7 +554,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn get_world_map_new(&mut self) -> Result<WorldMap, E> {
         let request = EmptyMessage::new();
         let _response: WorldMap = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -566,7 +566,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `JumpCommand` from the plugin `RemoteFortressReader`
     pub fn jump_command(&mut self, request: MoveCommandParams) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -580,7 +580,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn menu_query(&mut self) -> Result<MenuContents, E> {
         let request = EmptyMessage::new();
         let _response: MenuContents = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -592,7 +592,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `MiscMoveCommand` from the plugin `RemoteFortressReader`
     pub fn misc_move_command(&mut self, request: MiscMoveParams) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -605,7 +605,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `MoveCommand` from the plugin `RemoteFortressReader`
     pub fn move_command(&mut self, request: MoveCommandParams) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -620,7 +620,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
         let mut request = IntMessage::new();
         request.set_value(value);
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -633,7 +633,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `PassKeyboardEvent` from the plugin `RemoteFortressReader`
     pub fn pass_keyboard_event(&mut self, request: KeyboardEvent) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -647,7 +647,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     pub fn reset_map_hashes(&mut self) -> Result<(), E> {
         let request = EmptyMessage::new();
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -660,7 +660,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `SendDigCommand` from the plugin `RemoteFortressReader`
     pub fn send_dig_command(&mut self, request: DigCommand) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -675,7 +675,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
         let mut request = SingleBool::new();
         request.set_Value(value);
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -688,7 +688,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     ///Method `SetSideMenu` from the plugin `RemoteFortressReader`
     pub fn set_side_menu(&mut self, request: SidebarCommand) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
@@ -700,18 +700,18 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
     }
 }
 ///RPC for the "isoworldremote" plugin.
-pub struct Isoworldremote<E, TProtocol: crate::ProtocolTrait<E>> {
+pub struct Isoworldremote<E, TChannel: crate::Channel<E>> {
     ///Reference to the client to exchange messages.
-    pub protocol: Rc<RefCell<TProtocol>>,
+    pub channel: Rc<RefCell<TChannel>>,
     ///Name of the plugin. All the RPC are attached to this name.
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TProtocol: crate::ProtocolTrait<E>> Isoworldremote<E, TProtocol> {
+impl<E, TChannel: crate::Channel<E>> Isoworldremote<E, TChannel> {
     ///Instanciate a new plugin instance
-    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
+    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
-            protocol,
+            channel,
             name: "isoworldremote".to_string(),
             phantom: PhantomData,
         }
@@ -719,7 +719,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Isoworldremote<E, TProtocol> {
     ///Method `GetEmbarkInfo` from the plugin `isoworldremote`
     pub fn get_embark_info(&mut self, request: MapRequest) -> Result<MapReply, E> {
         let _response: MapReply = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "isoworldremote".to_string(),
@@ -731,7 +731,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Isoworldremote<E, TProtocol> {
     ///Method `GetEmbarkTile` from the plugin `isoworldremote`
     pub fn get_embark_tile(&mut self, request: TileRequest) -> Result<EmbarkTile, E> {
         let _response: EmbarkTile = self
-            .protocol
+            .channel
             .borrow_mut()
             .request(
                 "isoworldremote".to_string(),
@@ -743,25 +743,25 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Isoworldremote<E, TProtocol> {
     ///Method `GetRawNames` from the plugin `isoworldremote`
     pub fn get_raw_names(&mut self, request: MapRequest) -> Result<RawNames, E> {
         let _response: RawNames = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("isoworldremote".to_string(), "GetRawNames".to_string(), request)?;
         Ok(_response)
     }
 }
 ///RPC for the "rename" plugin.
-pub struct Rename<E, TProtocol: crate::ProtocolTrait<E>> {
+pub struct Rename<E, TChannel: crate::Channel<E>> {
     ///Reference to the client to exchange messages.
-    pub protocol: Rc<RefCell<TProtocol>>,
+    pub channel: Rc<RefCell<TChannel>>,
     ///Name of the plugin. All the RPC are attached to this name.
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TProtocol: crate::ProtocolTrait<E>> Rename<E, TProtocol> {
+impl<E, TChannel: crate::Channel<E>> Rename<E, TChannel> {
     ///Instanciate a new plugin instance
-    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
+    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
-            protocol,
+            channel,
             name: "rename".to_string(),
             phantom: PhantomData,
         }
@@ -769,7 +769,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Rename<E, TProtocol> {
     ///Method `RenameBuilding` from the plugin `rename`
     pub fn rename_building(&mut self, request: RenameBuildingIn) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("rename".to_string(), "RenameBuilding".to_string(), request)?;
         let _response = ();
@@ -778,7 +778,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Rename<E, TProtocol> {
     ///Method `RenameSquad` from the plugin `rename`
     pub fn rename_squad(&mut self, request: RenameSquadIn) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("rename".to_string(), "RenameSquad".to_string(), request)?;
         let _response = ();
@@ -787,7 +787,7 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Rename<E, TProtocol> {
     ///Method `RenameUnit` from the plugin `rename`
     pub fn rename_unit(&mut self, request: RenameUnitIn) -> Result<(), E> {
         let _response: EmptyMessage = self
-            .protocol
+            .channel
             .borrow_mut()
             .request("rename".to_string(), "RenameUnit".to_string(), request)?;
         let _response = ();

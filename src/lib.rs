@@ -1,8 +1,8 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
+mod channel;
 mod message;
-mod protocol;
 
 #[doc(no_inline)]
 pub use dfhack_proto::messages::*;
@@ -24,8 +24,8 @@ pub use dfhack_proto::plugins::*;
 /// let df_version = dfhack.core.get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
-pub fn connect() -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {
-    let connexion = protocol::Protocol::connect()?;
+pub fn connect() -> DFHackResult<Plugins<channel::DFHackChannel, DFHackError>> {
+    let connexion = channel::DFHackChannel::connect()?;
     Ok(Plugins::from(connexion))
 }
 
@@ -44,8 +44,8 @@ pub fn connect() -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
-pub fn connect_to(address: &str) -> DFHackResult<Plugins<protocol::Protocol, DFHackError>> {
-    let connexion = protocol::Protocol::connect_to(address)?;
+pub fn connect_to(address: &str) -> DFHackResult<Plugins<channel::DFHackChannel, DFHackError>> {
+    let connexion = channel::DFHackChannel::connect_to(address)?;
     Ok(Plugins::from(connexion))
 }
 

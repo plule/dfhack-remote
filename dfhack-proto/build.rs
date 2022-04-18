@@ -158,25 +158,25 @@ fn generate_plugins_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
         let member_ident = plugin.member_ident.clone();
         plugins_struct.extend(quote! {
             #[doc = #doc]
-            pub #member_ident: crate::plugins::#struct_ident<E, TProtocol>,
+            pub #member_ident: crate::plugins::#struct_ident<E, TChannel>,
         });
 
         new_method.extend(quote! {
-            #member_ident: #struct_ident::new(std::rc::Rc::clone(&protocol)),
+            #member_ident: #struct_ident::new(std::rc::Rc::clone(&channel)),
         });
     }
     file.extend(quote! {
         #[doc = "Generated list of DFHack plugins"]
-        pub struct Plugins<TProtocol: crate::ProtocolTrait<E>, E> {
+        pub struct Plugins<TChannel: crate::Channel<E>, E> {
             #plugins_struct
         }
     });
 
     file.extend(quote! {
-        impl<TProtocol: crate::ProtocolTrait<E>, E> From<TProtocol> for Plugins<TProtocol, E> {
+        impl<TChannel: crate::Channel<E>, E> From<TChannel> for Plugins<TChannel, E> {
             #[doc = "Initialize all the generated plugins"]
-            fn from(protocol: TProtocol) -> Self {
-                let protocol = std::rc::Rc::new(std::cell::RefCell::new(protocol));
+            fn from(channel: TChannel) -> Self {
+                let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
                 Self {
                     #new_method
                 }
@@ -192,9 +192,9 @@ fn generate_plugin_rs(plugin: &Plugin, file: &mut TokenStream) {
 
     file.extend(quote! {
         #[doc = #plugin_doc]
-        pub struct #struct_ident<E, TProtocol: crate::ProtocolTrait<E>> {
+        pub struct #struct_ident<E, TChannel: crate::Channel<E>> {
             #[doc = "Reference to the client to exchange messages."]
-            pub protocol: Rc<RefCell<TProtocol>>,
+            pub channel: Rc<RefCell<TChannel>>,
 
             #[doc = "Name of the plugin. All the RPC are attached to this name."]
             pub name: String,
@@ -205,9 +205,9 @@ fn generate_plugin_rs(plugin: &Plugin, file: &mut TokenStream) {
 
     let mut plugin_impl = quote! {
         #[doc = "Instanciate a new plugin instance"]
-        pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
+        pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
             Self {
-                protocol,
+                channel,
                 name: #plugin_name.to_string(),
                 phantom: PhantomData,
             }
@@ -307,7 +307,7 @@ fn generate_plugin_rs(plugin: &Plugin, file: &mut TokenStream) {
                 #parameters
             ) -> Result<#return_token, E> {
                 #prep
-                let _response: #output_ident = self.protocol.borrow_mut().request(
+                let _response: #output_ident = self.channel.borrow_mut().request(
                     #plugin_name.to_string(),
                     #function_name.to_string(),
                     request,
@@ -319,7 +319,7 @@ fn generate_plugin_rs(plugin: &Plugin, file: &mut TokenStream) {
     }
 
     file.extend(quote! {
-        impl<E, TProtocol: crate::ProtocolTrait<E>> #struct_ident<E, TProtocol> {
+        impl<E, TChannel: crate::Channel<E>> #struct_ident<E, TChannel> {
             #plugin_impl
         }
     });
