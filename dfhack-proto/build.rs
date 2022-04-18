@@ -48,27 +48,25 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=DFHACK_REGEN");
 
-    let regen = match std::env::var("DFHACK_REGEN") {
-        Ok(val) => val == "1",
-        Err(_) => false,
-    };
-
-    if !regen {
-        return;
-    }
-
     let proto_include_dir = dfhack_proto_srcs::include_dir();
     let protos = dfhack_proto_srcs::protos();
 
     assert!(protos.len() > 0, "No protobuf file for code generation.");
 
-    // Recreate the generated folder
-    // should go to OUT_DIR instead
-    let out_path = PathBuf::from("src/generated");
-    if out_path.exists() {
-        std::fs::remove_dir_all("src/generated").unwrap();
-    }
-    std::fs::create_dir_all("src/generated").unwrap();
+    // Generate in the sources if DFHACK_REGEN is set
+    // in OUT_DIR otherwise.
+    // TODO It should always be OUT_DIR, then expose macros.
+    let out_path = match std::env::var("DFHACK_REGEN") {
+        Ok(_) => {
+            let dst = PathBuf::from("src/generated");
+            if dst.exists() {
+                std::fs::remove_dir_all(&dst).unwrap();
+            }
+            std::fs::create_dir_all(&dst).unwrap();
+            dst
+        }
+        Err(_) => PathBuf::from(std::env::var("OUT_DIR").unwrap()),
+    };
 
     // Generate the protobuf message files
     generate_messages_rs(&protos, &proto_include_dir, &out_path);
@@ -132,8 +130,8 @@ fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     let mut file = quote!();
     generate_plugins_mod_rs(&plugins, &mut file);
 
-    for (plugin_name, plugin) in &plugins {
-        generate_plugin_rs(&plugin_name, &plugin, &mut file);
+    for plugin in &plugins {
+        generate_plugin_rs(&plugin, &mut file);
     }
 
     let mut mod_rs_path = out_path.clone();
@@ -144,7 +142,7 @@ fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
-fn generate_plugins_mod_rs(plugins: &HashMap<String, Plugin>, file: &mut TokenStream) {
+fn generate_plugins_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
     let mut plugins_struct = quote!();
     let mut new_method = quote!();
 
@@ -154,7 +152,7 @@ fn generate_plugins_mod_rs(plugins: &HashMap<String, Plugin>, file: &mut TokenSt
         use std::marker::PhantomData;
     });
 
-    for (_, plugin) in plugins {
+    for plugin in plugins {
         let doc = format!("RPCs of the {} plugin", plugin.plugin_name);
         let struct_ident = plugin.struct_ident.clone();
         let member_ident = plugin.member_ident.clone();
@@ -187,7 +185,8 @@ fn generate_plugins_mod_rs(plugins: &HashMap<String, Plugin>, file: &mut TokenSt
     });
 }
 
-fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, file: &mut TokenStream) {
+fn generate_plugin_rs(plugin: &Plugin, file: &mut TokenStream) {
+    let plugin_name = &plugin.plugin_name;
     let plugin_doc = format!("RPC for the \"{}\" plugin.", plugin_name);
     let struct_ident = plugin.struct_ident.clone();
 
@@ -326,19 +325,27 @@ fn generate_plugin_rs(plugin_name: &String, plugin: &Plugin, file: &mut TokenStr
     });
 }
 
-fn read_protos_rpcs(protos: &Vec<PathBuf>) -> HashMap<String, Plugin> {
-    let mut rpcs = HashMap::<String, Plugin>::new();
+fn read_protos_rpcs(protos: &Vec<PathBuf>) -> Vec<Plugin> {
+    let mut plugins = HashMap::<String, Plugin>::new();
 
     for proto in protos {
         let (plugin_name, mut proto_rpcs) = read_proto_rpc(proto);
 
-        let plugin = rpcs
+        let plugin = plugins
             .entry(plugin_name.clone())
             .or_insert(Plugin::new(&plugin_name));
         plugin.rpcs.append(&mut proto_rpcs);
     }
 
-    rpcs
+    let mut plugins: Vec<Plugin> = plugins.into_values().collect();
+
+    for plugin in &mut plugins {
+        plugin.rpcs.sort_by(|a, b| a.name.cmp(&b.name));
+    }
+
+    plugins.sort_by(|a, b| a.plugin_name.cmp(&b.plugin_name));
+
+    plugins
 }
 
 fn read_proto_rpc(proto: &PathBuf) -> (String, Vec<RPC>) {

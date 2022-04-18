@@ -15,7 +15,9 @@ pub fn include_dir() -> &'static str {
 /// List of extracted .proto files
 pub fn protos() -> Vec<PathBuf> {
     let pattern = concat!(env!("CARGO_MANIFEST_DIR"), "/src/protos/*.proto");
-    glob::glob(pattern).unwrap().map(|p| p.unwrap()).collect()
+    let mut paths: Vec<PathBuf> = glob::glob(pattern).unwrap().map(|p| p.unwrap()).collect();
+    paths.sort();
+    paths
 }
 
 #[cfg(test)]
