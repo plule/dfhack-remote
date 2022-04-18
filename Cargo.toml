@@ -1,6 +1,6 @@
 [package]
 name = "dfhack-remote"
-version = "0.2.0+dev"
+version = "0.2.0"
 edition = "2021"
 authors = ["Pierre Lulé <pierre@lule.fr>"]
 description = "Interacting with the Dwarf Fortress remote API exposed by DFHack "
