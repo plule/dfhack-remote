@@ -46,7 +46,7 @@ pub trait Channel<TError> {
 
 #[cfg(feature = "reflection")]
 /// Reflection for runtime inspection of the stubs.
-mod reflection {
+pub mod reflection {
     /// Descriptor of a remote procedure call
     ///
     /// These are all the needed information to make a call

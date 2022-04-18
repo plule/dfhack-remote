@@ -31,7 +31,7 @@ simple_logger = "2.1.0"
 
 
 [features]
-test-with-df = []
+test-with-df = ["reflection"]
 reflection = ["dfhack-proto/reflection"]
 
 [workspace]

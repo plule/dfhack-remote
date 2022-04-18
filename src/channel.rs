@@ -129,16 +129,28 @@ impl DFHackChannel {
         &mut self,
         method: &Method,
     ) -> crate::DFHackResult<i16> {
-        log::debug!("Binding the method {}:{}", method.plugin, method.name);
-        let mut request = crate::CoreBindRequest::new();
         let input_msg = TIN::descriptor_static().full_name();
         let output_msg = TOUT::descriptor_static().full_name();
-        request.set_method(method.name.to_owned());
+        self.bind_method_by_name(&method.plugin, &method.name, input_msg, output_msg)
+    }
+
+    pub fn bind_method_by_name(
+        &mut self,
+        plugin: &str,
+        method: &str,
+        input_msg: &str,
+        output_msg: &str,
+    ) -> crate::DFHackResult<i16> {
+        log::debug!("Binding the method {}:{}", plugin, method);
+        let mut request = crate::CoreBindRequest::new();
+        request.set_method(method.to_owned());
         request.set_input_msg(input_msg.to_string());
         request.set_output_msg(output_msg.to_string());
-        request.set_plugin(method.plugin.to_owned());
+        request.set_plugin(plugin.to_owned());
         let reply: crate::CoreBindReply = self.request_raw(BIND_METHOD_ID, request)?;
-        Ok(reply.get_assigned_id() as i16)
+        let id = reply.get_assigned_id() as i16;
+        log::debug!("{}:{} bound to {}", plugin, method, id);
+        Ok(id)
     }
 }
 
@@ -195,5 +207,32 @@ impl From<protobuf::ProtobufError> for DFHackError {
 impl From<TryFromPrimitiveError<message::RpcReplyCode>> for DFHackError {
     fn from(err: TryFromPrimitiveError<message::RpcReplyCode>) -> Self {
         Self::UnknownReplyCode(err.number)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[cfg(feature = "test-with-df")]
+    mod withdf {
+        #[test]
+        #[cfg(feature = "reflection")]
+        fn bind_all() {
+            use dfhack_proto::{reflection::StubReflection, stubs::Stubs};
+
+            use crate::{channel::DFHackChannel, DFHackError};
+            let mut channel = DFHackChannel::connect().unwrap();
+            let methods = Stubs::<DFHackChannel, DFHackError>::list_methods();
+
+            for method in &methods {
+                channel
+                    .bind_method_by_name(
+                        &method.plugin_name,
+                        &method.name,
+                        &method.input_type,
+                        &method.output_type,
+                    )
+                    .unwrap();
+            }
+        }
     }
 }
