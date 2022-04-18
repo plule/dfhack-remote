@@ -20,7 +20,7 @@ mod withdf {
     #[ctor::ctor]
     fn init() {
         let port = rand::thread_rng().gen_range(49152..65535).to_string();
-        std::env::set_var("DF_PORT", port);
+        std::env::set_var("DFHACK_PORT", port);
 
         use std::{path::PathBuf, process::Command};
         let df_exe = PathBuf::from(std::env::var("DF_EXE").unwrap());
