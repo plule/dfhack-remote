@@ -3,176 +3,27 @@ use crate::messages::*;
 use std::marker::PhantomData;
 ///Generated list of DFHack plugins
 pub struct Plugins<TProtocol: crate::ProtocolTrait<E>, E> {
-    ///RPCs of the  plugin
-    pub core: crate::plugins::Core<E, TProtocol>,
     ///RPCs of the RemoteFortressReader plugin
     pub remote_fortress_reader: crate::plugins::RemoteFortressReader<E, TProtocol>,
-    ///RPCs of the rename plugin
-    pub rename: crate::plugins::Rename<E, TProtocol>,
     ///RPCs of the isoworldremote plugin
     pub isoworldremote: crate::plugins::Isoworldremote<E, TProtocol>,
+    ///RPCs of the  plugin
+    pub core: crate::plugins::Core<E, TProtocol>,
+    ///RPCs of the rename plugin
+    pub rename: crate::plugins::Rename<E, TProtocol>,
 }
 impl<TProtocol: crate::ProtocolTrait<E>, E> From<TProtocol> for Plugins<TProtocol, E> {
     ///Initialize all the generated plugins
     fn from(protocol: TProtocol) -> Self {
         let protocol = std::rc::Rc::new(std::cell::RefCell::new(protocol));
         Self {
-            core: Core::new(std::rc::Rc::clone(&protocol)),
             remote_fortress_reader: RemoteFortressReader::new(
                 std::rc::Rc::clone(&protocol),
             ),
-            rename: Rename::new(std::rc::Rc::clone(&protocol)),
             isoworldremote: Isoworldremote::new(std::rc::Rc::clone(&protocol)),
+            core: Core::new(std::rc::Rc::clone(&protocol)),
+            rename: Rename::new(std::rc::Rc::clone(&protocol)),
         }
-    }
-}
-///RPC for the "" plugin.
-pub struct Core<E, TProtocol: crate::ProtocolTrait<E>> {
-    ///Reference to the client to exchange messages.
-    pub protocol: Rc<RefCell<TProtocol>>,
-    ///Name of the plugin. All the RPC are attached to this name.
-    pub name: String,
-    phantom: PhantomData<E>,
-}
-impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
-    ///Instanciate a new plugin instance
-    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
-        Self {
-            protocol,
-            name: "".to_string(),
-            phantom: PhantomData,
-        }
-    }
-    ///Method `GetVersion` from the plugin ``
-    pub fn get_version(&mut self) -> Result<String, E> {
-        let request = EmptyMessage::new();
-        let _response: StringMessage = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "GetVersion".to_string(), request)?;
-        let _response = _response.get_value().to_string();
-        Ok(_response)
-    }
-    ///Method `GetDFVersion` from the plugin ``
-    pub fn get_df_version(&mut self) -> Result<String, E> {
-        let request = EmptyMessage::new();
-        let _response: StringMessage = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "GetDFVersion".to_string(), request)?;
-        let _response = _response.get_value().to_string();
-        Ok(_response)
-    }
-    ///Method `GetWorldInfo` from the plugin ``
-    pub fn get_world_info(&mut self) -> Result<GetWorldInfoOut, E> {
-        let request = EmptyMessage::new();
-        let _response: GetWorldInfoOut = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "GetWorldInfo".to_string(), request)?;
-        Ok(_response)
-    }
-    ///Method `ListEnums` from the plugin ``
-    pub fn list_enums(&mut self) -> Result<ListEnumsOut, E> {
-        let request = EmptyMessage::new();
-        let _response: ListEnumsOut = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "ListEnums".to_string(), request)?;
-        Ok(_response)
-    }
-    ///Method `ListJobSkills` from the plugin ``
-    pub fn list_job_skills(&mut self) -> Result<ListJobSkillsOut, E> {
-        let request = EmptyMessage::new();
-        let _response: ListJobSkillsOut = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "ListJobSkills".to_string(), request)?;
-        Ok(_response)
-    }
-    ///Method `ListMaterials` from the plugin ``
-    pub fn list_materials(
-        &mut self,
-        request: ListMaterialsIn,
-    ) -> Result<ListMaterialsOut, E> {
-        let _response: ListMaterialsOut = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "ListMaterials".to_string(), request)?;
-        Ok(_response)
-    }
-    ///Method `ListUnits` from the plugin ``
-    pub fn list_units(&mut self, request: ListUnitsIn) -> Result<ListUnitsOut, E> {
-        let _response: ListUnitsOut = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "ListUnits".to_string(), request)?;
-        Ok(_response)
-    }
-    ///Method `ListSquads` from the plugin ``
-    pub fn list_squads(&mut self, request: ListSquadsIn) -> Result<ListSquadsOut, E> {
-        let _response: ListSquadsOut = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "ListSquads".to_string(), request)?;
-        Ok(_response)
-    }
-    ///Method `SetUnitLabors` from the plugin ``
-    pub fn set_unit_labors(&mut self, request: SetUnitLaborsIn) -> Result<(), E> {
-        let _response: EmptyMessage = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "SetUnitLabors".to_string(), request)?;
-        let _response = ();
-        Ok(_response)
-    }
-    ///Method `BindMethod` from the plugin ``
-    pub fn bind_method(&mut self, request: CoreBindRequest) -> Result<CoreBindReply, E> {
-        let _response: CoreBindReply = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "BindMethod".to_string(), request)?;
-        Ok(_response)
-    }
-    ///Method `RunCommand` from the plugin ``
-    pub fn run_command(&mut self, request: CoreRunCommandRequest) -> Result<(), E> {
-        let _response: EmptyMessage = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "RunCommand".to_string(), request)?;
-        let _response = ();
-        Ok(_response)
-    }
-    ///Method `CoreSuspend` from the plugin ``
-    pub fn core_suspend(&mut self) -> Result<i32, E> {
-        let request = EmptyMessage::new();
-        let _response: IntMessage = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "CoreSuspend".to_string(), request)?;
-        let _response = _response.get_value();
-        Ok(_response)
-    }
-    ///Method `CoreResume` from the plugin ``
-    pub fn core_resume(&mut self) -> Result<i32, E> {
-        let request = EmptyMessage::new();
-        let _response: IntMessage = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "CoreResume".to_string(), request)?;
-        let _response = _response.get_value();
-        Ok(_response)
-    }
-    ///Method `RunLua` from the plugin ``
-    pub fn run_lua(
-        &mut self,
-        request: CoreRunLuaRequest,
-    ) -> Result<StringListMessage, E> {
-        let _response: StringListMessage = self
-            .protocol
-            .borrow_mut()
-            .request("".to_string(), "RunLua".to_string(), request)?;
-        Ok(_response)
     }
 }
 ///RPC for the "RemoteFortressReader" plugin.
@@ -699,51 +550,6 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> RemoteFortressReader<E, TProtocol> {
         Ok(_response)
     }
 }
-///RPC for the "rename" plugin.
-pub struct Rename<E, TProtocol: crate::ProtocolTrait<E>> {
-    ///Reference to the client to exchange messages.
-    pub protocol: Rc<RefCell<TProtocol>>,
-    ///Name of the plugin. All the RPC are attached to this name.
-    pub name: String,
-    phantom: PhantomData<E>,
-}
-impl<E, TProtocol: crate::ProtocolTrait<E>> Rename<E, TProtocol> {
-    ///Instanciate a new plugin instance
-    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
-        Self {
-            protocol,
-            name: "rename".to_string(),
-            phantom: PhantomData,
-        }
-    }
-    ///Method `RenameSquad` from the plugin `rename`
-    pub fn rename_squad(&mut self, request: RenameSquadIn) -> Result<(), E> {
-        let _response: EmptyMessage = self
-            .protocol
-            .borrow_mut()
-            .request("rename".to_string(), "RenameSquad".to_string(), request)?;
-        let _response = ();
-        Ok(_response)
-    }
-    ///Method `RenameUnit` from the plugin `rename`
-    pub fn rename_unit(&mut self, request: RenameUnitIn) -> Result<(), E> {
-        let _response: EmptyMessage = self
-            .protocol
-            .borrow_mut()
-            .request("rename".to_string(), "RenameUnit".to_string(), request)?;
-        let _response = ();
-        Ok(_response)
-    }
-    ///Method `RenameBuilding` from the plugin `rename`
-    pub fn rename_building(&mut self, request: RenameBuildingIn) -> Result<(), E> {
-        let _response: EmptyMessage = self
-            .protocol
-            .borrow_mut()
-            .request("rename".to_string(), "RenameBuilding".to_string(), request)?;
-        let _response = ();
-        Ok(_response)
-    }
-}
 ///RPC for the "isoworldremote" plugin.
 pub struct Isoworldremote<E, TProtocol: crate::ProtocolTrait<E>> {
     ///Reference to the client to exchange messages.
@@ -791,6 +597,200 @@ impl<E, TProtocol: crate::ProtocolTrait<E>> Isoworldremote<E, TProtocol> {
             .protocol
             .borrow_mut()
             .request("isoworldremote".to_string(), "GetRawNames".to_string(), request)?;
+        Ok(_response)
+    }
+}
+///RPC for the "" plugin.
+pub struct Core<E, TProtocol: crate::ProtocolTrait<E>> {
+    ///Reference to the client to exchange messages.
+    pub protocol: Rc<RefCell<TProtocol>>,
+    ///Name of the plugin. All the RPC are attached to this name.
+    pub name: String,
+    phantom: PhantomData<E>,
+}
+impl<E, TProtocol: crate::ProtocolTrait<E>> Core<E, TProtocol> {
+    ///Instanciate a new plugin instance
+    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
+        Self {
+            protocol,
+            name: "".to_string(),
+            phantom: PhantomData,
+        }
+    }
+    ///Method `GetVersion` from the plugin ``
+    pub fn get_version(&mut self) -> Result<String, E> {
+        let request = EmptyMessage::new();
+        let _response: StringMessage = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "GetVersion".to_string(), request)?;
+        let _response = _response.get_value().to_string();
+        Ok(_response)
+    }
+    ///Method `GetDFVersion` from the plugin ``
+    pub fn get_df_version(&mut self) -> Result<String, E> {
+        let request = EmptyMessage::new();
+        let _response: StringMessage = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "GetDFVersion".to_string(), request)?;
+        let _response = _response.get_value().to_string();
+        Ok(_response)
+    }
+    ///Method `GetWorldInfo` from the plugin ``
+    pub fn get_world_info(&mut self) -> Result<GetWorldInfoOut, E> {
+        let request = EmptyMessage::new();
+        let _response: GetWorldInfoOut = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "GetWorldInfo".to_string(), request)?;
+        Ok(_response)
+    }
+    ///Method `ListEnums` from the plugin ``
+    pub fn list_enums(&mut self) -> Result<ListEnumsOut, E> {
+        let request = EmptyMessage::new();
+        let _response: ListEnumsOut = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "ListEnums".to_string(), request)?;
+        Ok(_response)
+    }
+    ///Method `ListJobSkills` from the plugin ``
+    pub fn list_job_skills(&mut self) -> Result<ListJobSkillsOut, E> {
+        let request = EmptyMessage::new();
+        let _response: ListJobSkillsOut = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "ListJobSkills".to_string(), request)?;
+        Ok(_response)
+    }
+    ///Method `ListMaterials` from the plugin ``
+    pub fn list_materials(
+        &mut self,
+        request: ListMaterialsIn,
+    ) -> Result<ListMaterialsOut, E> {
+        let _response: ListMaterialsOut = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "ListMaterials".to_string(), request)?;
+        Ok(_response)
+    }
+    ///Method `ListUnits` from the plugin ``
+    pub fn list_units(&mut self, request: ListUnitsIn) -> Result<ListUnitsOut, E> {
+        let _response: ListUnitsOut = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "ListUnits".to_string(), request)?;
+        Ok(_response)
+    }
+    ///Method `ListSquads` from the plugin ``
+    pub fn list_squads(&mut self, request: ListSquadsIn) -> Result<ListSquadsOut, E> {
+        let _response: ListSquadsOut = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "ListSquads".to_string(), request)?;
+        Ok(_response)
+    }
+    ///Method `SetUnitLabors` from the plugin ``
+    pub fn set_unit_labors(&mut self, request: SetUnitLaborsIn) -> Result<(), E> {
+        let _response: EmptyMessage = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "SetUnitLabors".to_string(), request)?;
+        let _response = ();
+        Ok(_response)
+    }
+    ///Method `BindMethod` from the plugin ``
+    pub fn bind_method(&mut self, request: CoreBindRequest) -> Result<CoreBindReply, E> {
+        let _response: CoreBindReply = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "BindMethod".to_string(), request)?;
+        Ok(_response)
+    }
+    ///Method `RunCommand` from the plugin ``
+    pub fn run_command(&mut self, request: CoreRunCommandRequest) -> Result<(), E> {
+        let _response: EmptyMessage = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "RunCommand".to_string(), request)?;
+        let _response = ();
+        Ok(_response)
+    }
+    ///Method `CoreSuspend` from the plugin ``
+    pub fn core_suspend(&mut self) -> Result<i32, E> {
+        let request = EmptyMessage::new();
+        let _response: IntMessage = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "CoreSuspend".to_string(), request)?;
+        let _response = _response.get_value();
+        Ok(_response)
+    }
+    ///Method `CoreResume` from the plugin ``
+    pub fn core_resume(&mut self) -> Result<i32, E> {
+        let request = EmptyMessage::new();
+        let _response: IntMessage = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "CoreResume".to_string(), request)?;
+        let _response = _response.get_value();
+        Ok(_response)
+    }
+    ///Method `RunLua` from the plugin ``
+    pub fn run_lua(
+        &mut self,
+        request: CoreRunLuaRequest,
+    ) -> Result<StringListMessage, E> {
+        let _response: StringListMessage = self
+            .protocol
+            .borrow_mut()
+            .request("".to_string(), "RunLua".to_string(), request)?;
+        Ok(_response)
+    }
+}
+///RPC for the "rename" plugin.
+pub struct Rename<E, TProtocol: crate::ProtocolTrait<E>> {
+    ///Reference to the client to exchange messages.
+    pub protocol: Rc<RefCell<TProtocol>>,
+    ///Name of the plugin. All the RPC are attached to this name.
+    pub name: String,
+    phantom: PhantomData<E>,
+}
+impl<E, TProtocol: crate::ProtocolTrait<E>> Rename<E, TProtocol> {
+    ///Instanciate a new plugin instance
+    pub fn new(protocol: Rc<RefCell<TProtocol>>) -> Self {
+        Self {
+            protocol,
+            name: "rename".to_string(),
+            phantom: PhantomData,
+        }
+    }
+    ///Method `RenameSquad` from the plugin `rename`
+    pub fn rename_squad(&mut self, request: RenameSquadIn) -> Result<(), E> {
+        let _response: EmptyMessage = self
+            .protocol
+            .borrow_mut()
+            .request("rename".to_string(), "RenameSquad".to_string(), request)?;
+        let _response = ();
+        Ok(_response)
+    }
+    ///Method `RenameUnit` from the plugin `rename`
+    pub fn rename_unit(&mut self, request: RenameUnitIn) -> Result<(), E> {
+        let _response: EmptyMessage = self
+            .protocol
+            .borrow_mut()
+            .request("rename".to_string(), "RenameUnit".to_string(), request)?;
+        let _response = ();
+        Ok(_response)
+    }
+    ///Method `RenameBuilding` from the plugin `rename`
+    pub fn rename_building(&mut self, request: RenameBuildingIn) -> Result<(), E> {
+        let _response: EmptyMessage = self
+            .protocol
+            .borrow_mut()
+            .request("rename".to_string(), "RenameBuilding".to_string(), request)?;
+        let _response = ();
         Ok(_response)
     }
 }

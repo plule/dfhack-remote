@@ -46,14 +46,21 @@ impl Plugin {
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-env-changed=DFHACK_REGEN");
 
-    match std::env::var("DFHACK_REGEN") {
-        Ok(_) => (),
-        Err(_) => return,
+    let regen = match std::env::var("DFHACK_REGEN") {
+        Ok(val) => val == "1",
+        Err(_) => false,
     };
+
+    if !regen {
+        return;
+    }
 
     let proto_include_dir = dfhack_proto_srcs::include_dir();
     let protos = dfhack_proto_srcs::protos();
+
+    assert!(protos.len() > 0, "No protobuf file for code generation.");
 
     // Recreate the generated folder
     // should go to OUT_DIR instead
