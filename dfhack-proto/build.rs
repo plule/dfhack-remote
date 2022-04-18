@@ -148,9 +148,13 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
 
     file.extend(quote! {
         use std::{cell::RefCell, rc::Rc};
-        use crate::messages::*;
         use std::marker::PhantomData;
+        use crate::messages::*;
+        #[cfg(feature = "reflection")]
+        use protobuf::Message;
     });
+
+    let mut reflection_vec_building = quote!();
 
     for plugin in plugins {
         let doc = format!("RPCs of the {} plugin", plugin.plugin_name);
@@ -163,6 +167,10 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
 
         new_method.extend(quote! {
             #member_ident: #struct_ident::from(std::rc::Rc::clone(&channel)),
+        });
+
+        reflection_vec_building.extend(quote! {
+            methods.extend(Core::<E, TChannel>::list_methods());
         });
     }
     file.extend(quote! {
@@ -180,6 +188,15 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
                 Self {
                     #new_method
                 }
+            }
+        }
+
+        #[cfg(feature = "reflection")]
+        impl<TChannel: crate::Channel<E>, E> crate::reflection::StubReflection for Stubs<TChannel, E> {
+            fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
+                let mut methods = Vec::new();
+                #reflection_vec_building
+                methods
             }
         }
     });
@@ -214,6 +231,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
     });
 
     let mut plugin_impl = quote!();
+    let mut reflection_vec = quote!();
 
     for rpc in &plugin.rpcs {
         let function_name = &rpc.name;
@@ -224,6 +242,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
         let function_ident = format_ident!("{}", rpc.name.to_snake_case());
         let input_ident = format_ident!("{}", rpc.input);
         let output_ident = format_ident!("{}", rpc.output);
+
         let mut return_token = output_ident.to_token_stream();
 
         let mut parameters = quote! {
@@ -317,11 +336,33 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 Ok(_response)
             }
         });
+
+        reflection_vec.extend(quote! {
+            crate::reflection::RemoteProcedureDescriptor {
+                name: #function_name.to_string(),
+                plugin_name: #plugin_name.to_string(),
+                input_type: #input_ident::descriptor_static()
+                    .full_name()
+                    .to_string(),
+                output_type: #output_ident::descriptor_static()
+                    .full_name()
+                    .to_string(),
+            },
+        });
     }
 
     file.extend(quote! {
         impl<E, TChannel: crate::Channel<E>> #struct_ident<E, TChannel> {
             #plugin_impl
+        }
+
+        #[cfg(feature = "reflection")]
+        impl<E, TChannel: crate::Channel<E>> crate::reflection::StubReflection for #struct_ident<E, TChannel> {
+            fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
+                vec![
+                    #reflection_vec
+                ]
+            }
         }
     });
 }

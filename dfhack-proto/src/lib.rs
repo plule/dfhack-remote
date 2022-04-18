@@ -44,6 +44,41 @@ pub trait Channel<TError> {
     ) -> Result<TReply, TError>;
 }
 
+#[cfg(feature = "reflection")]
+/// Reflection for runtime inspection of the stubs.
+mod reflection {
+    /// Descriptor of a remote procedure call
+    ///
+    /// These are all the needed information to make a call
+    pub struct RemoteProcedureDescriptor {
+        /// Name of the RPC
+        pub name: String,
+
+        /// Plugin implementing the RPC
+        ///
+        /// An empty string means the core API
+        pub plugin_name: String,
+
+        /// Input type
+        ///
+        /// This is the full name of the protobuf message
+        pub input_type: String,
+
+        /// Output type
+        ///
+        /// This is the full name of the protobuf message
+        pub output_type: String,
+    }
+
+    /// Ability for a stub to list its supported methods
+    ///
+    /// This is mostly useful for testing purpose.
+    pub trait StubReflection {
+        /// List the supported remote calls
+        fn list_methods() -> Vec<RemoteProcedureDescriptor>;
+    }
+}
+
 /// Generated code from this crate
 mod generated {
     pub mod messages;
