@@ -10,12 +10,12 @@ for interacting with DFHack remote API.
 It contains two main modules:
 
  - [messages] exposes the protobuf messages. This is the standard generated protobuf.
- - [plugins] exposes the plugins and their RPC. DFHack is not using gRPC and this is a custom implementation
+ - [stubs] exposes the plugins and their RPC. DFHack is not using gRPC and this is a custom implementation
 
 Internally these two modules are created under the `generated` module.
 
-All the plugins are built from a struct implementing [Channel]. This trait
-should implement the actual data exchange.
+The terminology is based on `gRPC`: The `stubs` expose the feature from the plugin. They are built from
+a `channel` implementing the data exchange.
 
 The code is regenerated under the condition that the environment variable `DFHACK_REGEN` is set.
 

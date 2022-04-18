@@ -71,8 +71,8 @@ fn main() {
     // Generate the protobuf message files
     generate_messages_rs(&protos, &proto_include_dir, &out_path);
 
-    // Generate the plugins
-    generate_plugins_rs(&protos, &out_path)
+    // Generate the plugin stubs
+    generate_stubs_rs(&protos, &out_path)
 }
 
 fn generate_messages_rs(protos: &Vec<PathBuf>, include_dir: &str, out_path: &PathBuf) {
@@ -121,17 +121,17 @@ fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
-fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
+fn generate_stubs_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     let plugins = read_protos_rpcs(&protos);
     let mut out_path = out_path.clone();
-    out_path.push("plugins");
+    out_path.push("stubs");
     std::fs::create_dir_all(&out_path).unwrap();
 
     let mut file = quote!();
-    generate_plugins_mod_rs(&plugins, &mut file);
+    generate_subs_mod_rs(&plugins, &mut file);
 
     for plugin in &plugins {
-        generate_plugin_rs(&plugin, &mut file);
+        generate_stub_rs(&plugin, &mut file);
     }
 
     let mut mod_rs_path = out_path.clone();
@@ -142,7 +142,7 @@ fn generate_plugins_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
-fn generate_plugins_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
+fn generate_subs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
     let mut plugins_struct = quote!();
     let mut new_method = quote!();
 
@@ -158,7 +158,7 @@ fn generate_plugins_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
         let member_ident = plugin.member_ident.clone();
         plugins_struct.extend(quote! {
             #[doc = #doc]
-            pub #member_ident: crate::plugins::#struct_ident<E, TChannel>,
+            pub #member_ident: crate::stubs::#struct_ident<E, TChannel>,
         });
 
         new_method.extend(quote! {
@@ -166,15 +166,15 @@ fn generate_plugins_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
         });
     }
     file.extend(quote! {
-        #[doc = "Generated list of DFHack plugins"]
-        pub struct Plugins<TChannel: crate::Channel<E>, E> {
+        #[doc = "Generated list of DFHack stubs. Each stub communicates with a plugin."]
+        pub struct Stubs<TChannel: crate::Channel<E>, E> {
             #plugins_struct
         }
     });
 
     file.extend(quote! {
-        impl<TChannel: crate::Channel<E>, E> From<TChannel> for Plugins<TChannel, E> {
-            #[doc = "Initialize all the generated plugins"]
+        impl<TChannel: crate::Channel<E>, E> From<TChannel> for Stubs<TChannel, E> {
+            #[doc = "Initialize all the generated stubs."]
             fn from(channel: TChannel) -> Self {
                 let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
                 Self {
@@ -185,7 +185,7 @@ fn generate_plugins_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
     });
 }
 
-fn generate_plugin_rs(plugin: &Plugin, file: &mut TokenStream) {
+fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
     let plugin_name = &plugin.plugin_name;
     let plugin_doc = format!("RPC for the \"{}\" plugin.", plugin_name);
     let struct_ident = plugin.struct_ident.clone();

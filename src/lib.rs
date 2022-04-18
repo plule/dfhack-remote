@@ -6,7 +6,7 @@ mod message;
 
 #[doc(no_inline)]
 pub use dfhack_proto::messages::*;
-pub use dfhack_proto::plugins::*;
+pub use dfhack_proto::stubs::*;
 
 /// Connect to Dwarf Fortress using the default settings
 ///
@@ -24,9 +24,9 @@ pub use dfhack_proto::plugins::*;
 /// let df_version = dfhack.core.get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
-pub fn connect() -> DFHackResult<Plugins<channel::DFHackChannel, DFHackError>> {
+pub fn connect() -> DFHackResult<Stubs<channel::DFHackChannel, DFHackError>> {
     let connexion = channel::DFHackChannel::connect()?;
-    Ok(Plugins::from(connexion))
+    Ok(Stubs::from(connexion))
 }
 
 /// Connect to Dwarf Fortress with a given address
@@ -44,9 +44,9 @@ pub fn connect() -> DFHackResult<Plugins<channel::DFHackChannel, DFHackError>> {
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
-pub fn connect_to(address: &str) -> DFHackResult<Plugins<channel::DFHackChannel, DFHackError>> {
+pub fn connect_to(address: &str) -> DFHackResult<Stubs<channel::DFHackChannel, DFHackError>> {
     let connexion = channel::DFHackChannel::connect_to(address)?;
-    Ok(Plugins::from(connexion))
+    Ok(Stubs::from(connexion))
 }
 
 /// Result type emitted by DFHack API calls

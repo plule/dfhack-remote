@@ -1,19 +1,19 @@
 use std::{cell::RefCell, rc::Rc};
 use crate::messages::*;
 use std::marker::PhantomData;
-///Generated list of DFHack plugins
-pub struct Plugins<TChannel: crate::Channel<E>, E> {
+///Generated list of DFHack stubs. Each stub communicates with a plugin.
+pub struct Stubs<TChannel: crate::Channel<E>, E> {
     ///RPCs of the  plugin
-    pub core: crate::plugins::Core<E, TChannel>,
+    pub core: crate::stubs::Core<E, TChannel>,
     ///RPCs of the RemoteFortressReader plugin
-    pub remote_fortress_reader: crate::plugins::RemoteFortressReader<E, TChannel>,
+    pub remote_fortress_reader: crate::stubs::RemoteFortressReader<E, TChannel>,
     ///RPCs of the isoworldremote plugin
-    pub isoworldremote: crate::plugins::Isoworldremote<E, TChannel>,
+    pub isoworldremote: crate::stubs::Isoworldremote<E, TChannel>,
     ///RPCs of the rename plugin
-    pub rename: crate::plugins::Rename<E, TChannel>,
+    pub rename: crate::stubs::Rename<E, TChannel>,
 }
-impl<TChannel: crate::Channel<E>, E> From<TChannel> for Plugins<TChannel, E> {
-    ///Initialize all the generated plugins
+impl<TChannel: crate::Channel<E>, E> From<TChannel> for Stubs<TChannel, E> {
+    ///Initialize all the generated stubs.
     fn from(channel: TChannel) -> Self {
         let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
         Self {

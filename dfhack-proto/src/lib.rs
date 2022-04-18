@@ -6,11 +6,12 @@ pub mod messages {
     pub use crate::generated::messages::*;
 }
 
-/// Plugins exposing the feature of the DFHack remote API.
+/// Stubs exposing the feature of the DFHack remote API.
 ///
+/// Each stub is generated from a DFHack plugin.
 /// This module is auto-generated from DFHack sources.
-pub mod plugins {
-    pub use crate::generated::plugins::*;
+pub mod stubs {
+    pub use crate::generated::stubs::*;
 }
 
 /// The `Channel` is the low-level exchange implementation.
@@ -46,5 +47,5 @@ pub trait Channel<TError> {
 /// Generated code from this crate
 mod generated {
     pub mod messages;
-    pub mod plugins;
+    pub mod stubs;
 }
