@@ -1,7 +1,40 @@
-[workspace]
+[package]
+name = "dfhack-remote"
+version = "0.1.1"
+edition = "2021"
+authors = ["Pierre Lulé <pierre@lule.fr>"]
+description = "Interacting with the Dwarf Fortress remote API exposed by DFHack "
+readme = "README.md"
+repository = "https://github.com/plule/dfhack-remote"
+license = "MIT OR Apache-2.0"
+categories = [
+    "api-bindings",
+    "game-development",
+    "games",
+]
 
+[dependencies]
+protobuf = "2.27.1"
+byteorder = "1.4.3"
+num_enum = "0.5.7"
+log = "0.4.16"
+derive_more = "0.99.17"
+dfhack-proto = { version = "0.1.1", path = "dfhack-proto" }
+
+
+[dev-dependencies]
+bmp = "0.5.0"
+ctor = "0.1.22"
+lazy_static = "1.4.0"
+rand = "0.8.5"
+simple_logger = "2.1.0"
+
+
+[features]
+test-with-df = []
+
+[workspace]
 members = [
-    "dfhack-remote",
     "dfhack-proto",
     "dfhack-proto-srcs",
 ]
