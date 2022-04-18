@@ -4,3 +4,4 @@ consolidate-pushes = true
 publish = false
 dev-version-ext = "dev"
 dev-version = true
+dependent-version = "upgrade"

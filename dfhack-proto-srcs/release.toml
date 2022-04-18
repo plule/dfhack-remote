@@ -1,2 +1,3 @@
 shared-version = true
 tag = false
+dependent-version = "upgrade"
