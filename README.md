@@ -91,9 +91,15 @@ cargo test --features test-with-df
 
 This will run the first save of this Dwarf Fortress installation. You should prepare a dedicated save with a pocket world for that purpose.
 
+## Release
+
+The versioning is done through [cargo release]. `cargo release --workspace --execute`, to release current version
+and switch to next patch, or `cargo release [level] --workspace --execute` (minor, major).
+
 
 [Dwarf Fortress]: http://www.bay12games.com/dwarves/
 [DFHack]: https://docs.dfhack.org/en/stable/
 [remote API]: https://docs.dfhack.org/en/stable/docs/Remote.html
 [protobuf]: https://crates.io/crates/protobuf
 [protobuf-codegen-pure]: https://crates.io/crates/protobuf-codegen-pure
+[cargo release]: https://github.com/crate-ci/cargo-release
