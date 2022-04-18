@@ -4,9 +4,9 @@ version = "0.1.1"
 edition = "2021"
 authors = ["Pierre Lulé <pierre@lule.fr>"]
 description = "Download and extract DFHack protobuf files from source"
-readme = "../README.md"
+readme = "README.md"
 repository = "https://github.com/plule/dfhack-remote"
-license = "MIT OR Apache-2.0"
+license = "Zlib"
 categories = [
     "api-bindings",
     "game-development",

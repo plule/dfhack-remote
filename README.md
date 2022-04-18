@@ -61,6 +61,8 @@ The DFHack source used for code generation can be controlled at build time using
 environment variable. For example, setting this environment variable to `https://github.com/DFHack/dfhack/archive/refs/heads/develop.zip`
 at build time would target the latest changes included in DFHack.
 
+In order to trigger the download and source regeneration, `DFHACK_REGEN` and `DFHACK_DOWNLOAD` must also be set to `1`.
+
 
 ## Crate structure
 

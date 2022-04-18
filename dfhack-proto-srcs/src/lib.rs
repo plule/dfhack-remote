@@ -1,8 +1,5 @@
 #![warn(missing_docs)]
-//! # dfhack_proto_srcs
-//! This crates downloads and extract the .proto files from DFHack
-//! at build time.
-//!
+#![doc = include_str!("../README.md")]
 
 use std::path::PathBuf;
 
