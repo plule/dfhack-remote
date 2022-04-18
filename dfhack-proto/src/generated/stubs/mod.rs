@@ -17,12 +17,12 @@ impl<TChannel: crate::Channel<E>, E> From<TChannel> for Stubs<TChannel, E> {
     fn from(channel: TChannel) -> Self {
         let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
         Self {
-            core: Core::new(std::rc::Rc::clone(&channel)),
-            remote_fortress_reader: RemoteFortressReader::new(
+            core: Core::from(std::rc::Rc::clone(&channel)),
+            remote_fortress_reader: RemoteFortressReader::from(
                 std::rc::Rc::clone(&channel),
             ),
-            isoworldremote: Isoworldremote::new(std::rc::Rc::clone(&channel)),
-            rename: Rename::new(std::rc::Rc::clone(&channel)),
+            isoworldremote: Isoworldremote::from(std::rc::Rc::clone(&channel)),
+            rename: Rename::from(std::rc::Rc::clone(&channel)),
         }
     }
 }
@@ -34,15 +34,16 @@ pub struct Core<E, TChannel: crate::Channel<E>> {
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TChannel: crate::Channel<E>> Core<E, TChannel> {
-    ///Instanciate a new plugin instance
-    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
+impl<TChannel: crate::Channel<E>, E> From<Rc<RefCell<TChannel>>> for Core<E, TChannel> {
+    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
             channel,
             name: "".to_string(),
             phantom: PhantomData,
         }
     }
+}
+impl<E, TChannel: crate::Channel<E>> Core<E, TChannel> {
     ///Method `BindMethod` from the plugin ``
     pub fn bind_method(&mut self, request: CoreBindRequest) -> Result<CoreBindReply, E> {
         let _response: CoreBindReply = self
@@ -183,15 +184,17 @@ pub struct RemoteFortressReader<E, TChannel: crate::Channel<E>> {
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TChannel: crate::Channel<E>> RemoteFortressReader<E, TChannel> {
-    ///Instanciate a new plugin instance
-    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
+impl<TChannel: crate::Channel<E>, E> From<Rc<RefCell<TChannel>>>
+for RemoteFortressReader<E, TChannel> {
+    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
             channel,
             name: "RemoteFortressReader".to_string(),
             phantom: PhantomData,
         }
     }
+}
+impl<E, TChannel: crate::Channel<E>> RemoteFortressReader<E, TChannel> {
     ///Method `CheckHashes` from the plugin `RemoteFortressReader`
     pub fn check_hashes(&mut self) -> Result<(), E> {
         let request = EmptyMessage::new();
@@ -707,15 +710,17 @@ pub struct Isoworldremote<E, TChannel: crate::Channel<E>> {
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TChannel: crate::Channel<E>> Isoworldremote<E, TChannel> {
-    ///Instanciate a new plugin instance
-    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
+impl<TChannel: crate::Channel<E>, E> From<Rc<RefCell<TChannel>>>
+for Isoworldremote<E, TChannel> {
+    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
             channel,
             name: "isoworldremote".to_string(),
             phantom: PhantomData,
         }
     }
+}
+impl<E, TChannel: crate::Channel<E>> Isoworldremote<E, TChannel> {
     ///Method `GetEmbarkInfo` from the plugin `isoworldremote`
     pub fn get_embark_info(&mut self, request: MapRequest) -> Result<MapReply, E> {
         let _response: MapReply = self
@@ -757,15 +762,17 @@ pub struct Rename<E, TChannel: crate::Channel<E>> {
     pub name: String,
     phantom: PhantomData<E>,
 }
-impl<E, TChannel: crate::Channel<E>> Rename<E, TChannel> {
-    ///Instanciate a new plugin instance
-    pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
+impl<TChannel: crate::Channel<E>, E> From<Rc<RefCell<TChannel>>>
+for Rename<E, TChannel> {
+    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
         Self {
             channel,
             name: "rename".to_string(),
             phantom: PhantomData,
         }
     }
+}
+impl<E, TChannel: crate::Channel<E>> Rename<E, TChannel> {
     ///Method `RenameBuilding` from the plugin `rename`
     pub fn rename_building(&mut self, request: RenameBuildingIn) -> Result<(), E> {
         let _response: EmptyMessage = self

@@ -128,7 +128,7 @@ fn generate_stubs_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     std::fs::create_dir_all(&out_path).unwrap();
 
     let mut file = quote!();
-    generate_subs_mod_rs(&plugins, &mut file);
+    generate_stubs_mod_rs(&plugins, &mut file);
 
     for plugin in &plugins {
         generate_stub_rs(&plugin, &mut file);
@@ -142,7 +142,7 @@ fn generate_stubs_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
-fn generate_subs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
+fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
     let mut plugins_struct = quote!();
     let mut new_method = quote!();
 
@@ -162,7 +162,7 @@ fn generate_subs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
         });
 
         new_method.extend(quote! {
-            #member_ident: #struct_ident::new(std::rc::Rc::clone(&channel)),
+            #member_ident: #struct_ident::from(std::rc::Rc::clone(&channel)),
         });
     }
     file.extend(quote! {
@@ -201,18 +201,19 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
 
             phantom: PhantomData<E>,
         }
-    });
 
-    let mut plugin_impl = quote! {
-        #[doc = "Instanciate a new plugin instance"]
-        pub fn new(channel: Rc<RefCell<TChannel>>) -> Self {
-            Self {
-                channel,
-                name: #plugin_name.to_string(),
-                phantom: PhantomData,
+        impl<TChannel: crate::Channel<E>, E> From<Rc<RefCell<TChannel>>> for #struct_ident<E, TChannel> {
+            fn from(channel: Rc<RefCell<TChannel>>) -> Self {
+                Self {
+                    channel,
+                    name: #plugin_name.to_string(),
+                    phantom: PhantomData,
+                }
             }
         }
-    };
+    });
+
+    let mut plugin_impl = quote!();
 
     for rpc in &plugin.rpcs {
         let function_name = &rpc.name;
