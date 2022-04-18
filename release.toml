@@ -2,3 +2,5 @@ shared-version = true
 consolidate-commits = true
 consolidate-pushes = true
 publish = false
+dev-version-ext = "dev"
+dev-version = true
