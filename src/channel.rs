@@ -12,7 +12,7 @@ use crate::{
 };
 use num_enum::TryFromPrimitiveError;
 
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, Clone)]
 pub struct Method {
     pub plugin: String,
     pub name: String,
@@ -51,14 +51,16 @@ impl dfhack_proto::Channel<crate::DFHackError> for DFHackChannel {
 
         // did not manage to use the entry api due to borrow checker
         let maybe_id = self.bindings.get(&method);
-        let id: i16;
 
-        if maybe_id.is_none() {
-            id = self.bind_method::<TRequest, TReply>(&method)?;
-            self.bindings.insert(method, id);
-        } else {
-            id = *maybe_id.unwrap();
-        }
+        let id = match maybe_id {
+            Some(id) => *id,
+            None => {
+                let id = self.bind_method::<TRequest, TReply>(&method)?;
+                self.bindings.insert(method, id);
+                id
+            }
+        };
+
         self.request_raw(id, request)
     }
 }
@@ -93,11 +95,17 @@ impl DFHackChannel {
         let handshake_reply = message::Handshake::receive(&mut client.stream)?;
 
         if handshake_reply.magic != MAGIC_REPLY {
-            return Err(DFHackError::BadMagicFailure(handshake_reply.magic));
+            return Err(DFHackError::ProtocolError(format!(
+                "Unexpected magic {}",
+                handshake_reply.magic
+            )));
         }
 
         if handshake_reply.version != VERSION {
-            return Err(DFHackError::BadVersionFailure(handshake_reply.version));
+            return Err(DFHackError::ProtocolError(format!(
+                "Unexpected magic version {}",
+                handshake_reply.version
+            )));
         }
 
         Ok(client)
@@ -120,7 +128,9 @@ impl DFHackChannel {
                     }
                 }
                 message::Reply::Result(result) => return Ok(result),
-                message::Reply::Failure(_) => return Err(DFHackError::RpcError()),
+                message::Reply::Fail(command_result) => {
+                    return Err(DFHackError::RpcError(command_result))
+                }
             }
         }
     }
@@ -147,7 +157,16 @@ impl DFHackChannel {
         request.set_input_msg(input_msg.to_string());
         request.set_output_msg(output_msg.to_string());
         request.set_plugin(plugin.to_owned());
-        let reply: crate::CoreBindReply = self.request_raw(BIND_METHOD_ID, request)?;
+        let reply: crate::CoreBindReply = match self.request_raw(BIND_METHOD_ID, request) {
+            Ok(reply) => reply,
+            Err(_) => {
+                log::error!("Error attempting to bind {}", method);
+                return Err(DFHackError::FailedToBind(format!(
+                    "{}::{} ({}->{})",
+                    plugin, method, input_msg, output_msg,
+                )));
+            }
+        };
         let id = reply.get_assigned_id() as i16;
         log::debug!("{}:{} bound to {}", plugin, method, id);
         Ok(id)
@@ -170,11 +189,8 @@ impl Drop for DFHackChannel {
 impl fmt::Display for DFHackError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
         match self {
-            DFHackError::BadMagicFailure(magic) => {
-                write!(f, "Handshake failed: bad magic {magic}.")
-            }
-            DFHackError::BadVersionFailure(version) => {
-                write!(f, "Handshake failed: unsupported version {version}.")
+            DFHackError::ProtocolError(message) => {
+                write!(f, "Protocol Error: {message}.")
             }
             DFHackError::CommunicationFailure(error) => {
                 write!(f, "Communication failure: {error}")
@@ -182,12 +198,10 @@ impl fmt::Display for DFHackError {
             DFHackError::ProtobufError(error) => {
                 write!(f, "Protobuf error: {error}")
             }
-            DFHackError::UnknownReplyCode(code) => {
-                write!(f, "Unknown DFHack reply code: {code}")
+            DFHackError::RpcError(result) => {
+                write!(f, "Command result error: {result}")
             }
-            DFHackError::RpcError() => {
-                write!(f, "RPC Error")
-            }
+            DFHackError::FailedToBind(method) => write!(f, "Failed to bind {}", method),
         }
     }
 }
@@ -206,7 +220,13 @@ impl From<protobuf::ProtobufError> for DFHackError {
 
 impl From<TryFromPrimitiveError<message::RpcReplyCode>> for DFHackError {
     fn from(err: TryFromPrimitiveError<message::RpcReplyCode>) -> Self {
-        Self::UnknownReplyCode(err.number)
+        Self::ProtocolError(format!("Unknown DFHackReplyCode : {}", err.number))
+    }
+}
+
+impl From<std::string::FromUtf8Error> for DFHackError {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        Self::ProtocolError(format!("Invalid string error: {}", err))
     }
 }
 
@@ -214,6 +234,49 @@ impl From<TryFromPrimitiveError<message::RpcReplyCode>> for DFHackError {
 mod tests {
     #[cfg(feature = "test-with-df")]
     mod withdf {
+        use crate::DFHackError;
+
+        #[test]
+        fn bind() {
+            use crate::channel::DFHackChannel;
+            let mut channel = DFHackChannel::connect().unwrap();
+
+            channel
+                .bind_method_by_name(
+                    "",
+                    "GetVersion",
+                    "dfproto.EmptyMessage",
+                    "dfproto.StringMessage",
+                )
+                .unwrap();
+        }
+
+        #[test]
+        fn bad_bind() {
+            use crate::channel::DFHackChannel;
+            let mut channel = DFHackChannel::connect().unwrap();
+
+            let err = channel
+                .bind_method_by_name(
+                    "",
+                    "GetVersion",
+                    "dfproto.EmptyMessage",
+                    "dfproto.EmptyMessage",
+                )
+                .unwrap_err();
+            assert!(std::matches!(err, DFHackError::FailedToBind(_)));
+
+            let err = channel
+                .bind_method_by_name(
+                    "dorf",
+                    "GetVersion",
+                    "dfproto.StringMessage",
+                    "dfproto.EmptyMessage",
+                )
+                .unwrap_err();
+            assert!(std::matches!(err, DFHackError::FailedToBind(_)));
+        }
+
         #[test]
         #[cfg(feature = "reflection")]
         fn bind_all() {

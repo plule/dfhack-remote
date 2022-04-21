@@ -7,6 +7,7 @@ mod message;
 #[doc(no_inline)]
 pub use dfhack_proto::messages::*;
 pub use dfhack_proto::stubs::*;
+use message::CommandResult;
 
 /// Connect to Dwarf Fortress using the default settings
 ///
@@ -61,25 +62,25 @@ pub enum DFHackError {
     /// that Dwarf Fortress crashed, or a library bug occured.
     CommunicationFailure(std::io::Error),
 
-    /// Failure of the handshake with DFHack
+    /// The data exchange did not happen as expected.
     ///
-    /// This can mean that the software is not DFHack
-    BadMagicFailure(String),
-
-    /// Bad version during the handshake with DFHack
-    ///
-    /// This can mean that the DFHack protocol was updated
-    /// and is not compatible with the version of this library
-    BadVersionFailure(i32),
+    /// This is likely a bug.
+    ProtocolError(String),
 
     /// Protobuf serialization or deserialization error
+    ///
+    /// This can indicate that updating the generated code
+    /// is necessary
     ProtobufError(protobuf::ProtobufError),
 
-    /// Unknown reply code during the exchange
-    UnknownReplyCode(i16),
+    /// Failed to bind the method
+    ///
+    /// This can indicate that updating the generated code
+    /// is necessary
+    FailedToBind(String),
 
     /// DFHack RPC Error
-    RpcError(),
+    RpcError(CommandResult),
 }
 
 #[cfg(test)]
@@ -87,7 +88,7 @@ mod tests {
     #[ctor::ctor]
     fn init() {
         simple_logger::SimpleLogger::new()
-            .with_level(log::LevelFilter::Debug)
+            .with_level(log::LevelFilter::Trace)
             .init()
             .unwrap();
     }

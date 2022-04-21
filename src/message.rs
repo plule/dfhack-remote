@@ -21,9 +21,8 @@ pub trait Receive {
 }
 
 // https://github.com/DFHack/dfhack/blob/0.47.05-r4/library/include/RemoteClient.h#L53
-#[derive(Copy, Clone, PartialEq, TryFromPrimitive)]
+#[derive(Copy, Clone, Display, PartialEq, TryFromPrimitive)]
 #[repr(i16)]
-#[derive(Display)]
 pub enum RpcReplyCode {
     Result = -1,
     Fail = -2,
@@ -32,9 +31,8 @@ pub enum RpcReplyCode {
 }
 
 // https://github.com/DFHack/dfhack/blob/0.47.05-r4/library/include/RemoteClient.h#L42
-#[derive(Copy, Clone, PartialEq, TryFromPrimitive)]
+#[derive(Copy, Clone, Display, PartialEq, TryFromPrimitive, Debug)]
 #[repr(i32)]
-#[derive(Display)]
 pub enum CommandResult {
     LinkFailure = -3,
     NeedsConsole = -2,
@@ -79,7 +77,7 @@ pub enum Reply<TMessage: protobuf::Message> {
     Result(TMessage),
 
     // https://docs.dfhack.org/en/stable/docs/Remote.html#failure
-    Failure(CommandResult),
+    Fail(CommandResult),
 }
 
 // https://docs.dfhack.org/en/stable/docs/Remote.html#quit
@@ -112,7 +110,7 @@ impl Receive for Handshake {
         stream.read_exact(&mut magic)?;
 
         let version = i32::receive(stream)?;
-        let handshake = Self::new(String::from_utf8(magic.to_vec()).unwrap(), version);
+        let handshake = Self::new(String::from_utf8(magic.to_vec())?, version);
         log::trace!("Received {}", handshake);
         Ok(handshake)
     }
@@ -186,39 +184,45 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
         let header = Header::receive(stream)?;
 
         log::trace!(
-            "Receiving protobuf message {}",
+            "Expecting protobuf message {}",
             TMessage::descriptor_static().full_name()
         );
-
-        let mut buf = vec![0u8; header.size as usize];
-
-        stream.read_exact(&mut buf)?;
 
         let reply_code = RpcReplyCode::try_from(header.id)?;
 
         match reply_code {
             RpcReplyCode::Result => {
-                log::trace!("Received result");
+                log::trace!("Receiving RPC_REPLY_RESULT of size {}", header.size);
+                let mut buf = vec![0u8; header.size as usize];
+                stream.read_exact(&mut buf)?;
                 let reply = TMessage::parse_from_bytes(&buf)?;
                 log::trace!("Received {}", reply.descriptor().full_name());
                 Ok(Reply::Result(reply))
             }
             RpcReplyCode::Fail => {
-                log::trace!("Received failure");
-                // TODO remove these unwraps
-                let code_bytes: [u8; 4] = buf.try_into().unwrap();
-                let code: i32 = i32::from_le_bytes(code_bytes);
-
-                log::trace!("RPC error {}", code);
-                let res = CommandResult::try_from(code).unwrap();
-                Ok(Reply::Failure(res))
+                log::trace!("Received RPC_REPLY_FAIL {}", header.size);
+                // /!\ On failure, the "size" entry of the header is directly the CommandResult
+                let res = match CommandResult::try_from(header.size) {
+                    Ok(res) => res,
+                    Err(err) => {
+                        return Err(DFHackError::ProtocolError(format!(
+                            "Unknown CommandResult {}",
+                            err.number
+                        )))
+                    }
+                };
+                Ok(Reply::Fail(res))
             }
             RpcReplyCode::Text => {
-                log::trace!("Received text");
+                log::trace!("Receiving RPC_REPLY_TEXT of size {}", header.size);
+                let mut buf = vec![0u8; header.size as usize];
+                stream.read_exact(&mut buf)?;
                 let reply = crate::CoreTextNotification::parse_from_bytes(&buf)?;
                 Ok(Reply::Text(reply))
             }
-            RpcReplyCode::Quit => Err(DFHackError::RpcError()),
+            RpcReplyCode::Quit => Err(DFHackError::ProtocolError(
+                "Unexpected \"Quit\" reply code".to_string(),
+            )),
         }
     }
 }
