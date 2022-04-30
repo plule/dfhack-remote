@@ -3,7 +3,6 @@
 //! The DFHack API includes a set of headers and error code wrapping the serialized
 //! protobuf messages. This module implements this logic.
 
-use crate::Error;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use derive_more::Display;
 use num_enum::TryFromPrimitive;
@@ -205,7 +204,7 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
                 let res = match CommandResult::try_from(header.size) {
                     Ok(res) => res,
                     Err(err) => {
-                        return Err(Error::ProtocolError(format!(
+                        return Err(crate::Error::ProtocolError(format!(
                             "Unknown CommandResult {}",
                             err.number
                         )))
@@ -220,7 +219,7 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
                 let reply = crate::CoreTextNotification::parse_from_bytes(&buf)?;
                 Ok(Reply::Text(reply))
             }
-            RpcReplyCode::Quit => Err(Error::ProtocolError(
+            RpcReplyCode::Quit => Err(crate::Error::ProtocolError(
                 "Unexpected \"Quit\" reply code".to_string(),
             )),
         }

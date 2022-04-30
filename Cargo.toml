@@ -20,6 +20,7 @@ num_enum = "0.5.7"
 log = "0.4.16"
 derive_more = "0.99.17"
 dfhack-proto = { version = "0.3.1-dev", path = "dfhack-proto" }
+thiserror = "1.0.30"
 
 
 [dev-dependencies]

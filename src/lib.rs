@@ -1,6 +1,8 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
+use num_enum::TryFromPrimitiveError;
+
 mod channel;
 mod message;
 
@@ -54,33 +56,50 @@ pub fn connect_to(address: &str) -> Result<Stubs<channel::Channel>> {
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Error type emitted by DFHack API calls
-#[derive(Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// A low level connexion error
     ///
     /// This can mean that the address is wrong,
     /// that Dwarf Fortress crashed, or a library bug occured.
-    CommunicationFailure(std::io::Error),
+    #[error("communication failure: {0}")]
+    CommunicationFailure(#[from] std::io::Error),
 
     /// The data exchange did not happen as expected.
     ///
     /// This is likely a bug.
+    #[error("protocol error: {0}.")]
     ProtocolError(String),
 
     /// Protobuf serialization or deserialization error
     ///
     /// This can indicate that updating the generated code
     /// is necessary
-    ProtobufError(protobuf::ProtobufError),
+    #[error("protobuf serialization error: {0}.")]
+    ProtobufError(#[from] protobuf::ProtobufError),
 
     /// Failed to bind the method
     ///
     /// This can indicate that updating the generated code
     /// is necessary
+    #[error("failed to bind {0}.")]
     FailedToBind(String),
 
     /// DFHack RPC Error
+    #[error("RPC error: {0}.")]
     RpcError(CommandResult),
+}
+
+impl From<TryFromPrimitiveError<message::RpcReplyCode>> for Error {
+    fn from(err: TryFromPrimitiveError<message::RpcReplyCode>) -> Self {
+        Self::ProtocolError(format!("Unknown DFHackReplyCode : {}", err.number))
+    }
+}
+
+impl From<std::string::FromUtf8Error> for Error {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        Self::ProtocolError(format!("Invalid string error: {}", err))
+    }
 }
 
 #[cfg(test)]

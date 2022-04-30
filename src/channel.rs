@@ -4,13 +4,12 @@
 //! This includes the custom workflow of binding RPC methods
 //! before being able to use them.
 
-use std::{collections::HashMap, fmt};
+use std::collections::HashMap;
 
 use crate::{
     message::{self, Receive, Send},
     Error,
 };
-use num_enum::TryFromPrimitiveError;
 
 #[derive(PartialEq, Eq, Hash, Clone)]
 pub struct Method {
@@ -185,50 +184,6 @@ impl Drop for Channel {
                 failure
             );
         }
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-        match self {
-            Error::ProtocolError(message) => {
-                write!(f, "Protocol Error: {message}.")
-            }
-            Error::CommunicationFailure(error) => {
-                write!(f, "Communication failure: {error}")
-            }
-            Error::ProtobufError(error) => {
-                write!(f, "Protobuf error: {error}")
-            }
-            Error::RpcError(result) => {
-                write!(f, "Command result error: {result}")
-            }
-            Error::FailedToBind(method) => write!(f, "Failed to bind {}", method),
-        }
-    }
-}
-
-impl From<std::io::Error> for Error {
-    fn from(err: std::io::Error) -> Self {
-        Self::CommunicationFailure(err)
-    }
-}
-
-impl From<protobuf::ProtobufError> for Error {
-    fn from(err: protobuf::ProtobufError) -> Self {
-        Self::ProtobufError(err)
-    }
-}
-
-impl From<TryFromPrimitiveError<message::RpcReplyCode>> for Error {
-    fn from(err: TryFromPrimitiveError<message::RpcReplyCode>) -> Self {
-        Self::ProtocolError(format!("Unknown DFHackReplyCode : {}", err.number))
-    }
-}
-
-impl From<std::string::FromUtf8Error> for Error {
-    fn from(err: std::string::FromUtf8Error) -> Self {
-        Self::ProtocolError(format!("Invalid string error: {}", err))
     }
 }
 
