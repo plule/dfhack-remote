@@ -148,7 +148,6 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
 
     file.extend(quote! {
         use std::{cell::RefCell, rc::Rc};
-        use std::marker::PhantomData;
         use crate::messages::*;
         #[cfg(feature = "reflection")]
         use protobuf::Message;
@@ -162,7 +161,7 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
         let member_ident = plugin.member_ident.clone();
         plugins_struct.extend(quote! {
             #[doc = #doc]
-            pub #member_ident: crate::stubs::#struct_ident<E, TChannel>,
+            pub #member_ident: crate::stubs::#struct_ident<TChannel>,
         });
 
         new_method.extend(quote! {
@@ -170,18 +169,18 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
         });
 
         reflection_vec_building.extend(quote! {
-            methods.extend(Core::<E, TChannel>::list_methods());
+            methods.extend(Core::<TChannel>::list_methods());
         });
     }
     file.extend(quote! {
         #[doc = "Generated list of DFHack stubs. Each stub communicates with a plugin."]
-        pub struct Stubs<TChannel: crate::Channel<E>, E> {
+        pub struct Stubs<TChannel: crate::Channel> {
             #plugins_struct
         }
     });
 
     file.extend(quote! {
-        impl<TChannel: crate::Channel<E>, E> From<TChannel> for Stubs<TChannel, E> {
+        impl<TChannel: crate::Channel> From<TChannel> for Stubs<TChannel> {
             #[doc = "Initialize all the generated stubs."]
             fn from(channel: TChannel) -> Self {
                 let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
@@ -192,7 +191,7 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
         }
 
         #[cfg(feature = "reflection")]
-        impl<TChannel: crate::Channel<E>, E> crate::reflection::StubReflection for Stubs<TChannel, E> {
+        impl<TChannel: crate::Channel> crate::reflection::StubReflection for Stubs<TChannel> {
             fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
                 let mut methods = Vec::new();
                 #reflection_vec_building
@@ -209,22 +208,19 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
 
     file.extend(quote! {
         #[doc = #plugin_doc]
-        pub struct #struct_ident<E, TChannel: crate::Channel<E>> {
+        pub struct #struct_ident<TChannel: crate::Channel> {
             #[doc = "Reference to the client to exchange messages."]
             pub channel: Rc<RefCell<TChannel>>,
 
             #[doc = "Name of the plugin. All the RPC are attached to this name."]
             pub name: String,
-
-            phantom: PhantomData<E>,
         }
 
-        impl<TChannel: crate::Channel<E>, E> From<Rc<RefCell<TChannel>>> for #struct_ident<E, TChannel> {
+        impl<TChannel: crate::Channel> From<Rc<RefCell<TChannel>>> for #struct_ident<TChannel> {
             fn from(channel: Rc<RefCell<TChannel>>) -> Self {
                 Self {
                     channel,
                     name: #plugin_name.to_string(),
-                    phantom: PhantomData,
                 }
             }
         }
@@ -325,7 +321,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
             #[doc = #doc]
             pub fn #function_ident(
                 #parameters
-            ) -> Result<#return_token, E> {
+            ) -> Result<#return_token, TChannel::TError> {
                 #prep
                 let _response: #output_ident = self.channel.borrow_mut().request(
                     #plugin_name.to_string(),
@@ -352,12 +348,12 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
     }
 
     file.extend(quote! {
-        impl<E, TChannel: crate::Channel<E>> #struct_ident<E, TChannel> {
+        impl<TChannel: crate::Channel> #struct_ident<TChannel> {
             #plugin_impl
         }
 
         #[cfg(feature = "reflection")]
-        impl<E, TChannel: crate::Channel<E>> crate::reflection::StubReflection for #struct_ident<E, TChannel> {
+        impl<TChannel: crate::Channel> crate::reflection::StubReflection for #struct_ident<TChannel> {
             fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
                 vec![
                     #reflection_vec

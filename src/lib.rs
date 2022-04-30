@@ -25,7 +25,7 @@ use message::CommandResult;
 /// let df_version = dfhack.core.get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
-pub fn connect() -> DFHackResult<Stubs<channel::DFHackChannel, DFHackError>> {
+pub fn connect() -> DFHackResult<Stubs<channel::DFHackChannel>> {
     let connexion = channel::DFHackChannel::connect()?;
     Ok(Stubs::from(connexion))
 }
@@ -45,7 +45,7 @@ pub fn connect() -> DFHackResult<Stubs<channel::DFHackChannel, DFHackError>> {
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
-pub fn connect_to(address: &str) -> DFHackResult<Stubs<channel::DFHackChannel, DFHackError>> {
+pub fn connect_to(address: &str) -> DFHackResult<Stubs<channel::DFHackChannel>> {
     let connexion = channel::DFHackChannel::connect_to(address)?;
     Ok(Stubs::from(connexion))
 }

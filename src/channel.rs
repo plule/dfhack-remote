@@ -36,7 +36,9 @@ const VERSION: i32 = 1;
 const BIND_METHOD_ID: i16 = 0;
 const RUN_COMMAND_ID: i16 = 1;
 
-impl dfhack_proto::Channel<crate::DFHackError> for DFHackChannel {
+impl dfhack_proto::Channel for DFHackChannel {
+    type TError = crate::DFHackError;
+
     fn request<TRequest, TReply>(
         &mut self,
         plugin: std::string::String,
@@ -282,9 +284,9 @@ mod tests {
         fn bind_all() {
             use dfhack_proto::{reflection::StubReflection, stubs::Stubs};
 
-            use crate::{channel::DFHackChannel, DFHackError};
+            use crate::channel::DFHackChannel;
             let mut channel = DFHackChannel::connect().unwrap();
-            let methods = Stubs::<DFHackChannel, DFHackError>::list_methods();
+            let methods = Stubs::<DFHackChannel>::list_methods();
 
             for method in &methods {
                 channel

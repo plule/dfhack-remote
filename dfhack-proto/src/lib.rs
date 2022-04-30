@@ -19,7 +19,12 @@ pub mod stubs {
 /// It is in charge to serialize/deserialize messages, and exchange
 /// them with Dwarf Fortress. It is not meant to be used as is, but to be passed to
 /// It is analoguous to the gRPC channel.
-pub trait Channel<TError> {
+pub trait Channel {
+    /// Type of the errors raised by the stub.
+    ///
+    /// Defined by the channel implementation.
+    type TError;
+
     /// Send a request to DFHack, and return its reply.
     ///
     /// # Errors
@@ -41,7 +46,7 @@ pub trait Channel<TError> {
         plugin: String,
         name: String,
         request: TRequest,
-    ) -> Result<TReply, TError>;
+    ) -> Result<TReply, Self::TError>;
 }
 
 #[cfg(feature = "reflection")]
