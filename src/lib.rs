@@ -87,10 +87,7 @@ pub enum DFHackError {
 mod tests {
     #[ctor::ctor]
     fn init() {
-        simple_logger::SimpleLogger::new()
-            .with_level(log::LevelFilter::Trace)
-            .init()
-            .unwrap();
+        env_logger::init();
     }
     #[cfg(feature = "test-with-df")]
     mod withdf {
