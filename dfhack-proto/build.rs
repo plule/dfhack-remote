@@ -143,11 +143,9 @@ fn generate_stubs_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
 }
 
 fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
-    let mut plugins_struct = quote!();
-    let mut new_method = quote!();
+    let mut plugins_impl = quote!();
 
     file.extend(quote! {
-        use std::{cell::RefCell, rc::Rc};
         use crate::messages::*;
         #[cfg(feature = "reflection")]
         use protobuf::Message;
@@ -155,39 +153,39 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
 
     let mut reflection_vec_building = quote!();
 
+    file.extend(quote! {
+        #[doc = "Generated list of DFHack stubs. Each stub communicates with a plugin."]
+        pub struct Stubs<TChannel: crate::Channel> {
+            channel: TChannel,
+        }
+    });
+
     for plugin in plugins {
         let doc = format!("RPCs of the {} plugin", plugin.plugin_name);
         let struct_ident = plugin.struct_ident.clone();
         let member_ident = plugin.member_ident.clone();
-        plugins_struct.extend(quote! {
+        plugins_impl.extend(quote! {
             #[doc = #doc]
-            pub #member_ident: crate::stubs::#struct_ident<TChannel>,
-        });
-
-        new_method.extend(quote! {
-            #member_ident: #struct_ident::from(std::rc::Rc::clone(&channel)),
+            pub fn #member_ident(&mut self) -> crate::stubs::#struct_ident<TChannel> {
+                crate::stubs::#struct_ident::new(&mut self.channel)
+            }
         });
 
         reflection_vec_building.extend(quote! {
             methods.extend(Core::<TChannel>::list_methods());
         });
     }
-    file.extend(quote! {
-        #[doc = "Generated list of DFHack stubs. Each stub communicates with a plugin."]
-        pub struct Stubs<TChannel: crate::Channel> {
-            #plugins_struct
-        }
-    });
 
     file.extend(quote! {
         impl<TChannel: crate::Channel> From<TChannel> for Stubs<TChannel> {
             #[doc = "Initialize all the generated stubs."]
             fn from(channel: TChannel) -> Self {
-                let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
-                Self {
-                    #new_method
-                }
+                Self { channel }
             }
+        }
+
+        impl<TChannel: crate::Channel> Stubs<TChannel> {
+            #plugins_impl
         }
 
         #[cfg(feature = "reflection")]
@@ -208,25 +206,19 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
 
     file.extend(quote! {
         #[doc = #plugin_doc]
-        pub struct #struct_ident<TChannel: crate::Channel> {
+        pub struct #struct_ident<'a, TChannel: crate::Channel> {
             #[doc = "Reference to the client to exchange messages."]
-            pub channel: Rc<RefCell<TChannel>>,
-
-            #[doc = "Name of the plugin. All the RPC are attached to this name."]
-            pub name: String,
-        }
-
-        impl<TChannel: crate::Channel> From<Rc<RefCell<TChannel>>> for #struct_ident<TChannel> {
-            fn from(channel: Rc<RefCell<TChannel>>) -> Self {
-                Self {
-                    channel,
-                    name: #plugin_name.to_string(),
-                }
-            }
+            pub channel: &'a mut TChannel,
         }
     });
 
-    let mut plugin_impl = quote!();
+    let mut plugin_impl = quote! {
+        #[doc = "Initialize the plugin from a channel to DFHack."]
+        pub fn new(channel: &'a mut TChannel) -> Self {
+            Self { channel }
+        }
+    };
+
     let mut reflection_vec = quote!();
 
     for rpc in &plugin.rpcs {
@@ -323,7 +315,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 #parameters
             ) -> Result<#return_token, TChannel::TError> {
                 #prep
-                let _response: #output_ident = self.channel.borrow_mut().request(
+                let _response: #output_ident = self.channel.request(
                     #plugin_name.to_string(),
                     #function_name.to_string(),
                     request,
@@ -348,12 +340,12 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
     }
 
     file.extend(quote! {
-        impl<TChannel: crate::Channel> #struct_ident<TChannel> {
+        impl<'a, TChannel: crate::Channel> #struct_ident<'a, TChannel> {
             #plugin_impl
         }
 
         #[cfg(feature = "reflection")]
-        impl<TChannel: crate::Channel> crate::reflection::StubReflection for #struct_ident<TChannel> {
+        impl<TChannel: crate::Channel> crate::reflection::StubReflection for #struct_ident<'_, TChannel> {
             fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
                 vec![
                     #reflection_vec

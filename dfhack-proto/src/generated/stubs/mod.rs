@@ -1,30 +1,34 @@
-use std::{cell::RefCell, rc::Rc};
 use crate::messages::*;
 #[cfg(feature = "reflection")]
 use protobuf::Message;
 ///Generated list of DFHack stubs. Each stub communicates with a plugin.
 pub struct Stubs<TChannel: crate::Channel> {
-    ///RPCs of the  plugin
-    pub core: crate::stubs::Core<TChannel>,
-    ///RPCs of the RemoteFortressReader plugin
-    pub remote_fortress_reader: crate::stubs::RemoteFortressReader<TChannel>,
-    ///RPCs of the isoworldremote plugin
-    pub isoworldremote: crate::stubs::Isoworldremote<TChannel>,
-    ///RPCs of the rename plugin
-    pub rename: crate::stubs::Rename<TChannel>,
+    channel: TChannel,
 }
 impl<TChannel: crate::Channel> From<TChannel> for Stubs<TChannel> {
     ///Initialize all the generated stubs.
     fn from(channel: TChannel) -> Self {
-        let channel = std::rc::Rc::new(std::cell::RefCell::new(channel));
-        Self {
-            core: Core::from(std::rc::Rc::clone(&channel)),
-            remote_fortress_reader: RemoteFortressReader::from(
-                std::rc::Rc::clone(&channel),
-            ),
-            isoworldremote: Isoworldremote::from(std::rc::Rc::clone(&channel)),
-            rename: Rename::from(std::rc::Rc::clone(&channel)),
-        }
+        Self { channel }
+    }
+}
+impl<TChannel: crate::Channel> Stubs<TChannel> {
+    ///RPCs of the  plugin
+    pub fn core(&mut self) -> crate::stubs::Core<TChannel> {
+        crate::stubs::Core::new(&mut self.channel)
+    }
+    ///RPCs of the RemoteFortressReader plugin
+    pub fn remote_fortress_reader(
+        &mut self,
+    ) -> crate::stubs::RemoteFortressReader<TChannel> {
+        crate::stubs::RemoteFortressReader::new(&mut self.channel)
+    }
+    ///RPCs of the isoworldremote plugin
+    pub fn isoworldremote(&mut self) -> crate::stubs::Isoworldremote<TChannel> {
+        crate::stubs::Isoworldremote::new(&mut self.channel)
+    }
+    ///RPCs of the rename plugin
+    pub fn rename(&mut self) -> crate::stubs::Rename<TChannel> {
+        crate::stubs::Rename::new(&mut self.channel)
     }
 }
 #[cfg(feature = "reflection")]
@@ -39,21 +43,15 @@ impl<TChannel: crate::Channel> crate::reflection::StubReflection for Stubs<TChan
     }
 }
 ///RPC for the "" plugin.
-pub struct Core<TChannel: crate::Channel> {
+pub struct Core<'a, TChannel: crate::Channel> {
     ///Reference to the client to exchange messages.
-    pub channel: Rc<RefCell<TChannel>>,
-    ///Name of the plugin. All the RPC are attached to this name.
-    pub name: String,
+    pub channel: &'a mut TChannel,
 }
-impl<TChannel: crate::Channel> From<Rc<RefCell<TChannel>>> for Core<TChannel> {
-    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
-        Self {
-            channel,
-            name: "".to_string(),
-        }
+impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
+    ///Initialize the plugin from a channel to DFHack.
+    pub fn new(channel: &'a mut TChannel) -> Self {
+        Self { channel }
     }
-}
-impl<TChannel: crate::Channel> Core<TChannel> {
     ///Method `BindMethod` from the plugin ``
     pub fn bind_method(
         &mut self,
@@ -61,7 +59,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
     ) -> Result<CoreBindReply, TChannel::TError> {
         let _response: CoreBindReply = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "BindMethod".to_string(), request)?;
         Ok(_response)
     }
@@ -70,7 +67,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
         let request = EmptyMessage::new();
         let _response: IntMessage = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "CoreResume".to_string(), request)?;
         let _response = _response.get_value();
         Ok(_response)
@@ -80,7 +76,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
         let request = EmptyMessage::new();
         let _response: IntMessage = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "CoreSuspend".to_string(), request)?;
         let _response = _response.get_value();
         Ok(_response)
@@ -90,7 +85,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
         let request = EmptyMessage::new();
         let _response: StringMessage = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "GetDFVersion".to_string(), request)?;
         let _response = _response.get_value().to_string();
         Ok(_response)
@@ -100,7 +94,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
         let request = EmptyMessage::new();
         let _response: StringMessage = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "GetVersion".to_string(), request)?;
         let _response = _response.get_value().to_string();
         Ok(_response)
@@ -110,7 +103,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
         let request = EmptyMessage::new();
         let _response: GetWorldInfoOut = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "GetWorldInfo".to_string(), request)?;
         Ok(_response)
     }
@@ -119,7 +111,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
         let request = EmptyMessage::new();
         let _response: ListEnumsOut = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "ListEnums".to_string(), request)?;
         Ok(_response)
     }
@@ -128,7 +119,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
         let request = EmptyMessage::new();
         let _response: ListJobSkillsOut = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "ListJobSkills".to_string(), request)?;
         Ok(_response)
     }
@@ -139,7 +129,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
     ) -> Result<ListMaterialsOut, TChannel::TError> {
         let _response: ListMaterialsOut = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "ListMaterials".to_string(), request)?;
         Ok(_response)
     }
@@ -150,7 +139,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
     ) -> Result<ListSquadsOut, TChannel::TError> {
         let _response: ListSquadsOut = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "ListSquads".to_string(), request)?;
         Ok(_response)
     }
@@ -161,7 +149,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
     ) -> Result<ListUnitsOut, TChannel::TError> {
         let _response: ListUnitsOut = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "ListUnits".to_string(), request)?;
         Ok(_response)
     }
@@ -172,7 +159,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "RunCommand".to_string(), request)?;
         let _response = ();
         Ok(_response)
@@ -184,7 +170,6 @@ impl<TChannel: crate::Channel> Core<TChannel> {
     ) -> Result<StringListMessage, TChannel::TError> {
         let _response: StringListMessage = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "RunLua".to_string(), request)?;
         Ok(_response)
     }
@@ -195,14 +180,13 @@ impl<TChannel: crate::Channel> Core<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request("".to_string(), "SetUnitLabors".to_string(), request)?;
         let _response = ();
         Ok(_response)
     }
 }
 #[cfg(feature = "reflection")]
-impl<TChannel: crate::Channel> crate::reflection::StubReflection for Core<TChannel> {
+impl<TChannel: crate::Channel> crate::reflection::StubReflection for Core<'_, TChannel> {
     fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "BindMethod"
@@ -260,28 +244,20 @@ impl<TChannel: crate::Channel> crate::reflection::StubReflection for Core<TChann
     }
 }
 ///RPC for the "RemoteFortressReader" plugin.
-pub struct RemoteFortressReader<TChannel: crate::Channel> {
+pub struct RemoteFortressReader<'a, TChannel: crate::Channel> {
     ///Reference to the client to exchange messages.
-    pub channel: Rc<RefCell<TChannel>>,
-    ///Name of the plugin. All the RPC are attached to this name.
-    pub name: String,
+    pub channel: &'a mut TChannel,
 }
-impl<TChannel: crate::Channel> From<Rc<RefCell<TChannel>>>
-for RemoteFortressReader<TChannel> {
-    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
-        Self {
-            channel,
-            name: "RemoteFortressReader".to_string(),
-        }
+impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
+    ///Initialize the plugin from a channel to DFHack.
+    pub fn new(channel: &'a mut TChannel) -> Self {
+        Self { channel }
     }
-}
-impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ///Method `CheckHashes` from the plugin `RemoteFortressReader`
     pub fn check_hashes(&mut self) -> Result<(), TChannel::TError> {
         let request = EmptyMessage::new();
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "CheckHashes".to_string(),
@@ -295,7 +271,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: ScreenCapture = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "CopyScreen".to_string(),
@@ -310,7 +285,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<BlockList, TChannel::TError> {
         let _response: BlockList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetBlockList".to_string(),
@@ -323,7 +297,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: BuildingList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetBuildingDefList".to_string(),
@@ -336,7 +309,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: CreatureRawList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetCreatureRaws".to_string(),
@@ -349,7 +321,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: SingleBool = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetGameValidity".to_string(),
@@ -363,7 +334,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: MaterialList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetGrowthList".to_string(),
@@ -376,7 +346,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: MaterialList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetItemList".to_string(),
@@ -389,7 +358,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: Language = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetLanguage".to_string(),
@@ -402,7 +370,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: MapInfo = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetMapInfo".to_string(),
@@ -415,7 +382,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: MaterialList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetMaterialList".to_string(),
@@ -430,7 +396,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<CreatureRawList, TChannel::TError> {
         let _response: CreatureRawList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetPartialCreatureRaws".to_string(),
@@ -445,7 +410,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<PlantRawList, TChannel::TError> {
         let _response: PlantRawList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetPartialPlantRaws".to_string(),
@@ -458,7 +422,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: SingleBool = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetPauseState".to_string(),
@@ -474,7 +437,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<PlantList, TChannel::TError> {
         let _response: PlantList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetPlantList".to_string(),
@@ -487,7 +449,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: PlantRawList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetPlantRaws".to_string(),
@@ -500,7 +461,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: RegionMaps = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetRegionMaps".to_string(),
@@ -513,7 +473,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: RegionMaps = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetRegionMapsNew".to_string(),
@@ -526,7 +485,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: Status = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetReports".to_string(),
@@ -539,7 +497,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: SidebarState = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetSideMenu".to_string(),
@@ -552,7 +509,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: TiletypeList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetTiletypeList".to_string(),
@@ -565,7 +521,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: UnitList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetUnitList".to_string(),
@@ -580,7 +535,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<UnitList, TChannel::TError> {
         let _response: UnitList = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetUnitListInside".to_string(),
@@ -593,7 +547,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: VersionInfo = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetVersionInfo".to_string(),
@@ -606,7 +559,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: ViewInfo = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetViewInfo".to_string(),
@@ -619,7 +571,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: WorldMap = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetWorldMap".to_string(),
@@ -632,7 +583,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: WorldMap = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetWorldMapCenter".to_string(),
@@ -645,7 +595,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: WorldMap = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetWorldMapNew".to_string(),
@@ -660,7 +609,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "JumpCommand".to_string(),
@@ -674,7 +622,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: MenuContents = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "MenuQuery".to_string(),
@@ -689,7 +636,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "MiscMoveCommand".to_string(),
@@ -705,7 +651,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "MoveCommand".to_string(),
@@ -723,7 +668,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         request.set_value(value);
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "MovementSelectCommand".to_string(),
@@ -739,7 +683,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "PassKeyboardEvent".to_string(),
@@ -753,7 +696,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         let request = EmptyMessage::new();
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "ResetMapHashes".to_string(),
@@ -769,7 +711,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "SendDigCommand".to_string(),
@@ -784,7 +725,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
         request.set_Value(value);
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "SetPauseState".to_string(),
@@ -800,7 +740,6 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request(
                 "RemoteFortressReader".to_string(),
                 "SetSideMenu".to_string(),
@@ -812,7 +751,7 @@ impl<TChannel: crate::Channel> RemoteFortressReader<TChannel> {
 }
 #[cfg(feature = "reflection")]
 impl<TChannel: crate::Channel> crate::reflection::StubReflection
-for RemoteFortressReader<TChannel> {
+for RemoteFortressReader<'_, TChannel> {
     fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "CheckHashes"
@@ -971,21 +910,15 @@ for RemoteFortressReader<TChannel> {
     }
 }
 ///RPC for the "isoworldremote" plugin.
-pub struct Isoworldremote<TChannel: crate::Channel> {
+pub struct Isoworldremote<'a, TChannel: crate::Channel> {
     ///Reference to the client to exchange messages.
-    pub channel: Rc<RefCell<TChannel>>,
-    ///Name of the plugin. All the RPC are attached to this name.
-    pub name: String,
+    pub channel: &'a mut TChannel,
 }
-impl<TChannel: crate::Channel> From<Rc<RefCell<TChannel>>> for Isoworldremote<TChannel> {
-    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
-        Self {
-            channel,
-            name: "isoworldremote".to_string(),
-        }
+impl<'a, TChannel: crate::Channel> Isoworldremote<'a, TChannel> {
+    ///Initialize the plugin from a channel to DFHack.
+    pub fn new(channel: &'a mut TChannel) -> Self {
+        Self { channel }
     }
-}
-impl<TChannel: crate::Channel> Isoworldremote<TChannel> {
     ///Method `GetEmbarkInfo` from the plugin `isoworldremote`
     pub fn get_embark_info(
         &mut self,
@@ -993,7 +926,6 @@ impl<TChannel: crate::Channel> Isoworldremote<TChannel> {
     ) -> Result<MapReply, TChannel::TError> {
         let _response: MapReply = self
             .channel
-            .borrow_mut()
             .request(
                 "isoworldremote".to_string(),
                 "GetEmbarkInfo".to_string(),
@@ -1008,7 +940,6 @@ impl<TChannel: crate::Channel> Isoworldremote<TChannel> {
     ) -> Result<EmbarkTile, TChannel::TError> {
         let _response: EmbarkTile = self
             .channel
-            .borrow_mut()
             .request(
                 "isoworldremote".to_string(),
                 "GetEmbarkTile".to_string(),
@@ -1023,14 +954,13 @@ impl<TChannel: crate::Channel> Isoworldremote<TChannel> {
     ) -> Result<RawNames, TChannel::TError> {
         let _response: RawNames = self
             .channel
-            .borrow_mut()
             .request("isoworldremote".to_string(), "GetRawNames".to_string(), request)?;
         Ok(_response)
     }
 }
 #[cfg(feature = "reflection")]
 impl<TChannel: crate::Channel> crate::reflection::StubReflection
-for Isoworldremote<TChannel> {
+for Isoworldremote<'_, TChannel> {
     fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "GetEmbarkInfo"
@@ -1049,21 +979,15 @@ for Isoworldremote<TChannel> {
     }
 }
 ///RPC for the "rename" plugin.
-pub struct Rename<TChannel: crate::Channel> {
+pub struct Rename<'a, TChannel: crate::Channel> {
     ///Reference to the client to exchange messages.
-    pub channel: Rc<RefCell<TChannel>>,
-    ///Name of the plugin. All the RPC are attached to this name.
-    pub name: String,
+    pub channel: &'a mut TChannel,
 }
-impl<TChannel: crate::Channel> From<Rc<RefCell<TChannel>>> for Rename<TChannel> {
-    fn from(channel: Rc<RefCell<TChannel>>) -> Self {
-        Self {
-            channel,
-            name: "rename".to_string(),
-        }
+impl<'a, TChannel: crate::Channel> Rename<'a, TChannel> {
+    ///Initialize the plugin from a channel to DFHack.
+    pub fn new(channel: &'a mut TChannel) -> Self {
+        Self { channel }
     }
-}
-impl<TChannel: crate::Channel> Rename<TChannel> {
     ///Method `RenameBuilding` from the plugin `rename`
     pub fn rename_building(
         &mut self,
@@ -1071,7 +995,6 @@ impl<TChannel: crate::Channel> Rename<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request("rename".to_string(), "RenameBuilding".to_string(), request)?;
         let _response = ();
         Ok(_response)
@@ -1083,7 +1006,6 @@ impl<TChannel: crate::Channel> Rename<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request("rename".to_string(), "RenameSquad".to_string(), request)?;
         let _response = ();
         Ok(_response)
@@ -1095,14 +1017,14 @@ impl<TChannel: crate::Channel> Rename<TChannel> {
     ) -> Result<(), TChannel::TError> {
         let _response: EmptyMessage = self
             .channel
-            .borrow_mut()
             .request("rename".to_string(), "RenameUnit".to_string(), request)?;
         let _response = ();
         Ok(_response)
     }
 }
 #[cfg(feature = "reflection")]
-impl<TChannel: crate::Channel> crate::reflection::StubReflection for Rename<TChannel> {
+impl<TChannel: crate::Channel> crate::reflection::StubReflection
+for Rename<'_, TChannel> {
     fn list_methods() -> Vec<crate::reflection::RemoteProcedureDescriptor> {
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "RenameBuilding"

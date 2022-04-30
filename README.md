@@ -22,7 +22,7 @@ Displaying some information about the current world.
 
 ```no_run
 let mut client = dfhack_remote::connect().unwrap();
-let world_map = client.remote_fortress_reader.get_world_map().unwrap();
+let world_map = client.remote_fortress_reader().get_world_map().unwrap();
 println!(
     "Welcome to {} ({}). It is the year {}.",
     world_map.get_name(),
@@ -34,8 +34,8 @@ println!(
 Pausing or unpausing the game
 ``` no_run
 let mut client = dfhack_remote::connect().unwrap();
-let status = client.remote_fortress_reader.get_pause_state().unwrap();
-client.remote_fortress_reader.set_pause_state(!status).unwrap();
+let status = client.remote_fortress_reader().get_pause_state().unwrap();
+client.remote_fortress_reader().set_pause_state(!status).unwrap();
 ```
 
 The generated API is mostly a direct translation from the raw RPC,

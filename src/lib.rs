@@ -24,7 +24,7 @@ use message::CommandResult;
 /// use dfhack_remote;
 ///
 /// let mut dfhack = dfhack_remote::connect().unwrap();
-/// let df_version = dfhack.core.get_df_version().unwrap();
+/// let df_version = dfhack.core().get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 pub fn connect() -> Result<Stubs<channel::Channel>> {
@@ -43,7 +43,7 @@ pub fn connect() -> Result<Stubs<channel::Channel>> {
 /// ```no_run
 /// use dfhack_remote;
 /// let mut dfhack = dfhack_remote::connect_to("127.0.0.1:5000").unwrap();
-/// let df_version = dfhack.core.get_df_version().unwrap();
+/// let df_version = dfhack.core().get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
@@ -149,7 +149,7 @@ mod tests {
         #[test]
         fn get_version() {
             let mut client = crate::connect().unwrap();
-            let version = client.core.get_df_version().unwrap();
+            let version = client.core().get_df_version().unwrap();
             assert!(version.len() > 0);
         }
 
@@ -157,14 +157,14 @@ mod tests {
         fn pause_unpause() {
             let mut client = crate::connect().unwrap();
 
-            let initial_pause_status = client.remote_fortress_reader.get_pause_state().unwrap();
+            let initial_pause_status = client.remote_fortress_reader().get_pause_state().unwrap();
 
             client
-                .remote_fortress_reader
+                .remote_fortress_reader()
                 .set_pause_state(!initial_pause_status)
                 .unwrap();
 
-            let new_pause_status = client.remote_fortress_reader.get_pause_state().unwrap();
+            let new_pause_status = client.remote_fortress_reader().get_pause_state().unwrap();
 
             assert!(initial_pause_status != new_pause_status);
         }

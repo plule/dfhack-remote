@@ -2,7 +2,7 @@ use dfhack_remote;
 
 fn main() {
     let mut client = dfhack_remote::connect().unwrap();
-    let world_map = client.remote_fortress_reader.get_world_map().unwrap();
+    let world_map = client.remote_fortress_reader().get_world_map().unwrap();
 
     println!(
         "Welcome to {} ({}). It is the year {}. This world is {}x{} tiles.",
