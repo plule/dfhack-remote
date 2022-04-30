@@ -1,6 +1,6 @@
 [package]
 name = "dfhack-remote"
-version = "0.4.0"
+version = "0.4.1-dev"
 edition = "2021"
 authors = ["Pierre Lulé <pierre@lule.fr>"]
 description = "Interacting with the Dwarf Fortress remote API exposed by DFHack "
@@ -19,7 +19,7 @@ byteorder = "1.4.3"
 num_enum = "0.5.7"
 log = "0.4.16"
 derive_more = "0.99.17"
-dfhack-proto = { version = "0.4.0", path = "dfhack-proto" }
+dfhack-proto = { version = "0.4.1-dev", path = "dfhack-proto" }
 thiserror = "1.0.30"
 
 
