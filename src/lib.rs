@@ -25,8 +25,8 @@ use message::CommandResult;
 /// let df_version = dfhack.core.get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
-pub fn connect() -> DFHackResult<Stubs<channel::DFHackChannel>> {
-    let connexion = channel::DFHackChannel::connect()?;
+pub fn connect() -> Result<Stubs<channel::Channel>> {
+    let connexion = channel::Channel::connect()?;
     Ok(Stubs::from(connexion))
 }
 
@@ -45,17 +45,17 @@ pub fn connect() -> DFHackResult<Stubs<channel::DFHackChannel>> {
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
-pub fn connect_to(address: &str) -> DFHackResult<Stubs<channel::DFHackChannel>> {
-    let connexion = channel::DFHackChannel::connect_to(address)?;
+pub fn connect_to(address: &str) -> Result<Stubs<channel::Channel>> {
+    let connexion = channel::Channel::connect_to(address)?;
     Ok(Stubs::from(connexion))
 }
 
 /// Result type emitted by DFHack API calls
-pub type DFHackResult<T> = std::result::Result<T, DFHackError>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// Error type emitted by DFHack API calls
 #[derive(Debug)]
-pub enum DFHackError {
+pub enum Error {
     /// A low level connexion error
     ///
     /// This can mean that the address is wrong,

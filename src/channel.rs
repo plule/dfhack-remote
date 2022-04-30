@@ -8,7 +8,7 @@ use std::{collections::HashMap, fmt};
 
 use crate::{
     message::{self, Receive, Send},
-    DFHackError,
+    Error,
 };
 use num_enum::TryFromPrimitiveError;
 
@@ -24,7 +24,7 @@ impl Method {
     }
 }
 
-pub struct DFHackChannel {
+pub struct Channel {
     stream: std::net::TcpStream,
     bindings: HashMap<Method, i16>,
 }
@@ -36,15 +36,15 @@ const VERSION: i32 = 1;
 const BIND_METHOD_ID: i16 = 0;
 const RUN_COMMAND_ID: i16 = 1;
 
-impl dfhack_proto::Channel for DFHackChannel {
-    type TError = crate::DFHackError;
+impl dfhack_proto::Channel for Channel {
+    type TError = crate::Error;
 
     fn request<TRequest, TReply>(
         &mut self,
         plugin: std::string::String,
         name: std::string::String,
         request: TRequest,
-    ) -> crate::DFHackResult<TReply>
+    ) -> crate::Result<TReply>
     where
         TRequest: protobuf::Message,
         TReply: protobuf::Message,
@@ -67,8 +67,8 @@ impl dfhack_proto::Channel for DFHackChannel {
     }
 }
 
-impl DFHackChannel {
-    pub fn connect() -> crate::DFHackResult<Self> {
+impl Channel {
+    pub fn connect() -> crate::Result<Self> {
         let port = match std::env::var("DFHACK_PORT") {
             Ok(p) => p,
             Err(_) => "5000".to_string(),
@@ -76,9 +76,9 @@ impl DFHackChannel {
         Self::connect_to(&format!("127.0.0.1:{}", port))
     }
 
-    pub fn connect_to(address: &str) -> crate::DFHackResult<DFHackChannel> {
+    pub fn connect_to(address: &str) -> crate::Result<Channel> {
         log::info!("Connecting to {}", address);
-        let mut client = DFHackChannel {
+        let mut client = Channel {
             stream: std::net::TcpStream::connect(address)?,
             bindings: HashMap::new(),
         };
@@ -97,14 +97,14 @@ impl DFHackChannel {
         let handshake_reply = message::Handshake::receive(&mut client.stream)?;
 
         if handshake_reply.magic != MAGIC_REPLY {
-            return Err(DFHackError::ProtocolError(format!(
+            return Err(Error::ProtocolError(format!(
                 "Unexpected magic {}",
                 handshake_reply.magic
             )));
         }
 
         if handshake_reply.version != VERSION {
-            return Err(DFHackError::ProtocolError(format!(
+            return Err(Error::ProtocolError(format!(
                 "Unexpected magic version {}",
                 handshake_reply.version
             )));
@@ -117,7 +117,7 @@ impl DFHackChannel {
         &mut self,
         id: i16,
         message: TIN,
-    ) -> crate::DFHackResult<TOUT> {
+    ) -> crate::Result<TOUT> {
         let request = message::Request::new(id, message);
         request.send(&mut self.stream)?;
 
@@ -131,7 +131,7 @@ impl DFHackChannel {
                 }
                 message::Reply::Result(result) => return Ok(result),
                 message::Reply::Fail(command_result) => {
-                    return Err(DFHackError::RpcError(command_result))
+                    return Err(Error::RpcError(command_result))
                 }
             }
         }
@@ -140,7 +140,7 @@ impl DFHackChannel {
     pub fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
         method: &Method,
-    ) -> crate::DFHackResult<i16> {
+    ) -> crate::Result<i16> {
         let input_msg = TIN::descriptor_static().full_name();
         let output_msg = TOUT::descriptor_static().full_name();
         self.bind_method_by_name(&method.plugin, &method.name, input_msg, output_msg)
@@ -152,7 +152,7 @@ impl DFHackChannel {
         method: &str,
         input_msg: &str,
         output_msg: &str,
-    ) -> crate::DFHackResult<i16> {
+    ) -> crate::Result<i16> {
         log::debug!("Binding the method {}:{}", plugin, method);
         let mut request = crate::CoreBindRequest::new();
         request.set_method(method.to_owned());
@@ -163,7 +163,7 @@ impl DFHackChannel {
             Ok(reply) => reply,
             Err(_) => {
                 log::error!("Error attempting to bind {}", method);
-                return Err(DFHackError::FailedToBind(format!(
+                return Err(Error::FailedToBind(format!(
                     "{}::{} ({}->{})",
                     plugin, method, input_msg, output_msg,
                 )));
@@ -175,7 +175,7 @@ impl DFHackChannel {
     }
 }
 
-impl Drop for DFHackChannel {
+impl Drop for Channel {
     fn drop(&mut self) {
         let quit = message::Quit::new();
         let res = quit.send(&mut self.stream);
@@ -188,45 +188,45 @@ impl Drop for DFHackChannel {
     }
 }
 
-impl fmt::Display for DFHackError {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
         match self {
-            DFHackError::ProtocolError(message) => {
+            Error::ProtocolError(message) => {
                 write!(f, "Protocol Error: {message}.")
             }
-            DFHackError::CommunicationFailure(error) => {
+            Error::CommunicationFailure(error) => {
                 write!(f, "Communication failure: {error}")
             }
-            DFHackError::ProtobufError(error) => {
+            Error::ProtobufError(error) => {
                 write!(f, "Protobuf error: {error}")
             }
-            DFHackError::RpcError(result) => {
+            Error::RpcError(result) => {
                 write!(f, "Command result error: {result}")
             }
-            DFHackError::FailedToBind(method) => write!(f, "Failed to bind {}", method),
+            Error::FailedToBind(method) => write!(f, "Failed to bind {}", method),
         }
     }
 }
 
-impl From<std::io::Error> for DFHackError {
+impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
         Self::CommunicationFailure(err)
     }
 }
 
-impl From<protobuf::ProtobufError> for DFHackError {
+impl From<protobuf::ProtobufError> for Error {
     fn from(err: protobuf::ProtobufError) -> Self {
         Self::ProtobufError(err)
     }
 }
 
-impl From<TryFromPrimitiveError<message::RpcReplyCode>> for DFHackError {
+impl From<TryFromPrimitiveError<message::RpcReplyCode>> for Error {
     fn from(err: TryFromPrimitiveError<message::RpcReplyCode>) -> Self {
         Self::ProtocolError(format!("Unknown DFHackReplyCode : {}", err.number))
     }
 }
 
-impl From<std::string::FromUtf8Error> for DFHackError {
+impl From<std::string::FromUtf8Error> for Error {
     fn from(err: std::string::FromUtf8Error) -> Self {
         Self::ProtocolError(format!("Invalid string error: {}", err))
     }
@@ -236,12 +236,12 @@ impl From<std::string::FromUtf8Error> for DFHackError {
 mod tests {
     #[cfg(feature = "test-with-df")]
     mod withdf {
-        use crate::DFHackError;
+        use crate::Error;
 
         #[test]
         fn bind() {
-            use crate::channel::DFHackChannel;
-            let mut channel = DFHackChannel::connect().unwrap();
+            use crate::channel::Channel;
+            let mut channel = Channel::connect().unwrap();
 
             channel
                 .bind_method_by_name(
@@ -255,8 +255,8 @@ mod tests {
 
         #[test]
         fn bad_bind() {
-            use crate::channel::DFHackChannel;
-            let mut channel = DFHackChannel::connect().unwrap();
+            use crate::channel::Channel;
+            let mut channel = Channel::connect().unwrap();
 
             let err = channel
                 .bind_method_by_name(
@@ -266,7 +266,7 @@ mod tests {
                     "dfproto.EmptyMessage",
                 )
                 .unwrap_err();
-            assert!(std::matches!(err, DFHackError::FailedToBind(_)));
+            assert!(std::matches!(err, Error::FailedToBind(_)));
 
             let err = channel
                 .bind_method_by_name(
@@ -276,7 +276,7 @@ mod tests {
                     "dfproto.EmptyMessage",
                 )
                 .unwrap_err();
-            assert!(std::matches!(err, DFHackError::FailedToBind(_)));
+            assert!(std::matches!(err, Error::FailedToBind(_)));
         }
 
         #[test]
@@ -284,9 +284,9 @@ mod tests {
         fn bind_all() {
             use dfhack_proto::{reflection::StubReflection, stubs::Stubs};
 
-            use crate::channel::DFHackChannel;
-            let mut channel = DFHackChannel::connect().unwrap();
-            let methods = Stubs::<DFHackChannel>::list_methods();
+            use crate::channel::Channel;
+            let mut channel = Channel::connect().unwrap();
+            let methods = Stubs::<Channel>::list_methods();
 
             for method in &methods {
                 channel
