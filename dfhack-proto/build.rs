@@ -1,16 +1,15 @@
+use std::path::Path;
 use std::{collections::HashMap, io::BufRead, path::PathBuf};
 
 use heck::{ToPascalCase, ToSnakeCase};
-use prettyplease;
 use quote::ToTokens;
 use quote::__private::Ident;
 use quote::__private::TokenStream;
 use quote::format_ident;
 use quote::quote;
 use regex::Regex;
-use syn;
 
-struct RPC {
+struct Rpc {
     pub name: String,
     pub input: String,
     pub output: String,
@@ -21,12 +20,12 @@ struct Plugin {
 
     pub struct_ident: Ident,
     pub member_ident: Ident,
-    pub rpcs: Vec<RPC>,
+    pub rpcs: Vec<Rpc>,
 }
 
 impl Plugin {
-    pub fn new(plugin_name: &String) -> Self {
-        let plugin_name = plugin_name.clone();
+    pub fn new(plugin_name: &str) -> Self {
+        let plugin_name = plugin_name.to_owned();
         let mut base_name = plugin_name.clone();
         if base_name.is_empty() {
             base_name = "core".to_string();
@@ -51,7 +50,7 @@ fn main() {
     let proto_include_dir = dfhack_proto_srcs::include_dir();
     let protos = dfhack_proto_srcs::protos();
 
-    assert!(protos.len() > 0, "No protobuf file for code generation.");
+    assert!(!protos.is_empty(), "No protobuf file for code generation.");
 
     // Generate in the sources if DFHACK_REGEN is set
     // in OUT_DIR otherwise.
@@ -69,14 +68,14 @@ fn main() {
     };
 
     // Generate the protobuf message files
-    generate_messages_rs(&protos, &proto_include_dir, &out_path);
+    generate_messages_rs(&protos, proto_include_dir, &out_path);
 
     // Generate the plugin stubs
     generate_stubs_rs(&protos, &out_path)
 }
 
-fn generate_messages_rs(protos: &Vec<PathBuf>, include_dir: &str, out_path: &PathBuf) {
-    let mut out_path = out_path.clone();
+fn generate_messages_rs(protos: &Vec<PathBuf>, include_dir: &str, out_path: &Path) {
+    let mut out_path = out_path.to_path_buf();
     out_path.push("messages");
     std::fs::create_dir_all(&out_path).unwrap();
     messages_protoc_codegen(protos, include_dir, &out_path);
@@ -84,7 +83,7 @@ fn generate_messages_rs(protos: &Vec<PathBuf>, include_dir: &str, out_path: &Pat
 }
 
 // Call the protoc code generation
-fn messages_protoc_codegen(protos: &Vec<PathBuf>, include_dir: &str, out_path: &PathBuf) {
+fn messages_protoc_codegen(protos: &Vec<PathBuf>, include_dir: &str, out_path: &Path) {
     protobuf_codegen_pure::Codegen::new()
         .out_dir(out_path)
         .inputs(protos)
@@ -93,7 +92,7 @@ fn messages_protoc_codegen(protos: &Vec<PathBuf>, include_dir: &str, out_path: &
         .expect("Codegen failed.");
 }
 
-fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
+fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &Path) {
     let mut file = quote!();
 
     for proto in protos {
@@ -113,7 +112,7 @@ fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
         });
     }
     // Write mod.rs
-    let mut mod_rs_path = out_path.clone();
+    let mut mod_rs_path = out_path.to_path_buf();
     mod_rs_path.push("mod.rs");
     let tree = syn::parse2(file).unwrap();
     let formatted = prettyplease::unparse(&tree);
@@ -121,9 +120,9 @@ fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     std::fs::write(mod_rs_path, formatted).unwrap();
 }
 
-fn generate_stubs_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
-    let plugins = read_protos_rpcs(&protos);
-    let mut out_path = out_path.clone();
+fn generate_stubs_rs(protos: &Vec<PathBuf>, out_path: &Path) {
+    let plugins = read_protos_rpcs(protos);
+    let mut out_path = out_path.to_path_buf();
     out_path.push("stubs");
     std::fs::create_dir_all(&out_path).unwrap();
 
@@ -131,7 +130,7 @@ fn generate_stubs_rs(protos: &Vec<PathBuf>, out_path: &PathBuf) {
     generate_stubs_mod_rs(&plugins, &mut file);
 
     for plugin in &plugins {
-        generate_stub_rs(&plugin, &mut file);
+        generate_stub_rs(plugin, &mut file);
     }
 
     let mut mod_rs_path = out_path.clone();
@@ -363,7 +362,7 @@ fn read_protos_rpcs(protos: &Vec<PathBuf>) -> Vec<Plugin> {
 
         let plugin = plugins
             .entry(plugin_name.clone())
-            .or_insert(Plugin::new(&plugin_name));
+            .or_insert_with(|| Plugin::new(&plugin_name));
         plugin.rpcs.append(&mut proto_rpcs);
     }
 
@@ -378,7 +377,7 @@ fn read_protos_rpcs(protos: &Vec<PathBuf>) -> Vec<Plugin> {
     plugins
 }
 
-fn read_proto_rpc(proto: &PathBuf) -> (String, Vec<RPC>) {
+fn read_proto_rpc(proto: &PathBuf) -> (String, Vec<Rpc>) {
     let file = std::fs::File::open(proto).unwrap();
     let plugin_regex = Regex::new(r"// Plugin: (\w+)").unwrap();
     let rpc_regex = Regex::new(r"// RPC (\w+) : (\w+) -> (\w+)").unwrap();
@@ -395,7 +394,7 @@ fn read_proto_rpc(proto: &PathBuf) -> (String, Vec<RPC>) {
 
         let rpc_capture = rpc_regex.captures(&line);
         if let Some(rpc_capture) = rpc_capture {
-            rpcs.push(RPC {
+            rpcs.push(Rpc {
                 name: rpc_capture[1].to_string(),
                 input: rpc_capture[2].to_string(),
                 output: rpc_capture[3].to_string(),

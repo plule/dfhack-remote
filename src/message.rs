@@ -92,7 +92,7 @@ impl Handshake {
 impl Send for Handshake {
     fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
         log::trace!("Sending {}", self);
-        stream.write(self.magic.as_bytes())?;
+        stream.write_all(self.magic.as_bytes())?;
         self.version.send(stream)?;
         log::trace!("Sent handshake");
         Ok(())
@@ -169,7 +169,7 @@ impl<TMessage: protobuf::Message> Send for Request<TMessage> {
             TMessage::descriptor_static().full_name()
         );
         header.send(stream)?;
-        stream.write(&payload)?;
+        stream.write_all(&payload)?;
         log::trace!("Sent protobuf message");
         Ok(())
     }
