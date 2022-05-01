@@ -1,9 +1,9 @@
 # dfhack_remote
 
-[![Crates.io](https://img.shields.io/crates/v/dfhack-remote)](https://crates.io/crates/dfhack-remote)
-[![docs.rs](https://img.shields.io/docsrs/dfhack-remote)](https://docs.rs/dfhack-remote)
-![Crates.io](https://img.shields.io/crates/l/dfhack-remote)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/plule/dfhack-remote/Rust)](https://github.com/plule/dfhack-remote/actions/workflows/rust.yml)
+[![Github](https://img.shields.io/badge/github-plule%2Fdfhack--remote-8da0cb?style=flat-square)](https://github.com/plule/dfhack-remote)
+[![Crates.io](https://img.shields.io/crates/v/dfhack-remote?style=flat-square)](https://crates.io/crates/dfhack-remote)
+[![docs.rs](https://img.shields.io/docsrs/dfhack-remote?style=flat-square)](https://docs.rs/dfhack-remote)
+![Crates.io](https://img.shields.io/crates/l/dfhack-remote?style=flat-square)
 
 
 `dfhack_remote` is a library allowing users to interact with Dwarf Fortress using a remote API.
