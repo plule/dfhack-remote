@@ -1,8 +1,19 @@
+[workspace]
+members = [
+    ".",
+    "dfhack-proto",
+    "dfhack-proto-srcs",
+]
+
+[workspace.package]
+version = "0.4.3"
+authors = ["Pierre Lulé <pierre@lule.fr>"]
+
 [package]
 name = "dfhack-remote"
-version = "0.4.3"
+version.workspace = true
+authors.workspace = true
 edition = "2021"
-authors = ["Pierre Lulé <pierre@lule.fr>"]
 description = "Interacting with the Dwarf Fortress remote API exposed by DFHack "
 readme = "README.md"
 repository = "https://github.com/plule/dfhack-remote"
@@ -34,9 +45,3 @@ env_logger  = "0.10.0"
 [features]
 test-with-df = ["reflection"]
 reflection = ["dfhack-proto/reflection"]
-
-[workspace]
-members = [
-    "dfhack-proto",
-    "dfhack-proto-srcs",
-]

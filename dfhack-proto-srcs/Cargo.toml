@@ -1,8 +1,8 @@
 [package]
 name = "dfhack-proto-srcs"
-version = "0.4.3"
+version.workspace = true
+authors.workspace = true
 edition = "2021"
-authors = ["Pierre Lulé <pierre@lule.fr>"]
 description = "Download and extract DFHack protobuf files from source"
 readme = "README.md"
 repository = "https://github.com/plule/dfhack-remote"
