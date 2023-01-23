@@ -1,6 +1,6 @@
 [package]
 name = "dfhack-proto"
-version = "0.4.2-dev"
+version = "0.4.3"
 edition = "2021"
 authors = ["Pierre Lulé <pierre@lule.fr>"]
 description = "Generated code from the DFHack API"
@@ -21,7 +21,7 @@ protobuf = "2.27.1"
 
 [build-dependencies]
 protobuf-codegen-pure = "2.27.1"
-dfhack-proto-srcs = { version = "0.4.2-dev", path = "../dfhack-proto-srcs" }
+dfhack-proto-srcs = { version = "0.4.3", path = "../dfhack-proto-srcs" }
 regex = "1"
 heck = "0.4"
 quote = "1.0.18"
