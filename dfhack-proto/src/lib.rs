@@ -85,6 +85,7 @@ pub mod reflection {
 }
 
 /// Generated code from this crate
+#[allow(clippy::let_unit_value)]
 mod generated {
     pub mod messages;
     pub mod stubs;

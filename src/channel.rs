@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(PartialEq, Eq, Hash, Clone)]
-pub struct Method {
+struct Method {
     pub plugin: String,
     pub name: String,
 }
@@ -23,6 +23,9 @@ impl Method {
     }
 }
 
+/// Communication channel with DFHack.
+///
+/// Stores the existing bindings and keep an open socket.
 pub struct Channel {
     stream: std::net::TcpStream,
     bindings: HashMap<Method, i16>,
@@ -67,7 +70,7 @@ impl dfhack_proto::Channel for Channel {
 }
 
 impl Channel {
-    pub fn connect() -> crate::Result<Self> {
+    pub(crate) fn connect() -> crate::Result<Self> {
         let port = match std::env::var("DFHACK_PORT") {
             Ok(p) => p,
             Err(_) => "5000".to_string(),
@@ -75,7 +78,7 @@ impl Channel {
         Self::connect_to(&format!("127.0.0.1:{}", port))
     }
 
-    pub fn connect_to(address: &str) -> crate::Result<Channel> {
+    pub(crate) fn connect_to(address: &str) -> crate::Result<Channel> {
         log::info!("Connecting to {}", address);
         let mut client = Channel {
             stream: std::net::TcpStream::connect(address)?,
@@ -112,7 +115,7 @@ impl Channel {
         Ok(client)
     }
 
-    pub fn request_raw<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    fn request_raw<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
         id: i16,
         message: TIN,
@@ -136,7 +139,7 @@ impl Channel {
         }
     }
 
-    pub fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
         &mut self,
         method: &Method,
     ) -> crate::Result<i16> {
@@ -145,7 +148,7 @@ impl Channel {
         self.bind_method_by_name(&method.plugin, &method.name, input_msg, output_msg)
     }
 
-    pub fn bind_method_by_name(
+    fn bind_method_by_name(
         &mut self,
         plugin: &str,
         method: &str,

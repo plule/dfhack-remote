@@ -6,6 +6,7 @@ use num_enum::TryFromPrimitiveError;
 mod channel;
 mod message;
 
+pub use channel::Channel;
 #[doc(no_inline)]
 pub use dfhack_proto::messages::*;
 pub use dfhack_proto::stubs::*;
@@ -27,8 +28,8 @@ use message::CommandResult;
 /// let df_version = dfhack.core().get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
-pub fn connect() -> Result<Stubs<channel::Channel>> {
-    let connexion = channel::Channel::connect()?;
+pub fn connect() -> Result<Stubs<Channel>> {
+    let connexion = Channel::connect()?;
     Ok(Stubs::from(connexion))
 }
 
@@ -47,8 +48,8 @@ pub fn connect() -> Result<Stubs<channel::Channel>> {
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
-pub fn connect_to(address: &str) -> Result<Stubs<channel::Channel>> {
-    let connexion = channel::Channel::connect_to(address)?;
+pub fn connect_to(address: &str) -> Result<Stubs<Channel>> {
+    let connexion = Channel::connect_to(address)?;
     Ok(Stubs::from(connexion))
 }
 

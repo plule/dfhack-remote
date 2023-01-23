@@ -20,7 +20,7 @@ pub trait Receive {
 }
 
 // https://github.com/DFHack/dfhack/blob/0.47.05-r4/library/include/RemoteClient.h#L53
-#[derive(Copy, Clone, Display, PartialEq, TryFromPrimitive)]
+#[derive(Copy, Clone, Display, PartialEq, Eq, TryFromPrimitive)]
 #[repr(i16)]
 pub enum RpcReplyCode {
     Result = -1,
@@ -30,7 +30,7 @@ pub enum RpcReplyCode {
 }
 
 // https://github.com/DFHack/dfhack/blob/0.47.05-r4/library/include/RemoteClient.h#L42
-#[derive(Copy, Clone, Display, PartialEq, TryFromPrimitive, Debug)]
+#[derive(Copy, Clone, Display, PartialEq, Eq, TryFromPrimitive, Debug)]
 #[repr(i32)]
 pub enum CommandResult {
     LinkFailure = -3,
@@ -194,6 +194,7 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
                 log::trace!("Receiving RPC_REPLY_RESULT of size {}", header.size);
                 let mut buf = vec![0u8; header.size as usize];
                 stream.read_exact(&mut buf)?;
+                log::trace!("Read stream");
                 let reply = TMessage::parse_from_bytes(&buf)?;
                 log::trace!("Received {}", reply.descriptor().full_name());
                 Ok(Reply::Result(reply))
