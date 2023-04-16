@@ -2,12 +2,12 @@ use std::path::Path;
 use std::{collections::HashMap, io::BufRead, path::PathBuf};
 
 use heck::{ToPascalCase, ToSnakeCase};
-use quote::ToTokens;
-use quote::__private::Ident;
-use quote::__private::TokenStream;
+use proc_macro2::TokenStream;
 use quote::format_ident;
 use quote::quote;
+use quote::ToTokens;
 use regex::Regex;
+use syn::Ident;
 
 struct Rpc {
     pub name: String,
