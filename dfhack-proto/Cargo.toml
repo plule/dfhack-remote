@@ -17,10 +17,10 @@ categories = [
 reflection = []
 
 [dependencies]
-protobuf = "2.27.1"
+protobuf = "3.2.0"
 
 [build-dependencies]
-protobuf-codegen-pure = "2.27.1"
+protobuf-codegen = "3.2.0"
 dfhack-proto-srcs = { version = "0.4.4", path = "../dfhack-proto-srcs" }
 regex = "1"
 heck = "0.4"

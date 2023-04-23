@@ -41,7 +41,7 @@ pub trait Channel {
     ///
     /// A protobuf result type.
     ///
-    fn request<TRequest: protobuf::Message, TReply: protobuf::Message>(
+    fn request<TRequest: protobuf::MessageFull, TReply: protobuf::MessageFull>(
         &mut self,
         plugin: String,
         name: String,

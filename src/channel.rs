@@ -48,8 +48,8 @@ impl dfhack_proto::Channel for Channel {
         request: TRequest,
     ) -> crate::Result<TReply>
     where
-        TRequest: protobuf::Message,
-        TReply: protobuf::Message,
+        TRequest: protobuf::MessageFull,
+        TReply: protobuf::MessageFull,
     {
         let method = Method::new(plugin, name);
 
@@ -115,7 +115,7 @@ impl Channel {
         Ok(client)
     }
 
-    fn request_raw<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    fn request_raw<TIN: protobuf::MessageFull, TOUT: protobuf::MessageFull>(
         &mut self,
         id: i16,
         message: TIN,
@@ -127,8 +127,8 @@ impl Channel {
             let reply: message::Reply<TOUT> = message::Reply::receive(&mut self.stream)?;
             match reply {
                 message::Reply::Text(text) => {
-                    for fragment in text.get_fragments() {
-                        println!("{}", fragment.get_text());
+                    for fragment in text.fragments {
+                        println!("{}", fragment.text());
                     }
                 }
                 message::Reply::Result(result) => return Ok(result),
@@ -139,12 +139,14 @@ impl Channel {
         }
     }
 
-    fn bind_method<TIN: protobuf::Message, TOUT: protobuf::Message>(
+    fn bind_method<TIN: protobuf::MessageFull, TOUT: protobuf::MessageFull>(
         &mut self,
         method: &Method,
     ) -> crate::Result<i16> {
-        let input_msg = TIN::descriptor_static().full_name();
-        let output_msg = TOUT::descriptor_static().full_name();
+        let input_descriptor = TIN::descriptor();
+        let output_descriptor = TOUT::descriptor();
+        let input_msg = input_descriptor.full_name();
+        let output_msg = output_descriptor.full_name();
         self.bind_method_by_name(&method.plugin, &method.name, input_msg, output_msg)
     }
 
@@ -171,7 +173,7 @@ impl Channel {
                 )));
             }
         };
-        let id = reply.get_assigned_id() as i16;
+        let id = reply.assigned_id() as i16;
         log::debug!("{}:{} bound to {}", plugin, method, id);
         Ok(id)
     }

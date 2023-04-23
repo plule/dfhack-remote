@@ -3,6 +3,7 @@ use std::{collections::HashMap, io::BufRead, path::PathBuf};
 
 use heck::{ToPascalCase, ToSnakeCase};
 use proc_macro2::TokenStream;
+use protobuf_codegen::Customize;
 use quote::format_ident;
 use quote::quote;
 use quote::ToTokens;
@@ -84,12 +85,13 @@ fn generate_messages_rs(protos: &Vec<PathBuf>, include_dir: &str, out_path: &Pat
 
 // Call the protoc code generation
 fn messages_protoc_codegen(protos: &Vec<PathBuf>, include_dir: &str, out_path: &Path) {
-    protobuf_codegen_pure::Codegen::new()
-        .out_dir(out_path)
-        .inputs(protos)
+    protobuf_codegen::Codegen::new()
+        .customize(Customize::default().lite_runtime(false))
+        .pure()
         .include(include_dir)
-        .run()
-        .expect("Codegen failed.");
+        .inputs(protos)
+        .out_dir(out_path)
+        .run_from_script();
 }
 
 fn messages_generate_mod_rs(protos: &Vec<PathBuf>, out_path: &Path) {
@@ -147,7 +149,7 @@ fn generate_stubs_mod_rs(plugins: &Vec<Plugin>, file: &mut TokenStream) {
     file.extend(quote! {
         use crate::messages::*;
         #[cfg(feature = "reflection")]
-        use protobuf::Message;
+        use protobuf::MessageFull;
     });
 
     let mut reflection_vec_building = quote!();
@@ -275,7 +277,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 i32
             };
             post = quote! {
-                let _response = _response.get_value();
+                let _response = _response.value();
             }
         }
 
@@ -295,7 +297,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 bool
             };
             post = quote! {
-                let _response = _response.get_Value();
+                let _response = _response.Value();
             }
         }
 
@@ -304,7 +306,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 String
             };
             post = quote! {
-                let _response = _response.get_value().to_string();
+                let _response = _response.value().to_string();
             }
         }
 
@@ -328,10 +330,10 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
             crate::reflection::RemoteProcedureDescriptor {
                 name: #function_name.to_string(),
                 plugin_name: #plugin_name.to_string(),
-                input_type: #input_ident::descriptor_static()
+                input_type: #input_ident::descriptor()
                     .full_name()
                     .to_string(),
-                output_type: #output_ident::descriptor_static()
+                output_type: #output_ident::descriptor()
                     .full_name()
                     .to_string(),
             },

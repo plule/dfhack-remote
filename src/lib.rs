@@ -77,7 +77,7 @@ pub enum Error {
     /// This can indicate that updating the generated code
     /// is necessary
     #[error("protobuf serialization error: {0}.")]
-    ProtobufError(#[from] protobuf::ProtobufError),
+    ProtobufError(#[from] protobuf::Error),
 
     /// Failed to bind the method
     ///

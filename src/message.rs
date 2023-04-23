@@ -63,12 +63,12 @@ pub struct Header {
 // https://docs.dfhack.org/en/stable/docs/Remote.html#request
 #[derive(Display)]
 #[display(fmt = "protobuf message id {}", id)]
-pub struct Request<TMessage: protobuf::Message> {
+pub struct Request<TMessage: protobuf::MessageFull> {
     pub id: i16,
     pub message: TMessage,
 }
 
-pub enum Reply<TMessage: protobuf::Message> {
+pub enum Reply<TMessage: protobuf::MessageFull> {
     // https://docs.dfhack.org/en/stable/docs/Remote.html#text
     Text(crate::CoreTextNotification),
 
@@ -152,22 +152,19 @@ impl Receive for Header {
     }
 }
 
-impl<TMessage: protobuf::Message> Request<TMessage> {
+impl<TMessage: protobuf::MessageFull> Request<TMessage> {
     pub fn new(id: i16, message: TMessage) -> Self {
         Self { id, message }
     }
 }
 
-impl<TMessage: protobuf::Message> Send for Request<TMessage> {
+impl<TMessage: protobuf::MessageFull> Send for Request<TMessage> {
     fn send<T: std::io::Write>(&self, stream: &mut T) -> crate::Result<()> {
         let mut payload: Vec<u8> = Vec::new();
         self.message.write_to_vec(&mut payload)?;
         let header = Header::new(self.id, payload.len() as i32);
 
-        log::trace!(
-            "Sending protobuf message {}",
-            TMessage::descriptor_static().full_name()
-        );
+        log::trace!("Sending protobuf message {}", TMessage::NAME);
         header.send(stream)?;
         stream.write_all(&payload)?;
         log::trace!("Sent protobuf message");
@@ -175,17 +172,13 @@ impl<TMessage: protobuf::Message> Send for Request<TMessage> {
     }
 }
 
-impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
+impl<TMessage: protobuf::MessageFull> Receive for Reply<TMessage> {
     fn receive<T: std::io::Read>(stream: &mut T) -> crate::Result<Self>
     where
         Self: Sized,
     {
         let header = Header::receive(stream)?;
-
-        log::trace!(
-            "Expecting protobuf message {}",
-            TMessage::descriptor_static().full_name()
-        );
+        log::trace!("Expecting protobuf message {}", TMessage::NAME);
 
         let reply_code = RpcReplyCode::try_from(header.id)?;
 
@@ -196,7 +189,7 @@ impl<TMessage: protobuf::Message> Receive for Reply<TMessage> {
                 stream.read_exact(&mut buf)?;
                 log::trace!("Read stream");
                 let reply = TMessage::parse_from_bytes(&buf)?;
-                log::trace!("Received {}", reply.descriptor().full_name());
+                log::trace!("Received {}", TMessage::descriptor().full_name());
                 Ok(Reply::Result(reply))
             }
             RpcReplyCode::Fail => {

@@ -25,9 +25,9 @@ let mut client = dfhack_remote::connect().unwrap();
 let world_map = client.remote_fortress_reader().get_world_map().unwrap();
 println!(
     "Welcome to {} ({}). It is the year {}.",
-    world_map.get_name(),
-    world_map.get_name_english(),
-    world_map.get_cur_year(),
+    world_map.name(),
+    world_map.name_english(),
+    world_map.cur_year(),
 );
 ```
 

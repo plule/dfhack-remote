@@ -1,6 +1,6 @@
 use crate::messages::*;
 #[cfg(feature = "reflection")]
-use protobuf::Message;
+use protobuf::MessageFull;
 ///Generated list of DFHack stubs. Each stub communicates with a plugin.
 pub struct Stubs<TChannel: crate::Channel> {
     channel: TChannel,
@@ -68,7 +68,7 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
         let _response: IntMessage = self
             .channel
             .request("".to_string(), "CoreResume".to_string(), request)?;
-        let _response = _response.get_value();
+        let _response = _response.value();
         Ok(_response)
     }
     ///Method `CoreSuspend` from the plugin ``
@@ -77,7 +77,7 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
         let _response: IntMessage = self
             .channel
             .request("".to_string(), "CoreSuspend".to_string(), request)?;
-        let _response = _response.get_value();
+        let _response = _response.value();
         Ok(_response)
     }
     ///Method `GetDFVersion` from the plugin ``
@@ -86,7 +86,7 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
         let _response: StringMessage = self
             .channel
             .request("".to_string(), "GetDFVersion".to_string(), request)?;
-        let _response = _response.get_value().to_string();
+        let _response = _response.value().to_string();
         Ok(_response)
     }
     ///Method `GetVersion` from the plugin ``
@@ -95,7 +95,7 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
         let _response: StringMessage = self
             .channel
             .request("".to_string(), "GetVersion".to_string(), request)?;
-        let _response = _response.get_value().to_string();
+        let _response = _response.value().to_string();
         Ok(_response)
     }
     ///Method `GetWorldInfo` from the plugin ``
@@ -191,55 +191,54 @@ impl<TChannel: crate::Channel> crate::reflection::StubReflection for Core<'_, TC
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "BindMethod"
             .to_string(), plugin_name : "".to_string(), input_type :
-            CoreBindRequest::descriptor_static().full_name().to_string(), output_type :
-            CoreBindReply::descriptor_static().full_name().to_string(), }, crate
+            CoreBindRequest::descriptor().full_name().to_string(), output_type :
+            CoreBindReply::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "CoreResume".to_string(),
-            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor_static()
-            .full_name().to_string(), output_type : IntMessage::descriptor_static()
-            .full_name().to_string(), }, crate ::reflection::RemoteProcedureDescriptor {
-            name : "CoreSuspend".to_string(), plugin_name : "".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            IntMessage::descriptor_static().full_name().to_string(), }, crate
+            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor()
+            .full_name().to_string(), output_type : IntMessage::descriptor().full_name()
+            .to_string(), }, crate ::reflection::RemoteProcedureDescriptor { name :
+            "CoreSuspend".to_string(), plugin_name : "".to_string(), input_type :
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            IntMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetDFVersion".to_string(),
-            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor_static()
-            .full_name().to_string(), output_type : StringMessage::descriptor_static()
+            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor()
+            .full_name().to_string(), output_type : StringMessage::descriptor()
             .full_name().to_string(), }, crate ::reflection::RemoteProcedureDescriptor {
             name : "GetVersion".to_string(), plugin_name : "".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            StringMessage::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            StringMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetWorldInfo".to_string(),
-            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor_static()
-            .full_name().to_string(), output_type : GetWorldInfoOut::descriptor_static()
+            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor()
+            .full_name().to_string(), output_type : GetWorldInfoOut::descriptor()
             .full_name().to_string(), }, crate ::reflection::RemoteProcedureDescriptor {
             name : "ListEnums".to_string(), plugin_name : "".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            ListEnumsOut::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            ListEnumsOut::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "ListJobSkills".to_string(),
-            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor_static()
-            .full_name().to_string(), output_type : ListJobSkillsOut::descriptor_static()
+            plugin_name : "".to_string(), input_type : EmptyMessage::descriptor()
+            .full_name().to_string(), output_type : ListJobSkillsOut::descriptor()
             .full_name().to_string(), }, crate ::reflection::RemoteProcedureDescriptor {
             name : "ListMaterials".to_string(), plugin_name : "".to_string(), input_type
-            : ListMaterialsIn::descriptor_static().full_name().to_string(), output_type :
-            ListMaterialsOut::descriptor_static().full_name().to_string(), }, crate
+            : ListMaterialsIn::descriptor().full_name().to_string(), output_type :
+            ListMaterialsOut::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "ListSquads".to_string(),
-            plugin_name : "".to_string(), input_type : ListSquadsIn::descriptor_static()
-            .full_name().to_string(), output_type : ListSquadsOut::descriptor_static()
+            plugin_name : "".to_string(), input_type : ListSquadsIn::descriptor()
+            .full_name().to_string(), output_type : ListSquadsOut::descriptor()
             .full_name().to_string(), }, crate ::reflection::RemoteProcedureDescriptor {
             name : "ListUnits".to_string(), plugin_name : "".to_string(), input_type :
-            ListUnitsIn::descriptor_static().full_name().to_string(), output_type :
-            ListUnitsOut::descriptor_static().full_name().to_string(), }, crate
+            ListUnitsIn::descriptor().full_name().to_string(), output_type :
+            ListUnitsOut::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "RunCommand".to_string(),
             plugin_name : "".to_string(), input_type :
-            CoreRunCommandRequest::descriptor_static().full_name().to_string(),
-            output_type : EmptyMessage::descriptor_static().full_name().to_string(), },
-            crate ::reflection::RemoteProcedureDescriptor { name : "RunLua".to_string(),
-            plugin_name : "".to_string(), input_type :
-            CoreRunLuaRequest::descriptor_static().full_name().to_string(), output_type :
-            StringListMessage::descriptor_static().full_name().to_string(), }, crate
-            ::reflection::RemoteProcedureDescriptor { name : "SetUnitLabors".to_string(),
-            plugin_name : "".to_string(), input_type :
-            SetUnitLaborsIn::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), },
+            CoreRunCommandRequest::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
+            ::reflection::RemoteProcedureDescriptor { name : "RunLua".to_string(),
+            plugin_name : "".to_string(), input_type : CoreRunLuaRequest::descriptor()
+            .full_name().to_string(), output_type : StringListMessage::descriptor()
+            .full_name().to_string(), }, crate ::reflection::RemoteProcedureDescriptor {
+            name : "SetUnitLabors".to_string(), plugin_name : "".to_string(), input_type
+            : SetUnitLaborsIn::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), },
         ]
     }
 }
@@ -326,7 +325,7 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
                 "GetGameValidity".to_string(),
                 request,
             )?;
-        let _response = _response.get_Value();
+        let _response = _response.Value();
         Ok(_response)
     }
     ///Method `GetGrowthList` from the plugin `RemoteFortressReader`
@@ -427,7 +426,7 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
                 "GetPauseState".to_string(),
                 request,
             )?;
-        let _response = _response.get_Value();
+        let _response = _response.Value();
         Ok(_response)
     }
     ///Method `GetPlantList` from the plugin `RemoteFortressReader`
@@ -756,156 +755,156 @@ for RemoteFortressReader<'_, TChannel> {
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "CheckHashes"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "CopyScreen".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            ScreenCapture::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            ScreenCapture::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetBlockList".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            BlockRequest::descriptor_static().full_name().to_string(), output_type :
-            BlockList::descriptor_static().full_name().to_string(), }, crate
+            BlockRequest::descriptor().full_name().to_string(), output_type :
+            BlockList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetBuildingDefList"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            BuildingList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            BuildingList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetCreatureRaws"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            CreatureRawList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            CreatureRawList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetGameValidity"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            SingleBool::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            SingleBool::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetGrowthList".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            MaterialList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            MaterialList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetItemList".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            MaterialList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            MaterialList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetLanguage".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            Language::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            Language::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetMapInfo".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            MapInfo::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            MapInfo::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetMaterialList"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            MaterialList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            MaterialList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetPartialCreatureRaws"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            ListRequest::descriptor_static().full_name().to_string(), output_type :
-            CreatureRawList::descriptor_static().full_name().to_string(), }, crate
+            ListRequest::descriptor().full_name().to_string(), output_type :
+            CreatureRawList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetPartialPlantRaws"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            ListRequest::descriptor_static().full_name().to_string(), output_type :
-            PlantRawList::descriptor_static().full_name().to_string(), }, crate
+            ListRequest::descriptor().full_name().to_string(), output_type :
+            PlantRawList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetPauseState".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            SingleBool::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            SingleBool::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetPlantList".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            BlockRequest::descriptor_static().full_name().to_string(), output_type :
-            PlantList::descriptor_static().full_name().to_string(), }, crate
+            BlockRequest::descriptor().full_name().to_string(), output_type :
+            PlantList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetPlantRaws".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            PlantRawList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            PlantRawList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetRegionMaps".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            RegionMaps::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            RegionMaps::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetRegionMapsNew"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            RegionMaps::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            RegionMaps::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetReports".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            Status::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            Status::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetSideMenu".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            SidebarState::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            SidebarState::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetTiletypeList"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            TiletypeList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            TiletypeList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetUnitList".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            UnitList::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            UnitList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetUnitListInside"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            BlockRequest::descriptor_static().full_name().to_string(), output_type :
-            UnitList::descriptor_static().full_name().to_string(), }, crate
+            BlockRequest::descriptor().full_name().to_string(), output_type :
+            UnitList::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetVersionInfo"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            VersionInfo::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            VersionInfo::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetViewInfo".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            ViewInfo::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            ViewInfo::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetWorldMap".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            WorldMap::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            WorldMap::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetWorldMapCenter"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            WorldMap::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            WorldMap::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetWorldMapNew"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            WorldMap::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            WorldMap::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "JumpCommand".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            MoveCommandParams::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            MoveCommandParams::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "MenuQuery".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            MenuContents::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            MenuContents::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "MiscMoveCommand"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            MiscMoveParams::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            MiscMoveParams::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "MoveCommand".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            MoveCommandParams::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            MoveCommandParams::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "MovementSelectCommand"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            IntMessage::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            IntMessage::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "PassKeyboardEvent"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            KeyboardEvent::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            KeyboardEvent::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "ResetMapHashes"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            EmptyMessage::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "SendDigCommand"
             .to_string(), plugin_name : "RemoteFortressReader".to_string(), input_type :
-            DigCommand::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            DigCommand::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "SetPauseState".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            SingleBool::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            SingleBool::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "SetSideMenu".to_string(),
             plugin_name : "RemoteFortressReader".to_string(), input_type :
-            SidebarCommand::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), },
+            SidebarCommand::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), },
         ]
     }
 }
@@ -965,16 +964,16 @@ for Isoworldremote<'_, TChannel> {
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "GetEmbarkInfo"
             .to_string(), plugin_name : "isoworldremote".to_string(), input_type :
-            MapRequest::descriptor_static().full_name().to_string(), output_type :
-            MapReply::descriptor_static().full_name().to_string(), }, crate
+            MapRequest::descriptor().full_name().to_string(), output_type :
+            MapReply::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetEmbarkTile".to_string(),
             plugin_name : "isoworldremote".to_string(), input_type :
-            TileRequest::descriptor_static().full_name().to_string(), output_type :
-            EmbarkTile::descriptor_static().full_name().to_string(), }, crate
+            TileRequest::descriptor().full_name().to_string(), output_type :
+            EmbarkTile::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "GetRawNames".to_string(),
             plugin_name : "isoworldremote".to_string(), input_type :
-            MapRequest::descriptor_static().full_name().to_string(), output_type :
-            RawNames::descriptor_static().full_name().to_string(), },
+            MapRequest::descriptor().full_name().to_string(), output_type :
+            RawNames::descriptor().full_name().to_string(), },
         ]
     }
 }
@@ -1029,16 +1028,15 @@ for Rename<'_, TChannel> {
         vec![
             crate ::reflection::RemoteProcedureDescriptor { name : "RenameBuilding"
             .to_string(), plugin_name : "rename".to_string(), input_type :
-            RenameBuildingIn::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
+            RenameBuildingIn::descriptor().full_name().to_string(), output_type :
+            EmptyMessage::descriptor().full_name().to_string(), }, crate
             ::reflection::RemoteProcedureDescriptor { name : "RenameSquad".to_string(),
-            plugin_name : "rename".to_string(), input_type :
-            RenameSquadIn::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), }, crate
-            ::reflection::RemoteProcedureDescriptor { name : "RenameUnit".to_string(),
-            plugin_name : "rename".to_string(), input_type :
-            RenameUnitIn::descriptor_static().full_name().to_string(), output_type :
-            EmptyMessage::descriptor_static().full_name().to_string(), },
+            plugin_name : "rename".to_string(), input_type : RenameSquadIn::descriptor()
+            .full_name().to_string(), output_type : EmptyMessage::descriptor()
+            .full_name().to_string(), }, crate ::reflection::RemoteProcedureDescriptor {
+            name : "RenameUnit".to_string(), plugin_name : "rename".to_string(),
+            input_type : RenameUnitIn::descriptor().full_name().to_string(), output_type
+            : EmptyMessage::descriptor().full_name().to_string(), },
         ]
     }
 }
