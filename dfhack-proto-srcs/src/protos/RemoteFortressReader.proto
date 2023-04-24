@@ -404,7 +404,7 @@ message ColorDefinition {
 message MaterialDefinition{
     required MatPair mat_pair = 1;
     optional string id = 2;
-    optional string name = 3;
+    // optional string name = 3;
     optional ColorDefinition state_color = 4; //Simplifying colors to assume room temperature.
     optional ItemdefInstrument.InstrumentDef instrument = 5;
     optional int32 up_step = 6;

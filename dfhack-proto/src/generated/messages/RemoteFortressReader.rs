@@ -5318,8 +5318,6 @@ pub struct MaterialDefinition {
     pub mat_pair: ::protobuf::MessageField<MatPair>,
     // @@protoc_insertion_point(field:RemoteFortressReader.MaterialDefinition.id)
     pub id: ::std::option::Option<::std::string::String>,
-    // @@protoc_insertion_point(field:RemoteFortressReader.MaterialDefinition.name)
-    pub name: ::std::option::Option<::std::string::String>,
     // @@protoc_insertion_point(field:RemoteFortressReader.MaterialDefinition.state_color)
     pub state_color: ::protobuf::MessageField<ColorDefinition>,
     // @@protoc_insertion_point(field:RemoteFortressReader.MaterialDefinition.instrument)
@@ -5380,42 +5378,6 @@ impl MaterialDefinition {
     // Take field
     pub fn take_id(&mut self) -> ::std::string::String {
         self.id.take().unwrap_or_else(|| ::std::string::String::new())
-    }
-
-    // optional string name = 3;
-
-    pub fn name(&self) -> &str {
-        match self.name.as_ref() {
-            Some(v) => v,
-            None => "",
-        }
-    }
-
-    pub fn clear_name(&mut self) {
-        self.name = ::std::option::Option::None;
-    }
-
-    pub fn has_name(&self) -> bool {
-        self.name.is_some()
-    }
-
-    // Param is passed by value, moved
-    pub fn set_name(&mut self, v: ::std::string::String) {
-        self.name = ::std::option::Option::Some(v);
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_name(&mut self) -> &mut ::std::string::String {
-        if self.name.is_none() {
-            self.name = ::std::option::Option::Some(::std::string::String::new());
-        }
-        self.name.as_mut().unwrap()
-    }
-
-    // Take field
-    pub fn take_name(&mut self) -> ::std::string::String {
-        self.name.take().unwrap_or_else(|| ::std::string::String::new())
     }
 
     // optional int32 up_step = 6;
@@ -5479,7 +5441,7 @@ impl MaterialDefinition {
     }
 
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(8);
+        let mut fields = ::std::vec::Vec::with_capacity(7);
         let mut oneofs = ::std::vec::Vec::with_capacity(0);
         fields.push(::protobuf::reflect::rt::v2::make_message_field_accessor::<_, MatPair>(
             "mat_pair",
@@ -5490,11 +5452,6 @@ impl MaterialDefinition {
             "id",
             |m: &MaterialDefinition| { &m.id },
             |m: &mut MaterialDefinition| { &mut m.id },
-        ));
-        fields.push(::protobuf::reflect::rt::v2::make_option_accessor::<_, _>(
-            "name",
-            |m: &MaterialDefinition| { &m.name },
-            |m: &mut MaterialDefinition| { &mut m.name },
         ));
         fields.push(::protobuf::reflect::rt::v2::make_message_field_accessor::<_, ColorDefinition>(
             "state_color",
@@ -5563,9 +5520,6 @@ impl ::protobuf::Message for MaterialDefinition {
                 18 => {
                     self.id = ::std::option::Option::Some(is.read_string()?);
                 },
-                26 => {
-                    self.name = ::std::option::Option::Some(is.read_string()?);
-                },
                 34 => {
                     ::protobuf::rt::read_singular_message_into_field(is, &mut self.state_color)?;
                 },
@@ -5600,9 +5554,6 @@ impl ::protobuf::Message for MaterialDefinition {
         if let Some(v) = self.id.as_ref() {
             my_size += ::protobuf::rt::string_size(2, &v);
         }
-        if let Some(v) = self.name.as_ref() {
-            my_size += ::protobuf::rt::string_size(3, &v);
-        }
         if let Some(v) = self.state_color.as_ref() {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint64_size(len) + len;
@@ -5631,9 +5582,6 @@ impl ::protobuf::Message for MaterialDefinition {
         }
         if let Some(v) = self.id.as_ref() {
             os.write_string(2, v)?;
-        }
-        if let Some(v) = self.name.as_ref() {
-            os.write_string(3, v)?;
         }
         if let Some(v) = self.state_color.as_ref() {
             ::protobuf::rt::write_message_field_with_cached_size(4, v, os)?;
@@ -5669,7 +5617,6 @@ impl ::protobuf::Message for MaterialDefinition {
     fn clear(&mut self) {
         self.mat_pair.clear();
         self.id = ::std::option::Option::None;
-        self.name = ::std::option::Option::None;
         self.state_color.clear();
         self.instrument.clear();
         self.up_step = ::std::option::Option::None;
@@ -5682,7 +5629,6 @@ impl ::protobuf::Message for MaterialDefinition {
         static instance: MaterialDefinition = MaterialDefinition {
             mat_pair: ::protobuf::MessageField::none(),
             id: ::std::option::Option::None,
-            name: ::std::option::Option::None,
             state_color: ::protobuf::MessageField::none(),
             instrument: ::protobuf::MessageField::none(),
             up_step: ::std::option::Option::None,
@@ -25785,90 +25731,89 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x20\x02(\x05R\x07matType\x12\x1b\n\tmat_index\x18\x02\x20\x02(\x05R\x08\
     matIndex\"M\n\x0fColorDefinition\x12\x10\n\x03red\x18\x01\x20\x02(\x05R\
     \x03red\x12\x14\n\x05green\x18\x02\x20\x02(\x05R\x05green\x12\x12\n\x04b\
-    lue\x18\x03\x20\x02(\x05R\x04blue\"\xea\x02\n\x12MaterialDefinition\x128\
+    lue\x18\x03\x20\x02(\x05R\x04blue\"\xd6\x02\n\x12MaterialDefinition\x128\
     \n\x08mat_pair\x18\x01\x20\x02(\x0b2\x1d.RemoteFortressReader.MatPairR\
-    \x07matPair\x12\x0e\n\x02id\x18\x02\x20\x01(\tR\x02id\x12\x12\n\x04name\
-    \x18\x03\x20\x01(\tR\x04name\x12F\n\x0bstate_color\x18\x04\x20\x01(\x0b2\
-    %.RemoteFortressReader.ColorDefinitionR\nstateColor\x12@\n\ninstrument\
-    \x18\x05\x20\x01(\x0b2\x20.ItemdefInstrument.InstrumentDefR\ninstrument\
-    \x12\x17\n\x07up_step\x18\x06\x20\x01(\x05R\x06upStep\x12\x1b\n\tdown_st\
-    ep\x18\x07\x20\x01(\x05R\x08downStep\x126\n\x05layer\x18\x08\x20\x01(\
-    \x0e2\x20.RemoteFortressReader.ArmorLayerR\x05layer\"\x87\x01\n\x0cBuild\
-    ingType\x12#\n\rbuilding_type\x18\x01\x20\x02(\x05R\x0cbuildingType\x12)\
-    \n\x10building_subtype\x18\x02\x20\x02(\x05R\x0fbuildingSubtype\x12'\n\
-    \x0fbuilding_custom\x18\x03\x20\x02(\x05R\x0ebuildingCustom\"\x81\x01\n\
-    \x12BuildingDefinition\x12G\n\rbuilding_type\x18\x01\x20\x02(\x0b2\".Rem\
-    oteFortressReader.BuildingTypeR\x0cbuildingType\x12\x0e\n\x02id\x18\x02\
-    \x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x03\x20\x01(\tR\x04name\"]\n\
-    \x0cBuildingList\x12M\n\rbuilding_list\x18\x01\x20\x03(\x0b2(.RemoteFort\
-    ressReader.BuildingDefinitionR\x0cbuildingList\"]\n\x0cMaterialList\x12M\
-    \n\rmaterial_list\x18\x01\x20\x03(\x0b2(.RemoteFortressReader.MaterialDe\
-    finitionR\x0cmaterialList\"U\n\x04Hair\x12\x16\n\x06length\x18\x01\x20\
-    \x01(\x05R\x06length\x125\n\x05style\x18\x02\x20\x01(\x0e2\x1f.RemoteFor\
-    tressReader.HairStyleR\x05style\"\xbe\x01\n\x0cBodySizeInfo\x12\x19\n\
-    \x08size_cur\x18\x01\x20\x01(\x05R\x07sizeCur\x12\x1b\n\tsize_base\x18\
-    \x02\x20\x01(\x05R\x08sizeBase\x12\x19\n\x08area_cur\x18\x03\x20\x01(\
-    \x05R\x07areaCur\x12\x1b\n\tarea_base\x18\x04\x20\x01(\x05R\x08areaBase\
-    \x12\x1d\n\nlength_cur\x18\x05\x20\x01(\x05R\tlengthCur\x12\x1f\n\x0blen\
-    gth_base\x18\x06\x20\x01(\x05R\nlengthBase\"\xa0\x03\n\x0eUnitAppearance\
-    \x12%\n\x0ebody_modifiers\x18\x01\x20\x03(\x05R\rbodyModifiers\x12!\n\
-    \x0cbp_modifiers\x18\x02\x20\x03(\x05R\x0bbpModifiers\x12#\n\rsize_modif\
-    ier\x18\x03\x20\x01(\x05R\x0csizeModifier\x12\x16\n\x06colors\x18\x04\
-    \x20\x03(\x05R\x06colors\x12.\n\x04hair\x18\x05\x20\x01(\x0b2\x1a.Remote\
-    FortressReader.HairR\x04hair\x120\n\x05beard\x18\x06\x20\x01(\x0b2\x1a.R\
-    emoteFortressReader.HairR\x05beard\x128\n\tmoustache\x18\x07\x20\x01(\
-    \x0b2\x1a.RemoteFortressReader.HairR\tmoustache\x128\n\tsideburns\x18\
-    \x08\x20\x01(\x0b2\x1a.RemoteFortressReader.HairR\tsideburns\x121\n\x14p\
-    hysical_description\x18\t\x20\x01(\tR\x13physicalDescription\"\x9a\x01\n\
-    \rInventoryItem\x127\n\x04mode\x18\x01\x20\x01(\x0e2#.RemoteFortressRead\
-    er.InventoryModeR\x04mode\x12.\n\x04item\x18\x02\x20\x01(\x0b2\x1a.Remot\
-    eFortressReader.ItemR\x04item\x12\x20\n\x0cbody_part_id\x18\x03\x20\x01(\
-    \x05R\nbodyPartId\"t\n\tWoundPart\x12(\n\x10global_layer_idx\x18\x01\x20\
-    \x01(\x05R\x0eglobalLayerIdx\x12\x20\n\x0cbody_part_id\x18\x02\x20\x01(\
-    \x05R\nbodyPartId\x12\x1b\n\tlayer_idx\x18\x03\x20\x01(\x05R\x08layerIdx\
-    \"e\n\tUnitWound\x125\n\x05parts\x18\x01\x20\x03(\x0b2\x1f.RemoteFortres\
-    sReader.WoundPartR\x05parts\x12!\n\x0csevered_part\x18\x02\x20\x01(\x08R\
-    \x0bseveredPart\"\xbb\x07\n\x0eUnitDefinition\x12\x0e\n\x02id\x18\x01\
-    \x20\x02(\x05R\x02id\x12\x18\n\x07isValid\x18\x02\x20\x01(\x08R\x07isVal\
-    id\x12\x13\n\x05pos_x\x18\x03\x20\x01(\x05R\x04posX\x12\x13\n\x05pos_y\
-    \x18\x04\x20\x01(\x05R\x04posY\x12\x13\n\x05pos_z\x18\x05\x20\x01(\x05R\
-    \x04posZ\x121\n\x04race\x18\x06\x20\x01(\x0b2\x1d.RemoteFortressReader.M\
-    atPairR\x04race\x12P\n\x10profession_color\x18\x07\x20\x01(\x0b2%.Remote\
-    FortressReader.ColorDefinitionR\x0fprofessionColor\x12\x16\n\x06flags1\
-    \x18\x08\x20\x01(\rR\x06flags1\x12\x16\n\x06flags2\x18\t\x20\x01(\rR\x06\
-    flags2\x12\x16\n\x06flags3\x18\n\x20\x01(\rR\x06flags3\x12\x1d\n\nis_sol\
-    dier\x18\x0b\x20\x01(\x08R\tisSoldier\x12?\n\tsize_info\x18\x0c\x20\x01(\
-    \x0b2\".RemoteFortressReader.BodySizeInfoR\x08sizeInfo\x12\x12\n\x04name\
-    \x18\r\x20\x01(\tR\x04name\x12\x1b\n\tblood_max\x18\x0e\x20\x01(\x05R\
-    \x08bloodMax\x12\x1f\n\x0bblood_count\x18\x0f\x20\x01(\x05R\nbloodCount\
-    \x12D\n\nappearance\x18\x10\x20\x01(\x0b2$.RemoteFortressReader.UnitAppe\
-    aranceR\nappearance\x12#\n\rprofession_id\x18\x11\x20\x01(\x05R\x0cprofe\
-    ssionId\x12'\n\x0fnoble_positions\x18\x12\x20\x03(\tR\x0enoblePositions\
-    \x12\x19\n\x08rider_id\x18\x13\x20\x01(\x05R\x07riderId\x12A\n\tinventor\
-    y\x18\x14\x20\x03(\x0b2#.RemoteFortressReader.InventoryItemR\tinventory\
-    \x12\x19\n\x08subpos_x\x18\x15\x20\x01(\x02R\x07subposX\x12\x19\n\x08sub\
-    pos_y\x18\x16\x20\x01(\x02R\x07subposY\x12\x19\n\x08subpos_z\x18\x17\x20\
-    \x01(\x02R\x07subposZ\x123\n\x06facing\x18\x18\x20\x01(\x0b2\x1b.RemoteF\
-    ortressReader.CoordR\x06facing\x12\x10\n\x03age\x18\x19\x20\x01(\x05R\
-    \x03age\x127\n\x06wounds\x18\x1a\x20\x03(\x0b2\x1f.RemoteFortressReader.\
-    UnitWoundR\x06wounds\"U\n\x08UnitList\x12I\n\rcreature_list\x18\x01\x20\
-    \x03(\x0b2$.RemoteFortressReader.UnitDefinitionR\x0ccreatureList\"\xb1\
-    \x01\n\x0cBlockRequest\x12#\n\rblocks_needed\x18\x01\x20\x01(\x05R\x0cbl\
-    ocksNeeded\x12\x13\n\x05min_x\x18\x02\x20\x01(\x05R\x04minX\x12\x13\n\
-    \x05max_x\x18\x03\x20\x01(\x05R\x04maxX\x12\x13\n\x05min_y\x18\x04\x20\
-    \x01(\x05R\x04minY\x12\x13\n\x05max_y\x18\x05\x20\x01(\x05R\x04maxY\x12\
-    \x13\n\x05min_z\x18\x06\x20\x01(\x05R\x04minZ\x12\x13\n\x05max_z\x18\x07\
-    \x20\x01(\x05R\x04maxZ\"\xf2\x01\n\tBlockList\x12=\n\nmap_blocks\x18\x01\
-    \x20\x03(\x0b2\x1e.RemoteFortressReader.MapBlockR\tmapBlocks\x12\x13\n\
-    \x05map_x\x18\x02\x20\x01(\x05R\x04mapX\x12\x13\n\x05map_y\x18\x03\x20\
-    \x01(\x05R\x04mapY\x12?\n\nengravings\x18\x04\x20\x03(\x0b2\x1f.RemoteFo\
-    rtressReader.EngravingR\nengravings\x12;\n\x0bocean_waves\x18\x05\x20\
-    \x03(\x0b2\x1a.RemoteFortressReader.WaveR\noceanWaves\"_\n\x08PlantDef\
-    \x12\x13\n\x05pos_x\x18\x01\x20\x02(\x05R\x04posX\x12\x13\n\x05pos_y\x18\
-    \x02\x20\x02(\x05R\x04posY\x12\x13\n\x05pos_z\x18\x03\x20\x02(\x05R\x04p\
-    osZ\x12\x14\n\x05index\x18\x04\x20\x02(\x05R\x05index\"J\n\tPlantList\
-    \x12=\n\nplant_list\x18\x01\x20\x03(\x0b2\x1e.RemoteFortressReader.Plant\
-    DefR\tplantList\"\xe2\x02\n\x08ViewInfo\x12\x1c\n\nview_pos_x\x18\x01\
+    \x07matPair\x12\x0e\n\x02id\x18\x02\x20\x01(\tR\x02id\x12F\n\x0bstate_co\
+    lor\x18\x04\x20\x01(\x0b2%.RemoteFortressReader.ColorDefinitionR\nstateC\
+    olor\x12@\n\ninstrument\x18\x05\x20\x01(\x0b2\x20.ItemdefInstrument.Inst\
+    rumentDefR\ninstrument\x12\x17\n\x07up_step\x18\x06\x20\x01(\x05R\x06upS\
+    tep\x12\x1b\n\tdown_step\x18\x07\x20\x01(\x05R\x08downStep\x126\n\x05lay\
+    er\x18\x08\x20\x01(\x0e2\x20.RemoteFortressReader.ArmorLayerR\x05layer\"\
+    \x87\x01\n\x0cBuildingType\x12#\n\rbuilding_type\x18\x01\x20\x02(\x05R\
+    \x0cbuildingType\x12)\n\x10building_subtype\x18\x02\x20\x02(\x05R\x0fbui\
+    ldingSubtype\x12'\n\x0fbuilding_custom\x18\x03\x20\x02(\x05R\x0ebuilding\
+    Custom\"\x81\x01\n\x12BuildingDefinition\x12G\n\rbuilding_type\x18\x01\
+    \x20\x02(\x0b2\".RemoteFortressReader.BuildingTypeR\x0cbuildingType\x12\
+    \x0e\n\x02id\x18\x02\x20\x01(\tR\x02id\x12\x12\n\x04name\x18\x03\x20\x01\
+    (\tR\x04name\"]\n\x0cBuildingList\x12M\n\rbuilding_list\x18\x01\x20\x03(\
+    \x0b2(.RemoteFortressReader.BuildingDefinitionR\x0cbuildingList\"]\n\x0c\
+    MaterialList\x12M\n\rmaterial_list\x18\x01\x20\x03(\x0b2(.RemoteFortress\
+    Reader.MaterialDefinitionR\x0cmaterialList\"U\n\x04Hair\x12\x16\n\x06len\
+    gth\x18\x01\x20\x01(\x05R\x06length\x125\n\x05style\x18\x02\x20\x01(\x0e\
+    2\x1f.RemoteFortressReader.HairStyleR\x05style\"\xbe\x01\n\x0cBodySizeIn\
+    fo\x12\x19\n\x08size_cur\x18\x01\x20\x01(\x05R\x07sizeCur\x12\x1b\n\tsiz\
+    e_base\x18\x02\x20\x01(\x05R\x08sizeBase\x12\x19\n\x08area_cur\x18\x03\
+    \x20\x01(\x05R\x07areaCur\x12\x1b\n\tarea_base\x18\x04\x20\x01(\x05R\x08\
+    areaBase\x12\x1d\n\nlength_cur\x18\x05\x20\x01(\x05R\tlengthCur\x12\x1f\
+    \n\x0blength_base\x18\x06\x20\x01(\x05R\nlengthBase\"\xa0\x03\n\x0eUnitA\
+    ppearance\x12%\n\x0ebody_modifiers\x18\x01\x20\x03(\x05R\rbodyModifiers\
+    \x12!\n\x0cbp_modifiers\x18\x02\x20\x03(\x05R\x0bbpModifiers\x12#\n\rsiz\
+    e_modifier\x18\x03\x20\x01(\x05R\x0csizeModifier\x12\x16\n\x06colors\x18\
+    \x04\x20\x03(\x05R\x06colors\x12.\n\x04hair\x18\x05\x20\x01(\x0b2\x1a.Re\
+    moteFortressReader.HairR\x04hair\x120\n\x05beard\x18\x06\x20\x01(\x0b2\
+    \x1a.RemoteFortressReader.HairR\x05beard\x128\n\tmoustache\x18\x07\x20\
+    \x01(\x0b2\x1a.RemoteFortressReader.HairR\tmoustache\x128\n\tsideburns\
+    \x18\x08\x20\x01(\x0b2\x1a.RemoteFortressReader.HairR\tsideburns\x121\n\
+    \x14physical_description\x18\t\x20\x01(\tR\x13physicalDescription\"\x9a\
+    \x01\n\rInventoryItem\x127\n\x04mode\x18\x01\x20\x01(\x0e2#.RemoteFortre\
+    ssReader.InventoryModeR\x04mode\x12.\n\x04item\x18\x02\x20\x01(\x0b2\x1a\
+    .RemoteFortressReader.ItemR\x04item\x12\x20\n\x0cbody_part_id\x18\x03\
+    \x20\x01(\x05R\nbodyPartId\"t\n\tWoundPart\x12(\n\x10global_layer_idx\
+    \x18\x01\x20\x01(\x05R\x0eglobalLayerIdx\x12\x20\n\x0cbody_part_id\x18\
+    \x02\x20\x01(\x05R\nbodyPartId\x12\x1b\n\tlayer_idx\x18\x03\x20\x01(\x05\
+    R\x08layerIdx\"e\n\tUnitWound\x125\n\x05parts\x18\x01\x20\x03(\x0b2\x1f.\
+    RemoteFortressReader.WoundPartR\x05parts\x12!\n\x0csevered_part\x18\x02\
+    \x20\x01(\x08R\x0bseveredPart\"\xbb\x07\n\x0eUnitDefinition\x12\x0e\n\
+    \x02id\x18\x01\x20\x02(\x05R\x02id\x12\x18\n\x07isValid\x18\x02\x20\x01(\
+    \x08R\x07isValid\x12\x13\n\x05pos_x\x18\x03\x20\x01(\x05R\x04posX\x12\
+    \x13\n\x05pos_y\x18\x04\x20\x01(\x05R\x04posY\x12\x13\n\x05pos_z\x18\x05\
+    \x20\x01(\x05R\x04posZ\x121\n\x04race\x18\x06\x20\x01(\x0b2\x1d.RemoteFo\
+    rtressReader.MatPairR\x04race\x12P\n\x10profession_color\x18\x07\x20\x01\
+    (\x0b2%.RemoteFortressReader.ColorDefinitionR\x0fprofessionColor\x12\x16\
+    \n\x06flags1\x18\x08\x20\x01(\rR\x06flags1\x12\x16\n\x06flags2\x18\t\x20\
+    \x01(\rR\x06flags2\x12\x16\n\x06flags3\x18\n\x20\x01(\rR\x06flags3\x12\
+    \x1d\n\nis_soldier\x18\x0b\x20\x01(\x08R\tisSoldier\x12?\n\tsize_info\
+    \x18\x0c\x20\x01(\x0b2\".RemoteFortressReader.BodySizeInfoR\x08sizeInfo\
+    \x12\x12\n\x04name\x18\r\x20\x01(\tR\x04name\x12\x1b\n\tblood_max\x18\
+    \x0e\x20\x01(\x05R\x08bloodMax\x12\x1f\n\x0bblood_count\x18\x0f\x20\x01(\
+    \x05R\nbloodCount\x12D\n\nappearance\x18\x10\x20\x01(\x0b2$.RemoteFortre\
+    ssReader.UnitAppearanceR\nappearance\x12#\n\rprofession_id\x18\x11\x20\
+    \x01(\x05R\x0cprofessionId\x12'\n\x0fnoble_positions\x18\x12\x20\x03(\tR\
+    \x0enoblePositions\x12\x19\n\x08rider_id\x18\x13\x20\x01(\x05R\x07riderI\
+    d\x12A\n\tinventory\x18\x14\x20\x03(\x0b2#.RemoteFortressReader.Inventor\
+    yItemR\tinventory\x12\x19\n\x08subpos_x\x18\x15\x20\x01(\x02R\x07subposX\
+    \x12\x19\n\x08subpos_y\x18\x16\x20\x01(\x02R\x07subposY\x12\x19\n\x08sub\
+    pos_z\x18\x17\x20\x01(\x02R\x07subposZ\x123\n\x06facing\x18\x18\x20\x01(\
+    \x0b2\x1b.RemoteFortressReader.CoordR\x06facing\x12\x10\n\x03age\x18\x19\
+    \x20\x01(\x05R\x03age\x127\n\x06wounds\x18\x1a\x20\x03(\x0b2\x1f.RemoteF\
+    ortressReader.UnitWoundR\x06wounds\"U\n\x08UnitList\x12I\n\rcreature_lis\
+    t\x18\x01\x20\x03(\x0b2$.RemoteFortressReader.UnitDefinitionR\x0ccreatur\
+    eList\"\xb1\x01\n\x0cBlockRequest\x12#\n\rblocks_needed\x18\x01\x20\x01(\
+    \x05R\x0cblocksNeeded\x12\x13\n\x05min_x\x18\x02\x20\x01(\x05R\x04minX\
+    \x12\x13\n\x05max_x\x18\x03\x20\x01(\x05R\x04maxX\x12\x13\n\x05min_y\x18\
+    \x04\x20\x01(\x05R\x04minY\x12\x13\n\x05max_y\x18\x05\x20\x01(\x05R\x04m\
+    axY\x12\x13\n\x05min_z\x18\x06\x20\x01(\x05R\x04minZ\x12\x13\n\x05max_z\
+    \x18\x07\x20\x01(\x05R\x04maxZ\"\xf2\x01\n\tBlockList\x12=\n\nmap_blocks\
+    \x18\x01\x20\x03(\x0b2\x1e.RemoteFortressReader.MapBlockR\tmapBlocks\x12\
+    \x13\n\x05map_x\x18\x02\x20\x01(\x05R\x04mapX\x12\x13\n\x05map_y\x18\x03\
+    \x20\x01(\x05R\x04mapY\x12?\n\nengravings\x18\x04\x20\x03(\x0b2\x1f.Remo\
+    teFortressReader.EngravingR\nengravings\x12;\n\x0bocean_waves\x18\x05\
+    \x20\x03(\x0b2\x1a.RemoteFortressReader.WaveR\noceanWaves\"_\n\x08PlantD\
+    ef\x12\x13\n\x05pos_x\x18\x01\x20\x02(\x05R\x04posX\x12\x13\n\x05pos_y\
+    \x18\x02\x20\x02(\x05R\x04posY\x12\x13\n\x05pos_z\x18\x03\x20\x02(\x05R\
+    \x04posZ\x12\x14\n\x05index\x18\x04\x20\x02(\x05R\x05index\"J\n\tPlantLi\
+    st\x12=\n\nplant_list\x18\x01\x20\x03(\x0b2\x1e.RemoteFortressReader.Pla\
+    ntDefR\tplantList\"\xe2\x02\n\x08ViewInfo\x12\x1c\n\nview_pos_x\x18\x01\
     \x20\x01(\x05R\x08viewPosX\x12\x1c\n\nview_pos_y\x18\x02\x20\x01(\x05R\
     \x08viewPosY\x12\x1c\n\nview_pos_z\x18\x03\x20\x01(\x05R\x08viewPosZ\x12\
     \x1e\n\x0bview_size_x\x18\x04\x20\x01(\x05R\tviewSizeX\x12\x1e\n\x0bview\
