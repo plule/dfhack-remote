@@ -16,4 +16,5 @@ To regenerate the protos in the source directory, run `cargo build` with the `DF
 To target a different `DFHACK` version, set the `DFHACK_ZIP` environment variable to an url.
 For example `https://github.com/DFHack/dfhack/archive/refs/heads/develop.zip`.
 
-Then in `RemoteFortressReader.proto`, comment out MaterialDefinition.name, as it is sometimes invalid.
+Then in `RemoteFortressReader.proto`, change the type of MaterialDefinition::name to bytes, it is currently
+encoded in CP437.
