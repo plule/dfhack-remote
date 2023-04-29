@@ -3,7 +3,8 @@ use std::{collections::HashMap, io::BufRead, path::PathBuf};
 
 use heck::{ToPascalCase, ToSnakeCase};
 use proc_macro2::TokenStream;
-use protobuf_codegen::Customize;
+use protobuf::reflect::MessageDescriptor;
+use protobuf_codegen::{Customize, CustomizeCallback};
 use quote::format_ident;
 use quote::quote;
 use quote::ToTokens;
@@ -41,6 +42,18 @@ impl Plugin {
             plugin_name,
             rpcs: Vec::new(),
         }
+    }
+}
+
+struct AddHash;
+
+impl CustomizeCallback for AddHash {
+    fn message(&self, message: &MessageDescriptor) -> Customize {
+        let mut customize = Customize::default();
+        if message.name() == "MatPair" || message.name() == "Coord" {
+            customize = customize.before("#[derive(Hash, Eq)]");
+        }
+        customize
     }
 }
 
@@ -87,6 +100,7 @@ fn generate_messages_rs(protos: &Vec<PathBuf>, include_dir: &str, out_path: &Pat
 fn messages_protoc_codegen(protos: &Vec<PathBuf>, include_dir: &str, out_path: &Path) {
     protobuf_codegen::Codegen::new()
         .customize(Customize::default().lite_runtime(false))
+        .customize_callback(AddHash)
         .pure()
         .include(include_dir)
         .inputs(protos)

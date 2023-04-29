@@ -26,6 +26,7 @@
 const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_3_2_0;
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(Hash, Eq)]
 // @@protoc_insertion_point(message:RemoteFortressReader.Coord)
 pub struct Coord {
     // message fields
@@ -4903,6 +4904,7 @@ impl ::protobuf::reflect::ProtobufValue for MapBlock {
 }
 
 #[derive(PartialEq,Clone,Default,Debug)]
+#[derive(Hash, Eq)]
 // @@protoc_insertion_point(message:RemoteFortressReader.MatPair)
 pub struct MatPair {
     // message fields
