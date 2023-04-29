@@ -6,7 +6,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.6.0"
+version = "0.6.1"
 authors = ["Pierre Lulé <pierre@lule.fr>"]
 
 [package]
@@ -30,7 +30,7 @@ byteorder = "1.4.3"
 num_enum = "0.6.1"
 log = "0.4.16"
 derive_more = "0.99.17"
-dfhack-proto = { version = "0.6.0", path = "dfhack-proto" }
+dfhack-proto = { version = "0.6.1", path = "dfhack-proto" }
 thiserror = "1.0.30"
 
 
