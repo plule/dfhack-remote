@@ -12,6 +12,9 @@ pub use dfhack_proto::messages::*;
 pub use dfhack_proto::stubs::*;
 use message::CommandResult;
 
+/// DFHack client, build it with [connect] or [connect_to]
+pub type Client = Stubs<Channel>;
+
 /// Connect to Dwarf Fortress using the default settings
 ///
 /// It will try to connect to `127.0.0.1:5000`, DFHack default address.
@@ -28,7 +31,7 @@ use message::CommandResult;
 /// let df_version = dfhack.core().get_df_version().unwrap();
 /// println!("DwarfFortress {}",  df_version);
 /// ```
-pub fn connect() -> Result<Stubs<Channel>> {
+pub fn connect() -> Result<Client> {
     let connexion = Channel::connect()?;
     Ok(Stubs::from(connexion))
 }
@@ -48,7 +51,7 @@ pub fn connect() -> Result<Stubs<Channel>> {
 /// println!("DwarfFortress {}",  df_version);
 /// ```
 ///
-pub fn connect_to(address: &str) -> Result<Stubs<Channel>> {
+pub fn connect_to(address: &str) -> Result<Client> {
     let connexion = Channel::connect_to(address)?;
     Ok(Stubs::from(connexion))
 }
