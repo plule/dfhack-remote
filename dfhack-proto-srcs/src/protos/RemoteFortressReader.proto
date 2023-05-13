@@ -619,7 +619,7 @@ message WorldMap
 {
     required int32 world_width = 1;
     required int32 world_height = 2;
-    optional string name = 3;
+    optional bytes name = 3;
     optional string name_english = 4;
     repeated int32 elevation = 5;
     repeated int32 rainfall = 6;

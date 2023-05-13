@@ -22,12 +22,12 @@ Displaying some information about the current world.
 
 ```no_run
 let mut client = dfhack_remote::connect().unwrap();
-let world_map = client.remote_fortress_reader().get_world_map().unwrap();
+let world_info = client.core().get_world_info().unwrap();
+
 println!(
-    "Welcome to {} ({}). It is the year {}.",
-    world_map.name(),
-    world_map.name_english(),
-    world_map.cur_year(),
+    "Welcome to {} ({})",
+    world_info.world_name.last_name(),
+    world_info.world_name.english_name()
 );
 ```
 

@@ -11234,7 +11234,7 @@ pub struct WorldMap {
     // @@protoc_insertion_point(field:RemoteFortressReader.WorldMap.world_height)
     pub world_height: ::std::option::Option<i32>,
     // @@protoc_insertion_point(field:RemoteFortressReader.WorldMap.name)
-    pub name: ::std::option::Option<::std::string::String>,
+    pub name: ::std::option::Option<::std::vec::Vec<u8>>,
     // @@protoc_insertion_point(field:RemoteFortressReader.WorldMap.name_english)
     pub name_english: ::std::option::Option<::std::string::String>,
     // @@protoc_insertion_point(field:RemoteFortressReader.WorldMap.elevation)
@@ -11333,12 +11333,12 @@ impl WorldMap {
         self.world_height = ::std::option::Option::Some(v);
     }
 
-    // optional string name = 3;
+    // optional bytes name = 3;
 
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> &[u8] {
         match self.name.as_ref() {
             Some(v) => v,
-            None => "",
+            None => &[],
         }
     }
 
@@ -11351,22 +11351,22 @@ impl WorldMap {
     }
 
     // Param is passed by value, moved
-    pub fn set_name(&mut self, v: ::std::string::String) {
+    pub fn set_name(&mut self, v: ::std::vec::Vec<u8>) {
         self.name = ::std::option::Option::Some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+    pub fn mut_name(&mut self) -> &mut ::std::vec::Vec<u8> {
         if self.name.is_none() {
-            self.name = ::std::option::Option::Some(::std::string::String::new());
+            self.name = ::std::option::Option::Some(::std::vec::Vec::new());
         }
         self.name.as_mut().unwrap()
     }
 
     // Take field
-    pub fn take_name(&mut self) -> ::std::string::String {
-        self.name.take().unwrap_or_else(|| ::std::string::String::new())
+    pub fn take_name(&mut self) -> ::std::vec::Vec<u8> {
+        self.name.take().unwrap_or_else(|| ::std::vec::Vec::new())
     }
 
     // optional string name_english = 4;
@@ -11734,7 +11734,7 @@ impl ::protobuf::Message for WorldMap {
                     self.world_height = ::std::option::Option::Some(is.read_int32()?);
                 },
                 26 => {
-                    self.name = ::std::option::Option::Some(is.read_string()?);
+                    self.name = ::std::option::Option::Some(is.read_bytes()?);
                 },
                 34 => {
                     self.name_english = ::std::option::Option::Some(is.read_string()?);
@@ -11851,7 +11851,7 @@ impl ::protobuf::Message for WorldMap {
             my_size += ::protobuf::rt::int32_size(2, v);
         }
         if let Some(v) = self.name.as_ref() {
-            my_size += ::protobuf::rt::string_size(3, &v);
+            my_size += ::protobuf::rt::bytes_size(3, &v);
         }
         if let Some(v) = self.name_english.as_ref() {
             my_size += ::protobuf::rt::string_size(4, &v);
@@ -11935,7 +11935,7 @@ impl ::protobuf::Message for WorldMap {
             os.write_int32(2, v)?;
         }
         if let Some(v) = self.name.as_ref() {
-            os.write_string(3, v)?;
+            os.write_bytes(3, v)?;
         }
         if let Some(v) = self.name_english.as_ref() {
             os.write_string(4, v)?;
@@ -25894,8 +25894,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     eader.StratusTypeR\x07stratus\x12/\n\x03fog\x18\x05\x20\x01(\x0e2\x1d.Re\
     moteFortressReader.FogTypeR\x03fog\"\xf1\x06\n\x08WorldMap\x12\x1f\n\x0b\
     world_width\x18\x01\x20\x02(\x05R\nworldWidth\x12!\n\x0cworld_height\x18\
-    \x02\x20\x02(\x05R\x0bworldHeight\x12\x12\n\x04name\x18\x03\x20\x01(\tR\
-    \x04name\x12!\n\x0cname_english\x18\x04\x20\x01(\tR\x0bnameEnglish\x12\
+    \x02\x20\x02(\x05R\x0bworldHeight\x12\x12\n\x04name\x18\x03\x20\x01(\x0c\
+    R\x04name\x12!\n\x0cname_english\x18\x04\x20\x01(\tR\x0bnameEnglish\x12\
     \x1c\n\televation\x18\x05\x20\x03(\x05R\televation\x12\x1a\n\x08rainfall\
     \x18\x06\x20\x03(\x05R\x08rainfall\x12\x1e\n\nvegetation\x18\x07\x20\x03\
     (\x05R\nvegetation\x12\x20\n\x0btemperature\x18\x08\x20\x03(\x05R\x0btem\
