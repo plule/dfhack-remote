@@ -23,6 +23,7 @@ categories = [
     "game-development",
     "games",
 ]
+exclude = ["images/"]
 
 [dependencies]
 protobuf = "3.2.0"

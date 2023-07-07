@@ -8,6 +8,8 @@
 
 `dfhack_remote` is a library allowing users to interact with Dwarf Fortress using a remote API.
 
+![dfhack-remote](images/dfhack-remote.png)
+
 [Dwarf Fortress] is a video game by Bay 12 Games.
 [DFHack] is a fan made mod for Dwarf Fortress adding many
 features to the game.
