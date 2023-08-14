@@ -28,7 +28,7 @@ exclude = ["images/"]
 [dependencies]
 protobuf = "3.2.0"
 byteorder = "1.4.3"
-num_enum = "0.6.1"
+num_enum = "0.7.0"
 log = "0.4.16"
 derive_more = "0.99.17"
 dfhack-proto = { version = "0.7.0", path = "dfhack-proto" }
