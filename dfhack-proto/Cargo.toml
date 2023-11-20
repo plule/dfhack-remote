@@ -7,11 +7,7 @@ description = "Generated code from the DFHack API"
 readme = "README.md"
 repository = "https://github.com/plule/dfhack-remote"
 license = "MIT OR Apache-2.0"
-categories = [
-    "api-bindings",
-    "game-development",
-    "games",
-]
+categories = ["api-bindings", "game-development", "games"]
 
 [features]
 reflection = []
@@ -22,7 +18,7 @@ protobuf = "3.2.0"
 [build-dependencies]
 protobuf-codegen = "3.2.0"
 protobuf = "3.2.0"
-dfhack-proto-srcs = { version = "0.7.0", path = "../dfhack-proto-srcs" }
+dfhack-proto-srcs = { version = "0.8.0", path = "../dfhack-proto-srcs" }
 regex = "1"
 heck = "0.4"
 quote = "1.0.18"
