@@ -20,7 +20,7 @@ protobuf-codegen = "3.4.0"
 protobuf = "3.4.0"
 dfhack-proto-srcs = { version = "0.8.0", path = "../dfhack-proto-srcs" }
 regex = "1"
-heck = "0.4"
+heck = "0.5"
 quote = "1.0.18"
 prettyplease = "0.2.4"
 syn = "2.0.15"
