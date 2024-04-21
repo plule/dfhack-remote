@@ -7,11 +7,7 @@ description = "Download and extract DFHack protobuf files from source"
 readme = "README.md"
 repository = "https://github.com/plule/dfhack-remote"
 license = "Zlib"
-categories = [
-    "api-bindings",
-    "game-development",
-    "games",
-]
+categories = ["api-bindings", "game-development", "games"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -19,5 +15,5 @@ categories = [
 glob = "0.3.0"
 
 [build-dependencies]
-reqwest = {version="0.11.10",features=["blocking"]}
-zip = "0.6.2"
+reqwest = { version = "0.12.4", features = ["blocking"] }
+zip = "1.1.1"
