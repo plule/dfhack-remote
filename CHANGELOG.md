@@ -10,6 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Changed
 
+### Removed
+
+### Fixed
+
+## [0.9.0] - 2024-04-21
+
+### Added
+
+### Changed
+
 - Upgrade protobuf to v3.4.0
 
 ### Removed
