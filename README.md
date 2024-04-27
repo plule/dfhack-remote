@@ -37,13 +37,16 @@ Pausing or unpausing the game
 ``` no_run
 let mut client = dfhack_remote::connect().unwrap();
 let status = client.remote_fortress_reader().get_pause_state().unwrap();
-client.remote_fortress_reader().set_pause_state(!status).unwrap();
+client.remote_fortress_reader().set_pause_state(!status.reply).unwrap();
 ```
 
 The generated API is mostly a direct translation from the raw RPC,
 and as such is quite verbose.
 
 It includes some minor syntaxic sugar such as omitting `EmptyMessage` inputs.
+
+Every command returns a [Reply] struct containing the reply itself and optionally
+additional messages.
 
 ## The DFHack API
 

@@ -10,6 +10,7 @@ pub use channel::Channel;
 #[doc(no_inline)]
 pub use dfhack_proto::messages::*;
 pub use dfhack_proto::stubs::*;
+pub use dfhack_proto::Reply;
 use message::CommandResult;
 
 /// DFHack client, build it with [connect] or [connect_to]

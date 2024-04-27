@@ -46,7 +46,7 @@ impl dfhack_proto::Channel for Channel {
         plugin: std::string::String,
         name: std::string::String,
         request: TRequest,
-    ) -> crate::Result<dfhack_proto::Reply<TReply>>
+    ) -> crate::Result<crate::Reply<TReply>>
     where
         TRequest: protobuf::MessageFull,
         TReply: protobuf::MessageFull,
@@ -119,7 +119,7 @@ impl Channel {
         &mut self,
         id: i16,
         message: TIN,
-    ) -> crate::Result<dfhack_proto::Reply<TOUT>> {
+    ) -> crate::Result<crate::Reply<TOUT>> {
         let request = message::Request::new(id, message);
         request.send(&mut self.stream)?;
         let mut fragments = Vec::new();
@@ -134,7 +134,7 @@ impl Channel {
                     fragments.extend(text.fragments);
                 }
                 message::Reply::Result(result) => {
-                    return Ok(dfhack_proto::Reply {
+                    return Ok(crate::Reply {
                         reply: result,
                         fragments,
                     })

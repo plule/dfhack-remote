@@ -1,7 +1,7 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
-use std::ops::Deref;
+use std::{fmt::Display, ops::Deref};
 
 /// Raw protobuf messages
 pub mod messages {
@@ -65,6 +65,12 @@ impl<T> Deref for Reply<T> {
 
     fn deref(&self) -> &Self::Target {
         &self.reply
+    }
+}
+
+impl<T: Display> Display for Reply<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.reply)
     }
 }
 
