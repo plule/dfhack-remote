@@ -46,7 +46,7 @@ impl dfhack_proto::Channel for Channel {
         plugin: std::string::String,
         name: std::string::String,
         request: TRequest,
-    ) -> crate::Result<TReply>
+    ) -> crate::Result<dfhack_proto::Reply<TReply>>
     where
         TRequest: protobuf::MessageFull,
         TReply: protobuf::MessageFull,
@@ -119,21 +119,31 @@ impl Channel {
         &mut self,
         id: i16,
         message: TIN,
-    ) -> crate::Result<TOUT> {
+    ) -> crate::Result<dfhack_proto::Reply<TOUT>> {
         let request = message::Request::new(id, message);
         request.send(&mut self.stream)?;
+        let mut fragments = Vec::new();
 
         loop {
             let reply: message::Reply<TOUT> = message::Reply::receive(&mut self.stream)?;
             match reply {
                 message::Reply::Text(text) => {
-                    for fragment in text.fragments {
-                        println!("{}", fragment.text());
+                    for fragment in &text.fragments {
+                        log::info!("{}", fragment.text());
                     }
+                    fragments.extend(text.fragments);
                 }
-                message::Reply::Result(result) => return Ok(result),
+                message::Reply::Result(result) => {
+                    return Ok(dfhack_proto::Reply {
+                        reply: result,
+                        fragments,
+                    })
+                }
                 message::Reply::Fail(command_result) => {
-                    return Err(Error::RpcError(command_result))
+                    return Err(Error::RpcError {
+                        result: command_result,
+                        fragments,
+                    })
                 }
             }
         }
@@ -164,7 +174,7 @@ impl Channel {
         request.set_output_msg(output_msg.to_string());
         request.set_plugin(plugin.to_owned());
         let reply: crate::CoreBindReply = match self.request_raw(BIND_METHOD_ID, request) {
-            Ok(reply) => reply,
+            Ok(reply) => reply.reply,
             Err(_) => {
                 log::error!("Error attempting to bind {}", method);
                 return Err(Error::FailedToBind(format!(

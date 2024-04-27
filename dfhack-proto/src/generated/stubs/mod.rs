@@ -56,68 +56,86 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
     pub fn bind_method(
         &mut self,
         request: CoreBindRequest,
-    ) -> Result<CoreBindReply, TChannel::TError> {
-        let _response: CoreBindReply = self
+    ) -> Result<crate::Reply<CoreBindReply>, TChannel::TError> {
+        let _response: crate::Reply<CoreBindReply> = self
             .channel
             .request("".to_string(), "BindMethod".to_string(), request)?;
         Ok(_response)
     }
     ///Method `CoreResume` from the plugin ``
-    pub fn core_resume(&mut self) -> Result<i32, TChannel::TError> {
+    pub fn core_resume(&mut self) -> Result<crate::Reply<i32>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: IntMessage = self
+        let _response: crate::Reply<IntMessage> = self
             .channel
             .request("".to_string(), "CoreResume".to_string(), request)?;
-        let _response = _response.value();
+        let _response = crate::Reply {
+            reply: _response.value(),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `CoreSuspend` from the plugin ``
-    pub fn core_suspend(&mut self) -> Result<i32, TChannel::TError> {
+    pub fn core_suspend(&mut self) -> Result<crate::Reply<i32>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: IntMessage = self
+        let _response: crate::Reply<IntMessage> = self
             .channel
             .request("".to_string(), "CoreSuspend".to_string(), request)?;
-        let _response = _response.value();
+        let _response = crate::Reply {
+            reply: _response.value(),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `GetDFVersion` from the plugin ``
-    pub fn get_df_version(&mut self) -> Result<String, TChannel::TError> {
+    pub fn get_df_version(&mut self) -> Result<crate::Reply<String>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: StringMessage = self
+        let _response: crate::Reply<StringMessage> = self
             .channel
             .request("".to_string(), "GetDFVersion".to_string(), request)?;
-        let _response = _response.value().to_string();
+        let _response = crate::Reply {
+            reply: _response.value().to_string(),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `GetVersion` from the plugin ``
-    pub fn get_version(&mut self) -> Result<String, TChannel::TError> {
+    pub fn get_version(&mut self) -> Result<crate::Reply<String>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: StringMessage = self
+        let _response: crate::Reply<StringMessage> = self
             .channel
             .request("".to_string(), "GetVersion".to_string(), request)?;
-        let _response = _response.value().to_string();
+        let _response = crate::Reply {
+            reply: _response.value().to_string(),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `GetWorldInfo` from the plugin ``
-    pub fn get_world_info(&mut self) -> Result<GetWorldInfoOut, TChannel::TError> {
+    pub fn get_world_info(
+        &mut self,
+    ) -> Result<crate::Reply<GetWorldInfoOut>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: GetWorldInfoOut = self
+        let _response: crate::Reply<GetWorldInfoOut> = self
             .channel
             .request("".to_string(), "GetWorldInfo".to_string(), request)?;
         Ok(_response)
     }
     ///Method `ListEnums` from the plugin ``
-    pub fn list_enums(&mut self) -> Result<ListEnumsOut, TChannel::TError> {
+    pub fn list_enums(
+        &mut self,
+    ) -> Result<crate::Reply<ListEnumsOut>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: ListEnumsOut = self
+        let _response: crate::Reply<ListEnumsOut> = self
             .channel
             .request("".to_string(), "ListEnums".to_string(), request)?;
         Ok(_response)
     }
     ///Method `ListJobSkills` from the plugin ``
-    pub fn list_job_skills(&mut self) -> Result<ListJobSkillsOut, TChannel::TError> {
+    pub fn list_job_skills(
+        &mut self,
+    ) -> Result<crate::Reply<ListJobSkillsOut>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: ListJobSkillsOut = self
+        let _response: crate::Reply<ListJobSkillsOut> = self
             .channel
             .request("".to_string(), "ListJobSkills".to_string(), request)?;
         Ok(_response)
@@ -126,8 +144,8 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
     pub fn list_materials(
         &mut self,
         request: ListMaterialsIn,
-    ) -> Result<ListMaterialsOut, TChannel::TError> {
-        let _response: ListMaterialsOut = self
+    ) -> Result<crate::Reply<ListMaterialsOut>, TChannel::TError> {
+        let _response: crate::Reply<ListMaterialsOut> = self
             .channel
             .request("".to_string(), "ListMaterials".to_string(), request)?;
         Ok(_response)
@@ -136,8 +154,8 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
     pub fn list_squads(
         &mut self,
         request: ListSquadsIn,
-    ) -> Result<ListSquadsOut, TChannel::TError> {
-        let _response: ListSquadsOut = self
+    ) -> Result<crate::Reply<ListSquadsOut>, TChannel::TError> {
+        let _response: crate::Reply<ListSquadsOut> = self
             .channel
             .request("".to_string(), "ListSquads".to_string(), request)?;
         Ok(_response)
@@ -146,8 +164,8 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
     pub fn list_units(
         &mut self,
         request: ListUnitsIn,
-    ) -> Result<ListUnitsOut, TChannel::TError> {
-        let _response: ListUnitsOut = self
+    ) -> Result<crate::Reply<ListUnitsOut>, TChannel::TError> {
+        let _response: crate::Reply<ListUnitsOut> = self
             .channel
             .request("".to_string(), "ListUnits".to_string(), request)?;
         Ok(_response)
@@ -156,19 +174,22 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
     pub fn run_command(
         &mut self,
         request: CoreRunCommandRequest,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request("".to_string(), "RunCommand".to_string(), request)?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `RunLua` from the plugin ``
     pub fn run_lua(
         &mut self,
         request: CoreRunLuaRequest,
-    ) -> Result<StringListMessage, TChannel::TError> {
-        let _response: StringListMessage = self
+    ) -> Result<crate::Reply<StringListMessage>, TChannel::TError> {
+        let _response: crate::Reply<StringListMessage> = self
             .channel
             .request("".to_string(), "RunLua".to_string(), request)?;
         Ok(_response)
@@ -177,11 +198,14 @@ impl<'a, TChannel: crate::Channel> Core<'a, TChannel> {
     pub fn set_unit_labors(
         &mut self,
         request: SetUnitLaborsIn,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request("".to_string(), "SetUnitLabors".to_string(), request)?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
 }
@@ -253,22 +277,27 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Self { channel }
     }
     ///Method `CheckHashes` from the plugin `RemoteFortressReader`
-    pub fn check_hashes(&mut self) -> Result<(), TChannel::TError> {
+    pub fn check_hashes(&mut self) -> Result<crate::Reply<()>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: EmptyMessage = self
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "CheckHashes".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `CopyScreen` from the plugin `RemoteFortressReader`
-    pub fn copy_screen(&mut self) -> Result<ScreenCapture, TChannel::TError> {
+    pub fn copy_screen(
+        &mut self,
+    ) -> Result<crate::Reply<ScreenCapture>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: ScreenCapture = self
+        let _response: crate::Reply<ScreenCapture> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -281,8 +310,8 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
     pub fn get_block_list(
         &mut self,
         request: BlockRequest,
-    ) -> Result<BlockList, TChannel::TError> {
-        let _response: BlockList = self
+    ) -> Result<crate::Reply<BlockList>, TChannel::TError> {
+        let _response: crate::Reply<BlockList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -292,9 +321,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetBuildingDefList` from the plugin `RemoteFortressReader`
-    pub fn get_building_def_list(&mut self) -> Result<BuildingList, TChannel::TError> {
+    pub fn get_building_def_list(
+        &mut self,
+    ) -> Result<crate::Reply<BuildingList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: BuildingList = self
+        let _response: crate::Reply<BuildingList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -304,9 +335,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetCreatureRaws` from the plugin `RemoteFortressReader`
-    pub fn get_creature_raws(&mut self) -> Result<CreatureRawList, TChannel::TError> {
+    pub fn get_creature_raws(
+        &mut self,
+    ) -> Result<crate::Reply<CreatureRawList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: CreatureRawList = self
+        let _response: crate::Reply<CreatureRawList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -316,22 +349,27 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetGameValidity` from the plugin `RemoteFortressReader`
-    pub fn get_game_validity(&mut self) -> Result<bool, TChannel::TError> {
+    pub fn get_game_validity(&mut self) -> Result<crate::Reply<bool>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: SingleBool = self
+        let _response: crate::Reply<SingleBool> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetGameValidity".to_string(),
                 request,
             )?;
-        let _response = _response.Value();
+        let _response = crate::Reply {
+            reply: _response.Value(),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `GetGrowthList` from the plugin `RemoteFortressReader`
-    pub fn get_growth_list(&mut self) -> Result<MaterialList, TChannel::TError> {
+    pub fn get_growth_list(
+        &mut self,
+    ) -> Result<crate::Reply<MaterialList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: MaterialList = self
+        let _response: crate::Reply<MaterialList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -341,9 +379,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetItemList` from the plugin `RemoteFortressReader`
-    pub fn get_item_list(&mut self) -> Result<MaterialList, TChannel::TError> {
+    pub fn get_item_list(
+        &mut self,
+    ) -> Result<crate::Reply<MaterialList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: MaterialList = self
+        let _response: crate::Reply<MaterialList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -353,9 +393,9 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetLanguage` from the plugin `RemoteFortressReader`
-    pub fn get_language(&mut self) -> Result<Language, TChannel::TError> {
+    pub fn get_language(&mut self) -> Result<crate::Reply<Language>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: Language = self
+        let _response: crate::Reply<Language> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -365,9 +405,9 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetMapInfo` from the plugin `RemoteFortressReader`
-    pub fn get_map_info(&mut self) -> Result<MapInfo, TChannel::TError> {
+    pub fn get_map_info(&mut self) -> Result<crate::Reply<MapInfo>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: MapInfo = self
+        let _response: crate::Reply<MapInfo> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -377,9 +417,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetMaterialList` from the plugin `RemoteFortressReader`
-    pub fn get_material_list(&mut self) -> Result<MaterialList, TChannel::TError> {
+    pub fn get_material_list(
+        &mut self,
+    ) -> Result<crate::Reply<MaterialList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: MaterialList = self
+        let _response: crate::Reply<MaterialList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -392,8 +434,8 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
     pub fn get_partial_creature_raws(
         &mut self,
         request: ListRequest,
-    ) -> Result<CreatureRawList, TChannel::TError> {
-        let _response: CreatureRawList = self
+    ) -> Result<crate::Reply<CreatureRawList>, TChannel::TError> {
+        let _response: crate::Reply<CreatureRawList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -406,8 +448,8 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
     pub fn get_partial_plant_raws(
         &mut self,
         request: ListRequest,
-    ) -> Result<PlantRawList, TChannel::TError> {
-        let _response: PlantRawList = self
+    ) -> Result<crate::Reply<PlantRawList>, TChannel::TError> {
+        let _response: crate::Reply<PlantRawList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -417,24 +459,27 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetPauseState` from the plugin `RemoteFortressReader`
-    pub fn get_pause_state(&mut self) -> Result<bool, TChannel::TError> {
+    pub fn get_pause_state(&mut self) -> Result<crate::Reply<bool>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: SingleBool = self
+        let _response: crate::Reply<SingleBool> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "GetPauseState".to_string(),
                 request,
             )?;
-        let _response = _response.Value();
+        let _response = crate::Reply {
+            reply: _response.Value(),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `GetPlantList` from the plugin `RemoteFortressReader`
     pub fn get_plant_list(
         &mut self,
         request: BlockRequest,
-    ) -> Result<PlantList, TChannel::TError> {
-        let _response: PlantList = self
+    ) -> Result<crate::Reply<PlantList>, TChannel::TError> {
+        let _response: crate::Reply<PlantList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -444,9 +489,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetPlantRaws` from the plugin `RemoteFortressReader`
-    pub fn get_plant_raws(&mut self) -> Result<PlantRawList, TChannel::TError> {
+    pub fn get_plant_raws(
+        &mut self,
+    ) -> Result<crate::Reply<PlantRawList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: PlantRawList = self
+        let _response: crate::Reply<PlantRawList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -456,9 +503,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetRegionMaps` from the plugin `RemoteFortressReader`
-    pub fn get_region_maps(&mut self) -> Result<RegionMaps, TChannel::TError> {
+    pub fn get_region_maps(
+        &mut self,
+    ) -> Result<crate::Reply<RegionMaps>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: RegionMaps = self
+        let _response: crate::Reply<RegionMaps> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -468,9 +517,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetRegionMapsNew` from the plugin `RemoteFortressReader`
-    pub fn get_region_maps_new(&mut self) -> Result<RegionMaps, TChannel::TError> {
+    pub fn get_region_maps_new(
+        &mut self,
+    ) -> Result<crate::Reply<RegionMaps>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: RegionMaps = self
+        let _response: crate::Reply<RegionMaps> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -480,9 +531,9 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetReports` from the plugin `RemoteFortressReader`
-    pub fn get_reports(&mut self) -> Result<Status, TChannel::TError> {
+    pub fn get_reports(&mut self) -> Result<crate::Reply<Status>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: Status = self
+        let _response: crate::Reply<Status> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -492,9 +543,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetSideMenu` from the plugin `RemoteFortressReader`
-    pub fn get_side_menu(&mut self) -> Result<SidebarState, TChannel::TError> {
+    pub fn get_side_menu(
+        &mut self,
+    ) -> Result<crate::Reply<SidebarState>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: SidebarState = self
+        let _response: crate::Reply<SidebarState> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -504,9 +557,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetTiletypeList` from the plugin `RemoteFortressReader`
-    pub fn get_tiletype_list(&mut self) -> Result<TiletypeList, TChannel::TError> {
+    pub fn get_tiletype_list(
+        &mut self,
+    ) -> Result<crate::Reply<TiletypeList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: TiletypeList = self
+        let _response: crate::Reply<TiletypeList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -516,9 +571,9 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetUnitList` from the plugin `RemoteFortressReader`
-    pub fn get_unit_list(&mut self) -> Result<UnitList, TChannel::TError> {
+    pub fn get_unit_list(&mut self) -> Result<crate::Reply<UnitList>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: UnitList = self
+        let _response: crate::Reply<UnitList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -531,8 +586,8 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
     pub fn get_unit_list_inside(
         &mut self,
         request: BlockRequest,
-    ) -> Result<UnitList, TChannel::TError> {
-        let _response: UnitList = self
+    ) -> Result<crate::Reply<UnitList>, TChannel::TError> {
+        let _response: crate::Reply<UnitList> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -542,9 +597,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetVersionInfo` from the plugin `RemoteFortressReader`
-    pub fn get_version_info(&mut self) -> Result<VersionInfo, TChannel::TError> {
+    pub fn get_version_info(
+        &mut self,
+    ) -> Result<crate::Reply<VersionInfo>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: VersionInfo = self
+        let _response: crate::Reply<VersionInfo> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -554,9 +611,9 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetViewInfo` from the plugin `RemoteFortressReader`
-    pub fn get_view_info(&mut self) -> Result<ViewInfo, TChannel::TError> {
+    pub fn get_view_info(&mut self) -> Result<crate::Reply<ViewInfo>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: ViewInfo = self
+        let _response: crate::Reply<ViewInfo> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -566,9 +623,9 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetWorldMap` from the plugin `RemoteFortressReader`
-    pub fn get_world_map(&mut self) -> Result<WorldMap, TChannel::TError> {
+    pub fn get_world_map(&mut self) -> Result<crate::Reply<WorldMap>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: WorldMap = self
+        let _response: crate::Reply<WorldMap> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -578,9 +635,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetWorldMapCenter` from the plugin `RemoteFortressReader`
-    pub fn get_world_map_center(&mut self) -> Result<WorldMap, TChannel::TError> {
+    pub fn get_world_map_center(
+        &mut self,
+    ) -> Result<crate::Reply<WorldMap>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: WorldMap = self
+        let _response: crate::Reply<WorldMap> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -590,9 +649,11 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
         Ok(_response)
     }
     ///Method `GetWorldMapNew` from the plugin `RemoteFortressReader`
-    pub fn get_world_map_new(&mut self) -> Result<WorldMap, TChannel::TError> {
+    pub fn get_world_map_new(
+        &mut self,
+    ) -> Result<crate::Reply<WorldMap>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: WorldMap = self
+        let _response: crate::Reply<WorldMap> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -605,21 +666,26 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
     pub fn jump_command(
         &mut self,
         request: MoveCommandParams,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "JumpCommand".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `MenuQuery` from the plugin `RemoteFortressReader`
-    pub fn menu_query(&mut self) -> Result<MenuContents, TChannel::TError> {
+    pub fn menu_query(
+        &mut self,
+    ) -> Result<crate::Reply<MenuContents>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: MenuContents = self
+        let _response: crate::Reply<MenuContents> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
@@ -632,119 +698,146 @@ impl<'a, TChannel: crate::Channel> RemoteFortressReader<'a, TChannel> {
     pub fn misc_move_command(
         &mut self,
         request: MiscMoveParams,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "MiscMoveCommand".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `MoveCommand` from the plugin `RemoteFortressReader`
     pub fn move_command(
         &mut self,
         request: MoveCommandParams,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "MoveCommand".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `MovementSelectCommand` from the plugin `RemoteFortressReader`
     pub fn movement_select_command(
         &mut self,
         value: i32,
-    ) -> Result<(), TChannel::TError> {
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
         let mut request = IntMessage::new();
         request.set_value(value);
-        let _response: EmptyMessage = self
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "MovementSelectCommand".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `PassKeyboardEvent` from the plugin `RemoteFortressReader`
     pub fn pass_keyboard_event(
         &mut self,
         request: KeyboardEvent,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "PassKeyboardEvent".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `ResetMapHashes` from the plugin `RemoteFortressReader`
-    pub fn reset_map_hashes(&mut self) -> Result<(), TChannel::TError> {
+    pub fn reset_map_hashes(&mut self) -> Result<crate::Reply<()>, TChannel::TError> {
         let request = EmptyMessage::new();
-        let _response: EmptyMessage = self
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "ResetMapHashes".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `SendDigCommand` from the plugin `RemoteFortressReader`
     pub fn send_dig_command(
         &mut self,
         request: DigCommand,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "SendDigCommand".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `SetPauseState` from the plugin `RemoteFortressReader`
-    pub fn set_pause_state(&mut self, value: bool) -> Result<(), TChannel::TError> {
+    pub fn set_pause_state(
+        &mut self,
+        value: bool,
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
         let mut request = SingleBool::new();
         request.set_Value(value);
-        let _response: EmptyMessage = self
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "SetPauseState".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `SetSideMenu` from the plugin `RemoteFortressReader`
     pub fn set_side_menu(
         &mut self,
         request: SidebarCommand,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request(
                 "RemoteFortressReader".to_string(),
                 "SetSideMenu".to_string(),
                 request,
             )?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
 }
@@ -922,8 +1015,8 @@ impl<'a, TChannel: crate::Channel> Isoworldremote<'a, TChannel> {
     pub fn get_embark_info(
         &mut self,
         request: MapRequest,
-    ) -> Result<MapReply, TChannel::TError> {
-        let _response: MapReply = self
+    ) -> Result<crate::Reply<MapReply>, TChannel::TError> {
+        let _response: crate::Reply<MapReply> = self
             .channel
             .request(
                 "isoworldremote".to_string(),
@@ -936,8 +1029,8 @@ impl<'a, TChannel: crate::Channel> Isoworldremote<'a, TChannel> {
     pub fn get_embark_tile(
         &mut self,
         request: TileRequest,
-    ) -> Result<EmbarkTile, TChannel::TError> {
-        let _response: EmbarkTile = self
+    ) -> Result<crate::Reply<EmbarkTile>, TChannel::TError> {
+        let _response: crate::Reply<EmbarkTile> = self
             .channel
             .request(
                 "isoworldremote".to_string(),
@@ -950,8 +1043,8 @@ impl<'a, TChannel: crate::Channel> Isoworldremote<'a, TChannel> {
     pub fn get_raw_names(
         &mut self,
         request: MapRequest,
-    ) -> Result<RawNames, TChannel::TError> {
-        let _response: RawNames = self
+    ) -> Result<crate::Reply<RawNames>, TChannel::TError> {
+        let _response: crate::Reply<RawNames> = self
             .channel
             .request("isoworldremote".to_string(), "GetRawNames".to_string(), request)?;
         Ok(_response)
@@ -991,33 +1084,42 @@ impl<'a, TChannel: crate::Channel> Rename<'a, TChannel> {
     pub fn rename_building(
         &mut self,
         request: RenameBuildingIn,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request("rename".to_string(), "RenameBuilding".to_string(), request)?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `RenameSquad` from the plugin `rename`
     pub fn rename_squad(
         &mut self,
         request: RenameSquadIn,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request("rename".to_string(), "RenameSquad".to_string(), request)?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
     ///Method `RenameUnit` from the plugin `rename`
     pub fn rename_unit(
         &mut self,
         request: RenameUnitIn,
-    ) -> Result<(), TChannel::TError> {
-        let _response: EmptyMessage = self
+    ) -> Result<crate::Reply<()>, TChannel::TError> {
+        let _response: crate::Reply<EmptyMessage> = self
             .channel
             .request("rename".to_string(), "RenameUnit".to_string(), request)?;
-        let _response = ();
+        let _response = crate::Reply {
+            reply: (),
+            fragments: _response.fragments,
+        };
         Ok(_response)
     }
 }

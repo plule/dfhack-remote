@@ -271,7 +271,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 ()
             };
             post = quote! {
-                let _response = ();
+                let _response = crate::Reply { reply: (), fragments: _response.fragments };
             }
         }
 
@@ -291,7 +291,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 i32
             };
             post = quote! {
-                let _response = _response.value();
+                let _response = crate::Reply { reply:  _response.value(), fragments: _response.fragments };
             }
         }
 
@@ -311,7 +311,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 bool
             };
             post = quote! {
-                let _response = _response.Value();
+                let _response = crate::Reply { reply:  _response.Value(), fragments: _response.fragments };
             }
         }
 
@@ -320,7 +320,7 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
                 String
             };
             post = quote! {
-                let _response = _response.value().to_string();
+                let _response = crate::Reply { reply:  _response.value().to_string(), fragments: _response.fragments };
             }
         }
 
@@ -328,9 +328,9 @@ fn generate_stub_rs(plugin: &Plugin, file: &mut TokenStream) {
             #[doc = #doc]
             pub fn #function_ident(
                 #parameters
-            ) -> Result<#return_token, TChannel::TError> {
+            ) -> Result<crate::Reply<#return_token>, TChannel::TError> {
                 #prep
-                let _response: #output_ident = self.channel.request(
+                let _response: crate::Reply<#output_ident> = self.channel.request(
                     #plugin_name.to_string(),
                     #function_name.to_string(),
                     request,

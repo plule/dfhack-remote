@@ -8,7 +8,7 @@ fn main() {
     let height = world_map.world_height() as usize;
 
     let mut img = Image::new(width as u32, height as u32);
-    let tiles = world_map.region_tiles;
+    let tiles = &world_map.region_tiles;
     for x in 0..width {
         for y in 0..height {
             let tile = &tiles[x + y * width];

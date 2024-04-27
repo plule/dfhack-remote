@@ -1,5 +1,3 @@
-
-
 fn main() {
     let mut client = dfhack_remote::connect().unwrap();
 
@@ -7,6 +5,6 @@ fn main() {
 
     client
         .remote_fortress_reader()
-        .set_pause_state(!status)
+        .set_pause_state(!status.reply)
         .unwrap();
 }

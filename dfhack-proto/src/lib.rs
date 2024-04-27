@@ -1,6 +1,8 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
+use std::ops::Deref;
+
 /// Raw protobuf messages
 pub mod messages {
     pub use crate::generated::messages::*;
@@ -46,7 +48,24 @@ pub trait Channel {
         plugin: String,
         name: String,
         request: TRequest,
-    ) -> Result<TReply, Self::TError>;
+    ) -> Result<Reply<TReply>, Self::TError>;
+}
+
+/// Reply to a request, it contains the actual reply value, and additional
+/// text fragments.
+pub struct Reply<T> {
+    /// The actual reply value
+    pub reply: T,
+    /// Additional text fragments received during the rpc
+    pub fragments: Vec<messages::CoreTextFragment>,
+}
+
+impl<T> Deref for Reply<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.reply
+    }
 }
 
 #[cfg(feature = "reflection")]

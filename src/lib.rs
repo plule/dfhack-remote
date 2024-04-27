@@ -90,8 +90,13 @@ pub enum Error {
     FailedToBind(String),
 
     /// DFHack RPC Error
-    #[error("RPC error: {0}.")]
-    RpcError(CommandResult),
+    #[error("RPC error: {result}.")]
+    RpcError {
+        /// Result of the RPC call
+        result: CommandResult,
+        /// Text fragments associated with the call
+        fragments: Vec<dfhack_proto::messages::CoreTextFragment>,
+    },
 }
 
 impl From<TryFromPrimitiveError<message::RpcReplyCode>> for Error {
@@ -165,12 +170,12 @@ mod tests {
 
             client
                 .remote_fortress_reader()
-                .set_pause_state(!initial_pause_status)
+                .set_pause_state(!initial_pause_status.reply)
                 .unwrap();
 
             let new_pause_status = client.remote_fortress_reader().get_pause_state().unwrap();
 
-            assert!(initial_pause_status != new_pause_status);
+            assert!(initial_pause_status.reply != new_pause_status.reply);
         }
     }
 }
