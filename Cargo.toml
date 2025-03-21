@@ -2,7 +2,7 @@
 members = [".", "dfhack-proto", "dfhack-proto-srcs"]
 
 [workspace.package]
-version = "0.9.0"
+version = "0.10.0"
 authors = ["Pierre Lulé <pierre@lule.fr>"]
 
 [package]
@@ -23,7 +23,7 @@ byteorder = "1.5.0"
 num_enum = "0.7.3"
 log = "0.4.26"
 derive_more = { version = "2.0", features = ["display"] }
-dfhack-proto = { version = "0.9.0", path = "dfhack-proto" }
+dfhack-proto = { version = "0.10.0", path = "dfhack-proto" }
 thiserror = "2"
 
 

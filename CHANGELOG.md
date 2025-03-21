@@ -10,12 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Changed
 
-- All the request now return a reply that contain both the data and the corresponding text fragments
-- General dependency update
-
 ### Removed
 
 ### Fixed
+
+## [0.10.0] - 2025-03-21
+
+### Changed
+
+- All the request now return a reply that contain both the data and the corresponding text fragments
+- General dependency update
 
 ## [0.9.0] - 2024-04-21
 
