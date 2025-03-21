@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Changed
 
 - All the request now return a reply that contain both the data and the corresponding text fragments
+- General dependency update
 
 ### Removed
 
