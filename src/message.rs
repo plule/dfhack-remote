@@ -45,7 +45,7 @@ pub enum CommandResult {
 // https://docs.dfhack.org/en/stable/docs/Remote.html#handshake-request
 // https://docs.dfhack.org/en/stable/docs/Remote.html#handshake-reply
 #[derive(Display)]
-#[display(fmt = "Handshake {} version {}", magic, version)]
+#[display("Handshake {} version {}", magic, version)]
 pub struct Handshake {
     pub magic: String,
     pub version: i32,
@@ -53,7 +53,7 @@ pub struct Handshake {
 
 // https://docs.dfhack.org/en/stable/docs/Remote.html#header
 #[derive(Display)]
-#[display(fmt = "Header id {}, size {}", id, size)]
+#[display("Header id {}, size {}", id, size)]
 pub struct Header {
     pub id: i16,
     padding: i16,
@@ -62,7 +62,7 @@ pub struct Header {
 
 // https://docs.dfhack.org/en/stable/docs/Remote.html#request
 #[derive(Display)]
-#[display(fmt = "protobuf message id {}", id)]
+#[display("protobuf message id {}", id)]
 pub struct Request<TMessage: protobuf::MessageFull> {
     pub id: i16,
     pub message: TMessage,
