@@ -18,7 +18,7 @@ serde = { version = "1", features = ["derive"] }
 [build-dependencies]
 prost = "0.14"
 prost-build = "0.14"
-dfhack-proto-srcs = { version = "0.11.0", path = "../dfhack-proto-srcs" }
+dfhack-proto-srcs = { version = "0.12.0", path = "../dfhack-proto-srcs" }
 regex = "1"
 heck = "0.5.0"
 quote = "1.0.18"
